@@ -588,10 +588,7 @@ void autonomous(int auton_sel) {
     break;
 
     case(2): //left side far
-    //hello good morning how are you doing is this working my
-    //shift isn't gosh blehhh imma hold down my shft keys until they do now lol
-    //hmmmmmmmm
-    //system.out.println9'
+
     break;
 
 
