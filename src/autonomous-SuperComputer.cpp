@@ -434,7 +434,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   //0 = rotations
   //1 = meters
   //2 = degrees
-
+  consoleLogN("moving motor: " + motor.name);
   float magnatude = position;
 
   float wheelRotations;
@@ -477,6 +477,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   float min_V = 0.1f; //the minimum voltage the motor will use
 
   while ( fabs(value) < fabs(degs-start)) {
+      consoleLog(".");
       checkForStop(); //this method should be continuously called the entire duration of the program
 
       value = fabs(motor.get_position()-start);
@@ -536,7 +537,7 @@ void bumpWall() {
 
 void extendRamp() {
   //assume starting with intake_lift at 90 degree position (straight up)
-
+  consoleLogN("extending ramp");
   pros::motor_brake_mode_e_t prevBrakeMode = intake_lift_mtr.get_brake_mode();
 
   moveMotor(intake_lift_mtr,-30 * 84/12,-255,MOVE_DEGREES);
@@ -569,7 +570,7 @@ void autonomous(int auton_sel) {
     extendRamp();
     left_intake.move(255);
     right_intake.move(255);
-    moveSquares(1);
+    moveSquares(0.1);
     left_intake.move(0);
     right_intake.move(0);
     turn(90,255);
@@ -582,7 +583,7 @@ void autonomous(int auton_sel) {
     extendRamp();
     left_intake.move(255);
     right_intake.move(255);
-    moveSquares(2);
+    moveSquares(0.1);
     left_intake.move(0);
     right_intake.move(0);
     break;
