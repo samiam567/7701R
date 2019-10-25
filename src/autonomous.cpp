@@ -539,7 +539,7 @@ void extendRamp() {
 
   pros::motor_brake_mode_e_t prevBrakeMode = intake_lift_mtr.get_brake_mode();
 
-  moveMotor(intake_lift_mtr,-30 * 84/12,255,MOVE_DEGREES);
+  moveMotor(intake_lift_mtr,-30 * 84/12,-255,MOVE_DEGREES);
   intake_lift_mtr.set_brake_mode(MOTOR_BRAKE_HOLD);
   moveMotor(ramp_mtr,45,100,MOVE_DEGREES);
   pros::delay(100);
