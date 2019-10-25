@@ -405,7 +405,6 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
     int motorCannotMoveCounter = 0;
 
     while (value < degs ) {
-      consoleLog(".");
         checkForStop(); //this method should be continuously called the entire duration of the program
 
         value = fabs(motor.get_position()-start);
