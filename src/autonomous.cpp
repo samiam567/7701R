@@ -590,6 +590,10 @@ void autonomous(int auton_sel) {
     break;
 
     case(2): //left side far
+
+    right_intake.move(255);
+    pros::delay(1500);
+    right_intake.move(0);
     /*
     left_intake.move(-255);
     right_intake.move(-255); //intakes tossing out preload
