@@ -410,7 +410,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
         value = fabs(motor.get_position()-start);
 
-        motor = speed;
+        motor.move(speed);
 
         if (fabs(motor.get_actual_velocity()) <= 0.01) motorCannotMoveCounter++;
 
