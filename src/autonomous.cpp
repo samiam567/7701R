@@ -579,7 +579,6 @@ void autonomous(int auton_sel) {
     break;
 
     case(1): //near right
-    extendRamp();
     left_intake.move(255);
     right_intake.move(255);
     moveSquares(2);
@@ -588,7 +587,7 @@ void autonomous(int auton_sel) {
     break;
 
     case(2): //left side far
-
+    pros::delay(100);
     break;
 
 
