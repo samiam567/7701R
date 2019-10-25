@@ -375,6 +375,8 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
     float wheelRotations;
 
+    consoleLogN("moving" + motor.getName());
+
     if (type == MOVE_ROTATIONS) {
       wheelRotations = magnatude;
     }else if (type == MOVE_METERS) {
@@ -403,6 +405,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
     int motorCannotMoveCounter = 0;
 
     while (value < degs ) {
+      consoleLog(".");
         checkForStop(); //this method should be continuously called the entire duration of the program
 
         value = fabs(motor.get_position()-start);
@@ -536,7 +539,7 @@ void bumpWall() {
 
 void extendRamp() {
   //assume starting with intake_lift at 90 degree position (straight up)
-
+  consoleLogN("extending ramp");
   pros::motor_brake_mode_e_t prevBrakeMode = intake_lift_mtr.get_brake_mode();
 
   moveMotor(intake_lift_mtr,-30 * 84/12,-255,MOVE_DEGREES);
