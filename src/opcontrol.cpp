@@ -174,6 +174,36 @@ void runOpControl() {
     }
 
 /*
+    if(GEAH::buttonIsPressed(driver.auto_unload)){
+    ramp_mtr.move(-15);
+
+    left_mtr_back.move(-50);
+    right_mtr_back.move(-50);
+    left_mtr_front.move(-50);
+    right_mtr_front.move(-50);
+
+    left_intake.move(-50);
+    right_intake.move(-50)
+
+    ::pros.delay(2000);
+    ramp_mtr.move(-15);
+
+    ::pros.delay(2000);
+
+    left_mtr_back.move(0);
+    right_mtr_back.move(0);
+    left_mtr_front.move(0);
+    right_mtr_front.move(0);
+
+    left_intake.move(0);
+    right_intake.move(0);
+
+    ramp_mtr.move(0);
+
+  }
+*/
+
+/*
     //aim motor
     if (GEAH::buttonIsPressed(driver.CANNON_UP)) {
       setAPIDTarget("cannonAngler", aim_mtr.get_position()+10*5);

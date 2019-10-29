@@ -96,6 +96,7 @@ namespace GEAH {
     GEAH::controllerButton intake_in, intake_out;
     GEAH::controllerButton LAUNCH_AUTON;
     GEAH::controllerButton BREAKS_ON,BREAKS_OFF;
+    //GEAH::controllerButton auto_unload;
 
 
     int LED_CONFIG;

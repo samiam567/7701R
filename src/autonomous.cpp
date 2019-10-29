@@ -607,10 +607,43 @@ void autonomous(int auton_sel) {
     break;
 
     case(2): //left side far
-    //hello good morning how are you doing is this working my
-    //shift isn't gosh blehhh imma hold down my shft keys until they do now lol
-    //hmmmmmmmm
-    //system.out.println9'
+
+    right_intake.move(255);
+    pros::delay(1500);
+    right_intake.move(0);
+    /*
+    left_intake.move(-255);
+    right_intake.move(-255); //intakes tossing out preload
+    intake_lift_mtr.move(-50); //arm goes down while intakes spins out
+    pros::delay(1500);
+
+    intake_lift_mtr.move(0); //arms freefall while intakes roll out
+    ramp_mtr.move(100); //ramp moves out also while intakes move
+    pros::delay(1500);
+
+    ramp_mtr.move(-50); //ramp go back
+    left_intake.move(0);
+    right_intake.move(0);//intakes stop
+    intake_lift_mtr.move(50); //arms up to lift ramp
+    pros::delay(500); //slight bit
+
+    ramp_mtr.move(0); // ramp motor stops for freefall
+    pros::delay(1000); //a bit longer
+
+    intake_lift_mtr.move(-50); //arms goes back back down
+    pros::delay(700);
+
+    intake_lift_mtr.move(0); //arms stop
+    left_intake.move(255); //intakes start rolling in
+    moveSquares(2); //moving forwards as intakes roll in
+
+    left_intake.move(100); //intake slows on the way back
+    right_intake.move(100);
+    turn(180,255); //turn around
+    moveSquares(1); //move back near original spot
+    left_intake.move(0); //intakes stops
+    right_intake.move(0);
+    */
     break;
 
 
