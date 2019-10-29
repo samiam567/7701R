@@ -375,7 +375,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
     float wheelRotations;
 
-    consoleLogN("moving" + motor.getName());
+    std::cout << "moving " << motor.getName() << "\n";
 
     if (type == MOVE_ROTATIONS) {
       wheelRotations = magnatude;
@@ -411,11 +411,12 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
         motor.move(speed);
 
-        if (fabs(motor.get_actual_velocity()) <= 0.01) motorCannotMoveCounter++;
+        if (fabs(motor.get_actual_velocity()) < 0.05 * speed ) motorCannotMoveCounter++;
 
-        if (motorCannotMoveCounter > 2000) {
+        if (motorCannotMoveCounter > 5000) {
           consoleLogN("Error:: motor cannot move");
           consoleLogN("Movement of Motor Terminated");
+          std::cout << "Motor cannot move, terminating motor " << motor.getName() << "\n Speed:" << motor.get_actual_velocity() << "\n";
           motor.move(0);
           return false; //motor movement was in some way inhibited
         }
@@ -539,14 +540,30 @@ void bumpWall() {
 void extendRamp() {
   //assume starting with intake_lift at 90 degree position (straight up)
   consoleLogN("extending ramp");
-  pros::motor_brake_mode_e_t prevBrakeMode = intake_lift_mtr.get_brake_mode();
+  pros::motor_brake_mode_e_t prevBrakeMode1 = intake_lift_mtr.get_brake_mode();
+  pros::motor_brake_mode_e_t prevBrakeMode2 = ramp_mtr.get_brake_mode();
 
-  moveMotor(intake_lift_mtr,-30 * 84/12,-255,MOVE_DEGREES);
+
+  moveMotor(intake_lift_mtr,-30 * 84/12,255,MOVE_DEGREES);
+
   intake_lift_mtr.set_brake_mode(MOTOR_BRAKE_HOLD);
-  moveMotor(ramp_mtr,-45,-100,MOVE_DEGREES);
-  pros::delay(100);
-  moveMotor(ramp_mtr,45,100,MOVE_DEGREES);
-  intake_lift_mtr.set_brake_mode(prevBrakeMode);
+  ramp_mtr.set_brake_mode(MOTOR_BRAKE_HOLD);
+
+  left_intake.move(-127);
+  right_intake.move(-127);
+  pros::delay(10);
+  moveMotor(ramp_mtr,40 * 80/12,80,MOVE_DEGREES);
+  pros::delay(1000);
+  left_intake.move(50);
+  right_intake.move(50);
+  moveMotor(ramp_mtr,-10 * 80/12,100,MOVE_DEGREES);
+  left_intake.move(-127);
+  right_intake.move(-127);
+  moveMotor(ramp_mtr,-30 * 80/12,100,MOVE_DEGREES);
+  left_intake.move(0);
+  right_intake.move(0);
+  intake_lift_mtr.set_brake_mode(prevBrakeMode1);
+  ramp_mtr.set_brake_mode(prevBrakeMode2);
   pros::delay(100);
 }
 
@@ -571,7 +588,7 @@ void autonomous(int auton_sel) {
     extendRamp();
     left_intake.move(255);
     right_intake.move(255);
-    moveSquares(1);
+  //  moveSquares(1);
     left_intake.move(0);
     right_intake.move(0);
     turn(90,255);
