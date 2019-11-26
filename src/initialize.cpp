@@ -99,7 +99,7 @@ GEAH::driver getDriver() {
 }
 
 bool auton_selected = false,driver_selected = false;
-std::vector<std::string> autonNames = {"left-near","right-near","left-far-park","right-far-park","far-noPark","exFarLeft","exFarRight","Skills","callibration","none"};
+std::vector<std::string> autonNames = {"backup","left-near","right-near","left-far-park","right-far-park","far-noPark","exFarLeft","exFarRight","Skills","callibration","none"};
 
 int getAuton() {
 	return auton_select;
@@ -286,6 +286,10 @@ void initialize() {
    right_mtr_front.tare_position();
 
 
+   left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+   right_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+   left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+   right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
 
   setDriveTrainPIDIsActivated(false);

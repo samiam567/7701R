@@ -72,6 +72,9 @@ void opcontrol() {
 
   initializeLVGL();
 
+
+  setDriveTrainPIDIsActivated(false);
+
   while (true) {
     runOpControl();
   }

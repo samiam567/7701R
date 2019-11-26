@@ -102,6 +102,7 @@ bool driveStraight(double magnatude, int speed, int type) {
 
       setDriveTrainPIDIsActivated(true);
 
+      int motorCannotMoveCounter = 0;
       double lSpeed = speed, rSpeed = speed;
       while ( (fabs( lValue - (wheelDegrees+lStart)) > callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) > callibrationSettings::MOTOR_POSITION_ERROR)){
         lValue = left_mtr_back.get_position();
@@ -110,31 +111,14 @@ bool driveStraight(double magnatude, int speed, int type) {
 
         double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
 
-        lSpeed = speed + vDiff;
-        rSpeed = speed - vDiff;
+        lSpeed = speed + vDiff/2;
+        rSpeed = speed - vDiff/2;
 
 
         setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
         setRightDriveTrainTarget(wheelDegrees + rStart,rSpeed);
 
-/*
-        //turn correction
-        if ( (fabs(lValue-lStart) - fabs(rValue-rStart)) < 0.5*callibrationSettings::MOTOR_POSITION_ERROR) {
-          double turn_error = fabs(lValue-lStart) - fabs(rValue-rStart);
-          if (turn_error < 0) { //left is falling behind.. slow down right
-            turn_error = fabs(turn_error);
-            setLeftDriveTrainTarget(wheelDegrees + lStart,speed + turn_error*0.2/callibrationSettings::TURN_CORRECTION);
-            setRightDriveTrainTarget(wheelDegrees + rStart,speed - turn_error*0.2/callibrationSettings::TURN_CORRECTION);
-          }else{//right is falling behind.. slow down left
-            turn_error = fabs(turn_error);
-            setLeftDriveTrainTarget(wheelDegrees + lStart,speed - turn_error*0.2/callibrationSettings::TURN_CORRECTION);
-            setRightDriveTrainTarget(wheelDegrees + rStart,speed + turn_error*0.2/callibrationSettings::TURN_CORRECTION);
-          }
-        }else{
-          setRightDriveTrainTarget(wheelDegrees + rStart,speed);
-          setLeftDriveTrainTarget(wheelDegrees + lStart,speed);
-        }
-*/
+
 
         if (counter %500==0) std::cout << "driving straight\nlValue: " << lValue << "\nrValue: " << rValue << "\ncounter:" << counter << "\n--\n";
         pros::delay(5);
@@ -142,19 +126,40 @@ bool driveStraight(double magnatude, int speed, int type) {
         counter++;
         checkForStop();
 
-        if (counter > fabs(10 + 10 * speed * wheelDegrees/M_PI/100) ) {
+        if (counter > fabs(10 + 5*(wheelDegrees/M_PI)/speed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
           std::cout << "-ERROR- DriveStraight of magn: " << wheelDegrees << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
           break;
+        }
+
+
+
+        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * speed ) {
+            motorCannotMoveCounter++;
+            speed *= 1.05;
+        }else{
+            motorCannotMoveCounter/=2;
+        }
+
+        if (motorCannotMoveCounter > 1000) {
+          consoleLogN("Error:: drivetrain cannot move");
+          consoleLogN("Turn Terminated");
+          std::cout << "Drivetrain cannot move, terminating turn " << "\n ActualVelocity:" << left_mtr_back.get_actual_velocity() << "\n";
+          setDriveTrainPIDIsActivated(false);
+          left_mtr_back.move(0);
+          right_mtr_back.move(0);
+          left_mtr_front.move(0);
+          right_mtr_front.move(0);
+          return false; //motor movement was in some way inhibited
         }
 
       }
 
       setDriveTrainPIDIsActivated(false);
       left_mtr_back.move(0);
-      right_mtr_back .move(0);
-      left_mtr_front .move(0);
-      right_mtr_front .move(0);
+      right_mtr_back.move(0);
+      left_mtr_front.move(0);
+      right_mtr_front.move(0);
 
       pros::motor_brake_mode_e_t prevBrakeMode = left_mtr_back.get_brake_mode();
 
@@ -192,7 +197,7 @@ bool driveStraight(double magnatude, int speed, int type) {
 
       if (fabs(left_mtr_back.get_actual_velocity()) <= 0.1) motorCannotMoveCounter++;
 
-      if (motorCannotMoveCounter > 2000) {
+      if (motorCannotMoveCounter > 700) {
         consoleLogN("Error:: motor cannot move");
         consoleLogN("Turn Terminated");
         return false; //motor movement was in some way inhibited
@@ -287,9 +292,17 @@ bool turn(float theta, int speed) { //theta is in degrees
       std::cout << "leftDriveTrainTarget: " << lMulti*wheelDegrees + lStart<< " degs \n";
       std::cout << "rightDriveTrainTarget: " << rMulti*wheelDegrees + rStart<< " degs \n";
 
+      int motorCannotMoveCounter = 0;
+
       double lSpeed = speed, rSpeed = speed;
       int counter = 0;
       setDriveTrainPIDIsActivated(true);
+
+      left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+      right_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+      right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+      left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+
       while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) > callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) > callibrationSettings::MOTOR_POSITION_ERROR)){
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
@@ -301,30 +314,11 @@ bool turn(float theta, int speed) { //theta is in degrees
         double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
 
 
-        lSpeed = speed + vDiff;
-        rSpeed = speed - vDiff;
+        lSpeed = speed + vDiff*0.5;
+        rSpeed = speed - vDiff*0.5;
 
         setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
         setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
-
-/*
-        //turn correction
-        if ( fabs(fabs(lValue-lStart) - fabs(rValue-rStart)) < 0.5 * callibrationSettings::MOTOR_POSITION_ERROR) {
-          double turn_error = fabs(lValue-lStart) - fabs(rValue-rStart);
-          if (turn_error < 0) { //left is falling behind.. slow down right
-            turn_error = fabs(turn_error);
-            setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart,speed + turn_error*0.5/callibrationSettings::TURN_CORRECTION);
-            setRightDriveTrainTarget(rMulti*wheelDegrees + rStart, speed - turn_error*0.5/callibrationSettings::TURN_CORRECTION);
-          }else{//right is falling behind.. slow down left
-            turn_error = fabs(turn_error);
-            setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart,speed - turn_error*0.5/callibrationSettings::TURN_CORRECTION);
-            setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,speed + turn_error*0.5/callibrationSettings::TURN_CORRECTION);
-          }
-        }else{
-          setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart,speed);
-          setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,speed);
-        }
-*/
 
         if (counter %100==0) std::cout << "turning straight\nlValue: " << lValue << "\nrValue: " << rValue << "\n counter: " << counter << "--\n";
         pros::delay(1);
@@ -332,26 +326,46 @@ bool turn(float theta, int speed) { //theta is in degrees
         counter++;
         checkForStop();
 
-        if (counter > fabs(10 + speed * theta/M_PI) ) {
+        if (counter > fabs(10 + 5*(theta/M_PI)/speed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
           std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << fabs(speed * theta/M_PI) << ") \n" << "terminating turn... \n";\
           break;
         }
 
+
+
+        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * speed ) {
+          motorCannotMoveCounter++;
+          speed *= 1.05;
+        }else{
+            motorCannotMoveCounter/=2;
+        }
+
+        if (motorCannotMoveCounter > 1000) {
+          consoleLogN("Error:: drivetrain cannot move");
+          consoleLogN("Turn Terminated");
+          std::cout << "Drivetrain cannot move, terminating turn " << "\n ActualVelocity:" << left_mtr_back.get_actual_velocity() << "\n";
+          setDriveTrainPIDIsActivated(false);
+          left_mtr_back.move(0);
+          right_mtr_back.move(0);
+          left_mtr_front.move(0);
+          right_mtr_front.move(0);
+          return false; //motor movement was in some way inhibited
+        }
+
+        pros::delay(1);
+
       }
 
       setDriveTrainPIDIsActivated(false);
-      left_mtr_back .move(0);
-      right_mtr_back .move(0);
-      left_mtr_front .move(0);
-      right_mtr_front .move(0);
+      left_mtr_back.move(0);
+      right_mtr_back.move(0);
+      left_mtr_front.move(0);
+      right_mtr_front.move(0);
 
       pros::motor_brake_mode_e_t prevBrakeMode = left_mtr_back.get_brake_mode();
 
-      left_mtr_back.set_brake_mode(MOTOR_BRAKE_HOLD);
-      right_mtr_back.set_brake_mode(MOTOR_BRAKE_HOLD);
-      right_mtr_front.set_brake_mode(MOTOR_BRAKE_HOLD);
-      left_mtr_front.set_brake_mode(MOTOR_BRAKE_HOLD);
+
       pros::delay(100);
       left_mtr_back.set_brake_mode(prevBrakeMode);
       right_mtr_back.set_brake_mode(prevBrakeMode);
@@ -411,18 +425,24 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
         motor.move(speed);
 
-        if (fabs(motor.get_actual_velocity()) < 0.05 * speed ) motorCannotMoveCounter++;
+        if (fabs(motor.get_actual_velocity()) < 0.05 * speed ) {
+          motorCannotMoveCounter++;
+        }else{
+            motorCannotMoveCounter/=2;
+        }
 
-        if (motorCannotMoveCounter > 5000) {
+        if (motorCannotMoveCounter > 1000) {
           consoleLogN("Error:: motor cannot move");
           consoleLogN("Movement of Motor Terminated");
           std::cout << "Motor cannot move, terminating motor " << motor.getName() << "\n Speed:" << motor.get_actual_velocity() << "\n";
           motor.move(0);
           return false; //motor movement was in some way inhibited
         }
+
+        pros::delay(1);
     }
 
-    //set all motors to zero after the bot has gone the specified amount
+    //set motor to zero after the bot has gone the specified amount
     motor.move(0);
 
     std::vector<GEAH::Motor>motors{motor};
@@ -457,10 +477,6 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
     wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
     degs = fabs(360*wheelRotations);
   }
-
-
-  //if the motor is already at the correct position then don't move
-//  if (fabs(motor.get_position() - degs) < callibrationSettings::MOTOR_POSITION_ERROR) return;
 
   double value,start;
 
@@ -499,7 +515,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   }
 
   //reverse motor to counter momentum
-  motor .move(0);
+  motor.move(0);
   pros::delay(150);
   motor.set_brake_mode(prevBrakeMode);
 
@@ -540,15 +556,23 @@ void bumpWall() {
 void extendRamp() {
   //assume starting with intake_lift at 90 degree position (straight up)
   consoleLogN("extending ramp");
-  moveMotor(intake_lift_mtr,110 * 84/12,255,MOVE_DEGREES);
-  pros::delay(200);
-  moveMotor(intake_lift_mtr,-90*84/12,255,MOVE_DEGREES);
+  ramp_mtr.tare_position();
+  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+  if (moveMotor(intake_lift_mtr,80 * 84/12,255,MOVE_DEGREES)) {
+      setMotorPosition(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+    pros::delay(200);
+    moveMotor(intake_lift_mtr,-80*84/12,255,MOVE_DEGREES);
+  }
 }
 
 
 void autonomous(int auton_sel);
 
 void autonomous() {
+  left_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
+  right_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
+  left_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
+  right_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
   autonomous(getAuton());
 }
 
@@ -561,8 +585,15 @@ void autonomous(int auton_sel) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
+    case(0)://backup
+    moveSquares(-1.2);
+    moveSquares(1.2);
+    extendRamp();
+    break;
 
-    case(0): //near left
+    case(1): //near left
+    moveSquares(.1);
+    turn(90 * SIDE_LEFT,100);
     extendRamp();
     moveSquares(.3);
     turn(-90 * SIDE_LEFT,100);
@@ -571,12 +602,14 @@ void autonomous(int auton_sel) {
     right_intake.move(255);
     moveSquares(1);
     pros::delay(50);
-    moveSquares(1);
+    moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
     break;
 
-    case(1): //near right
+    case(2): //near right
+    moveSquares(.1);
+    turn(90 * SIDE_RIGHT,100);
     extendRamp();
     moveSquares(.3);
     turn(-90 * SIDE_RIGHT,100);
@@ -585,33 +618,58 @@ void autonomous(int auton_sel) {
     right_intake.move(255);
     moveSquares(1);
     pros::delay(50);
-    moveSquares(1);
+    moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
     break;
 
-    case(2): //left side far
+    case(3): //left side far
+    moveSquares(.1);
+    turn(90 * SIDE_LEFT,100);
+    autonomous(getAuton("backup"));
+    moveSquares(.4);
+    turn(-90 * SIDE_LEFT,100);
+    bumpWall();
+    left_intake.move(255);
+    right_intake.move(255);
+    moveSquares(1);
+    pros::delay(50);
+    moveSquares(0.5);
+    left_intake.move(0);
+    right_intake.move(0);
 
     break;
 
-
-    case(3): //right side far
+    case(4): //right side far
+    moveSquares(.1);
+    turn(90 * SIDE_RIGHT,100);
+    autonomous(getAuton("backup"));
+    moveSquares(.4);
+    turn(-90 * SIDE_RIGHT,100);
+    bumpWall();
+    left_intake.move(255);
+    right_intake.move(255);
+    moveSquares(1);
+    pros::delay(50);
+    moveSquares(0.5);
+    left_intake.move(0);
+    right_intake.move(0);
 
     break;
 
-    case(4): //far-noPark
+    case(5): //far-noPark
 
       break;
 
-    case(5): //experimental left far
+    case(6): //experimental left far
 
       break;
 
-    case(6): //experimental far right
+    case(7): //experimental far right
 
     break;
 
-    case(7): //skills
+    case(8): //skills
 
     break;
 
