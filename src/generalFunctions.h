@@ -97,27 +97,19 @@ namespace GEAH {
     GEAH::controllerButton lockWheelsIntake;
     GEAH::controllerButton LAUNCH_AUTON;
     GEAH::controllerButton BREAKS_ON,BREAKS_OFF;
-    //GEAH::controllerButton auto_unload;
 
 
-    int LED_CONFIG;
+
+
   };
 }
 
-//projectile functions
-void fire(); //fire the cannon (projectile_calculations.cpp)
-void autoFire(const int flag); //autoFire the cannon (projectile_calculations.cpp)
-float getXDistance(); //get x distance from flag with ultrasonic sensor (projectile_calculations.cpp)
-void setXDistFromTarget(float xDist1); //set the x distance from the flag
-bool aim(const int flag); //aim the barrel at the specified flag (note: aim will not get the xDistance by itself and getXDistance() or setXDistance(float xDist1) must be called first)
-int findAimAngle(const int flag, int numCalculations); //finds the angle of the barrel to fire at the given flag. Basically the same as aim(const int flag) except this function will return the degree value instead of physically aiming the barrel.
-float getXDistance();
+
 
 GEAH::driver getDriver(); //(in initialize.cpp)
 
 //autoPilot (in autoPilot.cpp)
 void autoPilotController(long loops);
-void setTargetCannonAngle(double theta);
 void setAPIDTarget(std::string apidName, double targPos);
 void setAPIDIsActivated(std::string apidName, bool isActivated);
 double getAPIDTarget(std::string apidName);
