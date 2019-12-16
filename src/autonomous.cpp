@@ -554,7 +554,7 @@ void bumpWall() {
 }
 
 void extendRamp() {
-  //assume starting with intake_lift at 90 degree position (straight up)
+
   consoleLogN("extending ramp");
   ramp_mtr.tare_position();
   moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);

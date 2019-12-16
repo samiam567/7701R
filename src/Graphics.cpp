@@ -179,7 +179,7 @@ HEEA_Graphics::RotatableShape makeShape() {
   //making shapes
   using namespace HEEA_Graphics;
 
-  int size = 5;
+  int size = 15;
 
   lv_style_copy(&HEEA_Style, &lv_style_plain);    /*Copy a built-in style to initialize the new style*/
   HEEA_Style.line.width = 2;
