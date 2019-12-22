@@ -452,6 +452,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
     return true;
 }
 
+
 bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { //return true if successful, false if not
   //for type:
   //0 = rotations
@@ -554,7 +555,7 @@ void bumpWall() {
 }
 
 void extendRamp() {
-
+/*
   consoleLogN("extending ramp");
   ramp_mtr.tare_position();
   moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
@@ -563,6 +564,7 @@ void extendRamp() {
     pros::delay(200);
     moveMotor(intake_lift_mtr,-80*84/12,255,MOVE_DEGREES);
   }
+  */
 }
 
 
@@ -575,6 +577,8 @@ void autonomous() {
   right_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
   autonomous(getAuton());
 }
+
+
 
 void autonomous(int auton_sel) {
   setDriveTrainPIDIsActivated(true);

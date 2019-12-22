@@ -5,6 +5,7 @@ std::vector<double> calculateRotation(double xComponent, double yComponent, doub
 
 namespace HEEA_Graphics {
 
+
   class Physics_object {
     protected:
       double x,y,z,q;
@@ -119,6 +120,8 @@ namespace HEEA_Graphics {
         calculateSize();
         updateLine();
       }
+
+      
 
       Shape(lv_obj_t * renderLine1, std::vector<Point> points1, std::vector<int> pointRenderOrder1) : Physics_object(0,0,0,0), points(points1), renderLine(renderLine1), pointRenderOrder(pointRenderOrder1)  {
         customPointRenderOrder = true;

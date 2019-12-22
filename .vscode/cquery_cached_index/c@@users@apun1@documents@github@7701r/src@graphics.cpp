@@ -7,11 +7,15 @@
 #include "Settings.h"
 
 void sayHello() {
+
+bool displayText = false;
+
+if (displayText)  {
   /*Create a Label on the currently active screen*/
     lv_obj_t * label1 =  lv_label_create(lv_scr_act(), NULL);
 
     /*Modify the Label's text*/
-    lv_label_set_text(label1, "7701R - Rampaging Ryeceritops");
+    lv_label_set_text(label1, "7701R - Revengers");
 
     /* Align the Label to the center
      * NULL means align on parent (which is the screen n ow)
@@ -50,6 +54,7 @@ void sayHello() {
     lv_obj_t * line3 = lv_line_create(lv_scr_act(), line1);
     lv_line_set_style(line3, &style_line3);
     lv_obj_align(line3, line2, LV_ALIGN_OUT_BOTTOM_MID, 0, -20);
+  }
 }
 
 
@@ -179,10 +184,10 @@ HEEA_Graphics::RotatableShape makeShape() {
   //making shapes
   using namespace HEEA_Graphics;
 
-  int size = 15;
+  int size = 40;
 
   lv_style_copy(&HEEA_Style, &lv_style_plain);    /*Copy a built-in style to initialize the new style*/
-  HEEA_Style.line.width = 2;
+  HEEA_Style.line.width = size/10;
   HEEA_Style.body.main_color = LV_COLOR_BLACK;
 
 /*
@@ -409,9 +414,10 @@ std::vector<Point> breadPoints{
 
   //set attributes of the square
   shape.setPos(100,100,0,0);
-  shape.setSpeed(10,5,0,0);
+  shape.setSpeed(5,2,0,0);
 //  square1.setAngularVelocity(0.1,0.07,0.08,0.2,0.1,0.06);
-  shape.setAngularVelocity(0.1,0.07,0.08,0,0,0);
+  shape.setRotation(0.2, 0.3, 0.1, 0, 0, 0);
+  shape.setAngularVelocity(0,0,0,0.1,0.1,0.1);
 
   return shape;
 }
