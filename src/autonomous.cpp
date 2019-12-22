@@ -567,6 +567,24 @@ void extendRamp() {
   */
 }
 
+void extendRamptest() {
+
+  consoleLogN("extending ramp");
+  ramp_mtr.tare_position();
+  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+  left_intake.move(-255);
+  right_intake.move(-255);
+  if (moveMotor(intake_lift_mtr,80 * 84/12,255,MOVE_DEGREES)) {
+
+      setMotorPosition(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+      pros::delay(20);
+
+      moveMotor(intake_lift_mtr,-76*84/12,255,MOVE_DEGREES);
+      left_intake.move(0);
+      left_intake.move(0);
+
+  }
+}
 
 void autonomous(int auton_sel);
 
@@ -674,6 +692,40 @@ void autonomous(int auton_sel) {
     break;
 
     case(8): //skills
+
+    break;
+
+    case(9): //calibration
+
+    break;
+
+    case(10): //none
+
+
+    break;
+
+    case(11): //tests
+
+     left_mtr_back.move(20);
+     right_mtr_back.move(20);
+     left_mtr_front.move(20);
+     right_mtr_front.move(20);
+     extendRamptest();
+     left_intake.move(255);
+     right_intake.move(255);
+     driveStraight(4, 100, MOVE_ROTATIONS);
+     left_intake.move(100);
+     right_intake.move(100);
+     moveSquares(-.75);
+     turn(-135 * SIDE_RIGHT, 255);
+     moveSquares(.5);
+     moveMotor(ramp_mtr, 70*84/12 , 70, MOVE_DEGREES);
+     left_mtr_back.move(-50);
+     right_mtr_back.move(-50);
+     left_mtr_front.move(-50);
+     right_mtr_front.move(-50);
+     left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+     right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
 
     break;
 
