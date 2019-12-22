@@ -719,7 +719,7 @@ void autonomous(int auton_sel) {
      moveSquares(-.75);
      turn(-135 * SIDE_RIGHT, 255);
      moveSquares(.5);
-     moveMotor(ramp_mtr, 70*84/12 , 70, MOVE_DEGREES);
+     moveMotor(ramp_mtr, 1182 , 70, MOVE_DEGREES);
      left_mtr_back.move(-50);
      right_mtr_back.move(-50);
      left_mtr_front.move(-50);
