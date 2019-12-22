@@ -706,6 +706,7 @@ void autonomous(int auton_sel) {
 
     case(11): //tests
 
+/*
      left_mtr_back.move(20);
      right_mtr_back.move(20);
      left_mtr_front.move(20);
@@ -726,6 +727,53 @@ void autonomous(int auton_sel) {
      right_mtr_front.move(-50);
      left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
      right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+*/
+
+
+//Here are my suggestions for what to do:
+
+
+//////////inside extend ramp function//////////////////////////////////////////////
+//instead of running the wheels in the background and the arms in the foreground, I would do just the opposite by using the arm pids
+  setAPIDIsActivated("intake_lift_PID", true); //turn on the arm autopilot
+  consoleLogN("extending ramp");
+  ramp_mtr.tare_position();
+  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+
+    //turn on the intakes
+  left_intake.move(-255);
+  right_intake.move(-255);
+  setAPIDTarget("intake_lift_PID", 80 * 84/12);
+////////////////////////////////////////////////////////////////////////////////////
+
+//then just go about whatever else you wanted to do with the auton until you need the arms again
+driveStraight(2, 100, MOVE_ROTATIONS);
+
+setAPIDTarget("intake_lift_PID", 0); //bring the arms back down
+//stop the intakes
+left_intake.move(0);
+right_intake.move(0);
+
+driveStraight(2,100,MOVE_ROTATIONS); //just keep driving, just keep driving...
+
+//then when you need the arms again call turn off the pids and you can use the arms as normal
+setAPIDIsActivated("intake_lift_PID", false); //don't forget to turn of the arm autopilot when you're done!
+
+
+
+left_intake.move(100);
+right_intake.move(100);
+moveSquares(-.75);
+turn(-135 * SIDE_RIGHT, 255);
+moveSquares(.5);
+moveMotor(ramp_mtr, 70*84/12 , 70, MOVE_DEGREES);
+left_mtr_back.move(-50);
+right_mtr_back.move(-50);
+left_mtr_front.move(-50);
+right_mtr_front.move(-50);
+left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+
 
     break;
 
