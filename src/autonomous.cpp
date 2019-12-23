@@ -736,6 +736,7 @@ void autonomous(int auton_sel) {
       moveSquares(-0.73);
       turn(140 * SIDE_LEFT, 255);
       moveSquares(.8);
+      pros::delay(100);
 
       //////STACK///////////
       left_intake.move(20);
