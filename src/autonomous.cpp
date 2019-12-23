@@ -624,7 +624,7 @@ void unloadStack(double blockNumber) {
     setIntakeAPIDTargetAndSpeed(-30, 200); //place blocks on ground bc not heavy enough
   }
 
-  if(blockNumber>=6){
+  if(blockNumber>6){
     setIntakeAPIDTargetAndSpeed(-10, 200); //teensy bit should work
   }
 
