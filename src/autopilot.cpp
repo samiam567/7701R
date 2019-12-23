@@ -286,6 +286,11 @@ void setAPIDTarget(std::string apidName, double targPos) {
   (*getRealTimePositionController(apidName)).setTargetPosition(targPos);
 }
 
+void setAPIDTargetAndSpeed(std::string apidName, double targPos, double speed) {
+  (*getRealTimePositionController(apidName)).setTargetPosition(targPos);
+  (*getRealTimePositionController(apidName)).setSpeedModifier(speed/63.5);
+}
+
 void setAPIDIsActivated(std::string apidName, bool isActivated) {
     (*getRealTimePositionController(apidName)).setIsActivated(isActivated);
 }

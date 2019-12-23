@@ -706,74 +706,64 @@ void autonomous(int auton_sel) {
 
     case(11): //tests
 
-/*
-     left_mtr_back.move(20);
-     right_mtr_back.move(20);
-     left_mtr_front.move(20);
-     right_mtr_front.move(20);
-     extendRamptest();
-     left_intake.move(255);
-     right_intake.move(255);
-     driveStraight(4, 100, MOVE_ROTATIONS);
-     left_intake.move(100);
-     right_intake.move(100);
-     moveSquares(-.75);
-     turn(-135 * SIDE_RIGHT, 255);
-     moveSquares(.5);
-     moveMotor(ramp_mtr, 1182 , 70, MOVE_DEGREES);
-     left_mtr_back.move(-50);
-     right_mtr_back.move(-50);
-     left_mtr_front.move(-50);
-     right_mtr_front.move(-50);
-     left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-     right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-*/
+      //ATTEMPTING TO GRAB 4 BLOCKS BLUE LEFT///
+
+      /////////START EXTENDING RAMP//////////////
+      consoleLogN("Let's attempt extending the ramp!");
+      ramp_mtr.tare_position();
+      intake_lift_mtr.tare_position();
+      setAPIDIsActivated("ramp_PID", true);
+      setAPIDTargetAndSpeed("ramp_PID", 50 * 84/12, 255);
+      left_intake.move(-255);
+      right_intake.move(-255);
+      moveMotor(intake_lift_mtr, 80 * 84/12, 255, MOVE_DEGREES);
+      left_intake.move(0);
+      right_intake.move(0);
+      setAPIDIsActivated("intake_lift_PID", true);
+      setAPIDTargetAndSpeed("intake_lift_PID", 0, 255);
+      setAPIDTarget("ramp_PID", 0);
+      driveStraight(.93, 190, MOVE_ROTATIONS); //Move distance from start to touching first block
+      /////////END EXTENDING RAMP////////////
+
+      ////GRABBING 4 BLOCKS////
+      left_intake.move(255);
+      right_intake.move(255);
+      moveSquares(1);
+      left_intake.move(0);
+      right_intake.move(0);
+
+      //////MOVE TO UNLOAD//////
+      moveSquares(-0.73);
+      turn(140 * SIDE_LEFT, 255);
+      moveSquares(.8);
+
+      //////STACK///////////
+      left_intake.move(20);
+      right_intake.move(20);
+      setAPIDTarget("ramp_PID", 80 * 84/12);
+      moveSquares(.01);
 
 
-//Here are my suggestions for what to do:
+      ///////UNLOAD///////////
+      pros::delay(10);
+      left_mtr_back.move(-100);
+      left_mtr_front.move(-100);
+      right_mtr_back.move(-100);
+      right_mtr_back.move(-100);
+      left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+      right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+      pros::delay(1000);
 
+      /////STOP/////////
+      left_mtr_back.move(0);
+      left_mtr_front.move(0);
+      right_mtr_back.move(0);
+      right_mtr_back.move(0);
+      left_intake.move(0);
+      right_intake.move(0);
 
-//////////inside extend ramp function//////////////////////////////////////////////
-//instead of running the wheels in the background and the arms in the foreground, I would do just the opposite by using the arm pids
-  setAPIDIsActivated("intake_lift_PID", true); //turn on the arm autopilot
-  consoleLogN("extending ramp");
-  ramp_mtr.tare_position();
-  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
-
-    //turn on the intakes
-  left_intake.move(-255);
-  right_intake.move(-255);
-  setAPIDTarget("intake_lift_PID", 80 * 84/12);
-////////////////////////////////////////////////////////////////////////////////////
-
-//then just go about whatever else you wanted to do with the auton until you need the arms again
-driveStraight(2, 100, MOVE_ROTATIONS);
-
-setAPIDTarget("intake_lift_PID", 0); //bring the arms back down
-//stop the intakes
-left_intake.move(0);
-right_intake.move(0);
-
-driveStraight(2,100,MOVE_ROTATIONS); //just keep driving, just keep driving...
-
-//then when you need the arms again call turn off the pids and you can use the arms as normal
-setAPIDIsActivated("intake_lift_PID", false); //don't forget to turn of the arm autopilot when you're done!
-
-
-
-left_intake.move(100);
-right_intake.move(100);
-moveSquares(-.75);
-turn(-135 * SIDE_RIGHT, 255);
-moveSquares(.5);
-moveMotor(ramp_mtr, 70*84/12 , 70, MOVE_DEGREES);
-left_mtr_back.move(-50);
-right_mtr_back.move(-50);
-left_mtr_front.move(-50);
-right_mtr_front.move(-50);
-left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-
+      setAPIDIsActivated("ramp_PID", false);
+      setAPIDIsActivated("intake_lift_PID", false);
 
     break;
 
