@@ -95,6 +95,8 @@ namespace GEAH {
     GEAH::controllerButton intake_up, intake_down;
     GEAH::controllerButton intake_in, intake_out;
     GEAH::controllerButton lockWheelsIntake;
+    GEAH::controllerButton unloadReset;
+    GEAH::controllerButton towerLow, towerHigh;
     GEAH::controllerButton LAUNCH_AUTON;
     GEAH::controllerButton BREAKS_ON,BREAKS_OFF;
 

@@ -158,7 +158,17 @@ void runOpControl() {
       setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(-200);
   //    setAPIDTarget("intake_lift_PID", getAPIDTarget("intake_lift_PID") - intakeLiftSpeed);
+    }else if (GEAH::buttonIsPressed(driver.unloadReset)) {
+      setAPIDIsActivated("intake_lift_PID", true);
+      setAPIDTarget("intake_lift_PID", 0);
+    }else if (GEAH::buttonIsPressed(driver.towerLow)) {
+      setAPIDIsActivated("intake_lift_PID", true);
+      setAPIDTarget("intake_lift_PID", 900);
+    }else if (GEAH::buttonIsPressed(driver.towerHigh)) {
+      setAPIDIsActivated("intake_lift_PID", true);
+      setAPIDTarget("intake_lift_PID", 1200);
     }else{
+      setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(0);
     }
 
@@ -180,10 +190,22 @@ void runOpControl() {
     }
 
     if (GEAH::buttonIsPressed(driver.ramp_up)) {
+      setAPIDIsActivated("ramp_PID", false);
       ramp_mtr.move(100);
     }else if (GEAH::buttonIsPressed(driver.ramp_down)) {
+      setAPIDIsActivated("ramp_PID", false);
       ramp_mtr.move(-100);
+    }else if (GEAH::buttonIsPressed(driver.unloadReset)) {
+      setAPIDIsActivated("ramp_PID", true);
+      setAPIDTarget("ramp_PID", 3);
+    }else if (GEAH::buttonIsPressed(driver.towerLow)) {
+      setAPIDIsActivated("ramp_PID", true);
+      setAPIDTarget("ramp_PID", 60 * 84/12);
+    }else if (GEAH::buttonIsPressed(driver.towerHigh)) {
+      setAPIDIsActivated("ramp_PID", true);
+      setAPIDTarget("ramp_PID", 60 * 84/12);
     }else{
+      setAPIDIsActivated("ramp_PID", false);
       ramp_mtr.move(0);
     }
 

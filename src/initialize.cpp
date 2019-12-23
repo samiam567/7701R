@@ -65,9 +65,9 @@ GEAH::controllerButton getButtonObject(std::string name) {
 
 //drivers
 namespace GEAH {
-driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
-driver Hayden{"Hayden \"Xerminator13\" Corbin",1,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("sc0UP"),getButtonObject("c0B"),getButtonObject("sc0B")};
-driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("sc0R2"),getButtonObject("sc0R1"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Hayden{"Hayden \"Xerminator13\" Corbin",1,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("sc0R2"),getButtonObject("sc0R1"),getButtonObject("sc0UP"),getButtonObject("c0B"),getButtonObject("sc0B")};
+driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("sc0R2"),getButtonObject("sc0R1"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 
 }
 
@@ -296,6 +296,7 @@ void initialize() {
 
   setDriveTrainPIDIsActivated(false);
   setAPIDIsActivated("intake_lift_PID", false);
+  setAPIDIsActivated("ramp_PID", false);
   pros::delay(10);
 
   std::cout << "Successfully initialized.\n";
