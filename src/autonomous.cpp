@@ -781,8 +781,6 @@ void autonomous(int auton_sel) {
       testNumber = 1;
 
 
-      consoleLogN("Attempting Autonomous Test:");
-      consoleLogN((char)testNumber);
 
 
       if(testNumber == 0 ){
@@ -790,6 +788,7 @@ void autonomous(int auton_sel) {
       }
 
       if(testNumber == 1){//ATTEMPTING TO GRAB 4 BLOCKS BLUE SHORT ZONE///
+        consoleLogN("Attempting Autonomous Test: Blue Short Zone");
         extendRamptest(30);
         grabBlocks(4,150);
 
@@ -803,6 +802,7 @@ void autonomous(int auton_sel) {
 
       if(testNumber == 2){
         //ATTEMPTING TO GRAB 4 BLOCKS RED SHORT ZONE
+        consoleLogN("Attempting Autonomous Test: Red Short Zone");
         extendRamptest(30);
         grabBlocks(4, 150);
 
@@ -815,11 +815,42 @@ void autonomous(int auton_sel) {
       }
 
       if(testNumber == 3 ){
+        consoleLogN("Attempting Autonomous Test: Blue Long Zone");
+        extendRamptest(5.2);
+
+        left_intake.move(255);
+        right_intake.move(255);
+        moveSquares(1.5);
+        left_intake.move(100);
+        right_intake.move(100);
+
+        turn(365 * SIDE_RIGHT, 255);
+        moveSquares(1.9);
+        left_intake.move(0);
+        right_intake.move(0);
+
+        unloadStack(5);
+
 
       }
 
       if(testNumber == 4 ){
+        consoleLogN("Attempting Autonomous Test: Red Short Zone");
 
+        extendRamptest(5.2);
+
+        left_intake.move(255);
+        right_intake.move(255);
+        moveSquares(1.5);
+        left_intake.move(100);
+        right_intake.move(100);
+
+        turn(365 * SIDE_LEFT, 255);
+        moveSquares(1.9);
+        left_intake.move(0);
+        right_intake.move(0);
+
+        unloadStack(5);
       }
 
 
