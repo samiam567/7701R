@@ -567,23 +567,90 @@ void extendRamp() {
   */
 }
 
-void extendRamptest() {
+void extendRamptest(double distance) {
+  //Distance from wall to block in INCHES
+  double rotationsRequired;
+  double distanceToBlock;
+  distanceToBlock = distance - 18;
+  rotationsRequired = distanceToBlock/12.56637 - 0.2;
 
-  consoleLogN("extending ramp");
+  consoleLogN("Let's attempt extending the ramp!");
   ramp_mtr.tare_position();
-  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+  intake_lift_mtr.tare_position();
+
+  setAPIDIsActivated("ramp_PID", true);
+  setAPIDTargetAndSpeed("ramp_PID", 50 * 84/12, 255);
   left_intake.move(-255);
   right_intake.move(-255);
-  if (moveMotor(intake_lift_mtr,80 * 84/12,255,MOVE_DEGREES)) {
+  moveMotor(intake_lift_mtr, 80 * 84/12, 255, MOVE_DEGREES);
+  left_intake.move(0);
+  right_intake.move(0);
+  setAPIDIsActivated("intake_lift_PID", true);
+  setAPIDTargetAndSpeed("intake_lift_PID", 0, 255);
+  setAPIDTarget("ramp_PID", 0);
+  driveStraight(rotationsRequired, 190, MOVE_ROTATIONS); //Move distance from start to touching first block
+  /////////END EXTENDING RAMP////////////
+  setAPIDIsActivated("ramp_PID", false);
+  setAPIDIsActivated("intake_lift_PID", false);
 
-      setMotorPosition(ramp_mtr,50*84/12,255,MOVE_DEGREES);
-      pros::delay(20);
+}
 
-      moveMotor(intake_lift_mtr,-76*84/12,255,MOVE_DEGREES);
-      left_intake.move(0);
-      left_intake.move(0);
 
+//Move forward and pick up x number of blocks
+void grabBlocks(int blockNumber){
+  double moveAmount;
+
+  moveAmount = 0.25 * (double)blockNumber + 0.1;
+
+
+  left_intake.move(255);
+  right_intake.move(255);
+  moveSquares(moveAmount);
+  pros::delay(10);
+
+  left_intake.move(0);
+  right_intake.move(0);
+
+}
+
+//Stack after reaching short or long zone.
+void unloadStack(double blockNumber) {
+  setIntakeAPIDIsActivated(true);
+
+  if(blockNumber<=6){
+    setIntakeAPIDTargetAndSpeed(-30, 200); //place blocks on ground bc not heavy enough
   }
+
+  if(blockNumber>=6){
+    setIntakeAPIDTargetAndSpeed(-10, 200); //teensy bit should work
+  }
+
+  //////STACK///////////
+  setIntakeAPIDTargetAndSpeed(20, 40); //make sure blocks do not protrude
+  moveMotor(ramp_mtr, 80, 200, MOVE_DEGREES);
+  moveSquares(.02);
+
+  setIntakeAPIDIsActivated(false);
+
+  ///////BACKUP///////////
+  pros::delay(10);
+  left_mtr_back.tare_position();
+  right_mtr_back.tare_position();
+  left_mtr_front.tare_position();
+  right_mtr_front.tare_position();
+  setDriveTrainPIDIsActivated(true);
+  setDriveTrainTarget(-360 * 2, 150);
+
+  pros::delay(10);
+  left_intake.move(-150);
+  right_intake.move(-150);
+  pros::delay(500);
+
+  /////STOP/////////
+  setDriveTrainPIDIsActivated(false);
+  left_intake.move(0);
+  right_intake.move(0);
+
 }
 
 void autonomous(int auton_sel);
@@ -707,64 +774,17 @@ void autonomous(int auton_sel) {
     case(11): //tests
 
       //ATTEMPTING TO GRAB 4 BLOCKS BLUE LEFT///
-
-      /////////START EXTENDING RAMP//////////////
-      consoleLogN("Let's attempt extending the ramp!");
-      ramp_mtr.tare_position();
-      intake_lift_mtr.tare_position();
-      setAPIDIsActivated("ramp_PID", true);
-      setAPIDTargetAndSpeed("ramp_PID", 50 * 84/12, 255);
-      left_intake.move(-255);
-      right_intake.move(-255);
-      moveMotor(intake_lift_mtr, 80 * 84/12, 255, MOVE_DEGREES);
-      left_intake.move(0);
-      right_intake.move(0);
-      setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 0, 255);
-      setAPIDTarget("ramp_PID", 0);
-      driveStraight(.93, 190, MOVE_ROTATIONS); //Move distance from start to touching first block
-      /////////END EXTENDING RAMP////////////
-
-      ////GRABBING 4 BLOCKS////
-      left_intake.move(255);
-      right_intake.move(255);
-      moveSquares(1);
-      left_intake.move(0);
-      right_intake.move(0);
-
-      //////MOVE TO UNLOAD//////
+      extendRamptest(30);
+      grabBlocks(4);
+      
+      //////MOVE TO UNLOADING SQUARE//////
       moveSquares(-0.73);
       turn(140 * SIDE_LEFT, 255);
       moveSquares(.8);
       pros::delay(100);
 
-      //////STACK///////////
-      left_intake.move(20);
-      right_intake.move(20);
-      setAPIDTarget("ramp_PID", 80 * 84/12);
-      moveSquares(.01);
+      unloadStack(4);
 
-
-      ///////UNLOAD///////////
-      pros::delay(10);
-      left_mtr_back.move(-100);
-      left_mtr_front.move(-100);
-      right_mtr_back.move(-100);
-      right_mtr_back.move(-100);
-      left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-      right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-      pros::delay(1000);
-
-      /////STOP/////////
-      left_mtr_back.move(0);
-      left_mtr_front.move(0);
-      right_mtr_back.move(0);
-      right_mtr_back.move(0);
-      left_intake.move(0);
-      right_intake.move(0);
-
-      setAPIDIsActivated("ramp_PID", false);
-      setAPIDIsActivated("intake_lift_PID", false);
 
     break;
 
