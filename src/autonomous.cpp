@@ -598,10 +598,11 @@ void extendRamptest(double distance) {
 
 //Move forward and pick up x number of blocks
 void grabBlocks(int blockNumber, int speed){
+
+  consoleLogN("Grabbing Blocks");
+
   double moveAmount;
-
   moveAmount = 0.25 * (double)blockNumber + 0.1;
-
 
   left_intake.move(255);
   right_intake.move(255);
@@ -615,6 +616,8 @@ void grabBlocks(int blockNumber, int speed){
 
 //Stack after reaching short or long zone.
 void unloadStack(double blockNumber) {
+
+  consoleLogN("Unloading Stack");
   setIntakeAPIDIsActivated(true);
 
   if(blockNumber<=6){
@@ -776,6 +779,11 @@ void autonomous(int auton_sel) {
 
       double testNumber;
       testNumber = 1;
+
+
+      consoleLogN("Attempting Autonomous Test:");
+      consoleLogN((char)testNumber);
+
 
       if(testNumber == 0 ){
         //NULL
