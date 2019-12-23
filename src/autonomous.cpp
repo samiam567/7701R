@@ -597,7 +597,7 @@ void extendRamptest(double distance) {
 
 
 //Move forward and pick up x number of blocks
-void grabBlocks(int blockNumber){
+void grabBlocks(int blockNumber, int speed){
   double moveAmount;
 
   moveAmount = 0.25 * (double)blockNumber + 0.1;
@@ -605,7 +605,7 @@ void grabBlocks(int blockNumber){
 
   left_intake.move(255);
   right_intake.move(255);
-  moveSquares(moveAmount);
+  driveStraight(0.6 * moveAmount, speed, MOVE_METERS);
   pros::delay(10);
 
   left_intake.move(0);
@@ -773,17 +773,48 @@ void autonomous(int auton_sel) {
 
     case(11): //tests
 
-      //ATTEMPTING TO GRAB 4 BLOCKS BLUE LEFT///
-      extendRamptest(30);
-      grabBlocks(4);
-      
-      //////MOVE TO UNLOADING SQUARE//////
-      moveSquares(-0.73);
-      turn(140 * SIDE_LEFT, 255);
-      moveSquares(.8);
-      pros::delay(100);
 
-      unloadStack(4);
+      double testNumber;
+      testNumber = 1;
+
+      if(testNumber == 0 ){
+        //NULL
+      }
+
+      if(testNumber == 1){//ATTEMPTING TO GRAB 4 BLOCKS BLUE SHORT ZONE///
+        extendRamptest(30);
+        grabBlocks(4,150);
+
+        moveSquares(-0.73);
+        turn(140 * SIDE_LEFT, 255);
+        moveSquares(.8);
+        pros::delay(100);
+
+        unloadStack(4);
+      }
+
+      if(testNumber == 2){
+        //ATTEMPTING TO GRAB 4 BLOCKS RED SHORT ZONE
+        extendRamptest(30);
+        grabBlocks(4, 150);
+
+        moveSquares(-0.73);
+        turn(140 * SIDE_RIGHT, 255);
+        moveSquares(.8);
+        pros::delay(100);
+
+        unloadStack(4);
+      }
+
+      if(testNumber == 3 ){
+
+      }
+
+      if(testNumber == 4 ){
+
+      }
+
+
 
 
     break;
