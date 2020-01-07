@@ -184,7 +184,7 @@ HEEA_Graphics::RotatableShape makeShape() {
   //making shapes
   using namespace HEEA_Graphics;
 
-  int size = 10;
+  int size = 15;
 
   lv_style_copy(&HEEA_Style, &lv_style_plain);    /*Copy a built-in style to initialize the new style*/
   HEEA_Style.line.width = size/10;
@@ -328,29 +328,51 @@ HEEA_Graphics::RotatableShape makeShape() {
      Point(-size,size,size,size)//15
    };
 */
-   std::vector<int> teamRPointRenderOrder{0,1,2,3,4,5,6,7,8,9,0,10,11,1,11,12,2,12,13,3,13,14,4,14,15,5,15,16,6,16,17,7,17,18,8,18,19,9,19};
+   std::vector<int> teamRPointRenderOrder{0,1,2,3,4,5,6,7,8,9,0,10,11,1,11,12,2,12,13,3,13,14,4,14,15,5,15,16,6,16,17,7,17,18,8,18,19,9,19,10,20,21,22,23,24,25,26,27,28,29,20,30,31,21,31,32,22,32,33,23,33,34,24,34,35,25,35,36,26,36,37,27,37,38,28,38,39,29,39,30,20,21,11,21,22,12,22,23,13,23,24,14,24,25,15,25,26,16,26,27,17,27,28,18,28,29,19,29,20,30,31,1,31,32,2,32,33,3,33,34,4,34,35,5,35,36,6,36,37,7,37,38,8,38,39,9,39,30,0};
    std::vector<Point> teamRPoints{
      Point(-size,-size*3,-size,-size), //0
      Point(-size,size*5,-size,-size), //1
      Point(size*3,size*2,-size,-size), //2
-     Point(size,size*2,-size,-size),//3
+     Point(size,size*0,-size,-size),//3
      Point(size*3.5,-size*3,-size,-size),//4
      Point(size*2.5,-size*3,-size,-size), //5
      Point(size*0,size*0,-size,-size), //6
      Point(size*2,size*2,-size,-size), //7
      Point(-size*0,size*3,-size,-size),//8
      Point(-size*0,-size*3,-size,-size), //9
+     //****************************************************************************************************************************************
      Point(-size,-size*3,size,-size), //10
      Point(-size,size*5,size,-size), //11
      Point(size*3,size*2,size,-size), //12
-     Point(size,size*2,size,-size),//13
+     Point(size,size*0,size,-size),//13
      Point(size*3.5,-size*3,size,-size),//14
      Point(size*2.5,-size*3,size,-size), //15
      Point(size*0,size*0,size,-size), //16
      Point(size*2,size*2,size,-size), //17
      Point(-size*0,size*3,size,-size),//18
      Point(-size*0,-size*3,size,-size), //19
-
+     //************************************************************************************************************************************
+     Point(-size,-size*3,-size,size), //20
+     Point(-size,size*5,-size,size), //21
+     Point(size*3,size*2,-size,size), //22
+     Point(size,size*0,-size,size),//23
+     Point(size*3.5,-size*3,-size,size),//24
+     Point(size*2.5,-size*3,-size,size), //25
+     Point(size*0,size*0,-size,size), //26
+     Point(size*2,size*2,-size,size), //27
+     Point(-size*0,size*3,-size,size),//28
+     Point(-size*0,-size*3,-size,size), //29
+     //**************************************************************************************************************************************
+     Point(-size,-size*3,size,size), //30
+     Point(-size,size*5,size,size), //31
+     Point(size*3,size*2,size,size), //32
+     Point(size,size*0,size,size),//33
+     Point(size*3.5,-size*3,size,size),//34
+     Point(size*2.5,-size*3,size,size), //35
+     Point(size*0,size*0,size,size), //36
+     Point(size*2,size*2,size,size), //37
+     Point(-size*0,size*3,size,size),//38
+     Point(-size*0,-size*3,size,size), //39
    };
 /*
 std::vector<int> breadPointRenderOrder{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38};
@@ -440,9 +462,8 @@ std::vector<Point> breadPoints{
   //set attributes of the square
   shape.setPos(100,100,0,0);
   shape.setSpeed(5,2,0,0);
-//  square1.setAngularVelocity(0.1,0.07,0.08,0.2,0.1,0.06);
-  shape.setRotation(0.2, 0.3, 0.1, 0, 0, 0);
-  shape.setAngularVelocity(0,0,0,0.1,0.1,0.1);
+
+  shape.setAngularVelocity(0,0,0.0,0.2,0.1,0.06);
 
   return shape;
 }

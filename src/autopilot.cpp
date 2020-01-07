@@ -225,7 +225,7 @@ void initializeAutoPilot() {
 }
 
 realTimePositionController* getRealTimePositionController(std::string name) {
-  std::cout << "Searching for " + name + " - ";
+//  std::cout << "Searching for " + name + " - ";
   pros::delay(10);
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     realTimePositionController RTPSS = *RTPS;

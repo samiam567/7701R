@@ -205,9 +205,13 @@ realTimePositionController right_mtr_front_PID{&right_mtr_front,"rf_drive_PID",d
 realTimePositionController intake_lift_PID{&intake_lift_mtr,"intake_lift_PID",1.5f,0.1f,0.01f};
 realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.5f,0.1f,0.01f};
 
+realTimePositionController left_intake_PID{&left_intake,"left_intake_PID",1.5f,0.1f,0.01f};
+realTimePositionController right_intake_PID{&right_intake,"right_intake_PID",1.5f,0.1f,0.01f};
 
 
-std::vector<realTimePositionController*> realTimePositionControllers = {&left_mtr_back_PID,&right_mtr_back_PID,&right_mtr_front_PID,&left_mtr_front_PID,&intake_lift_PID,&ramp_PID};
+
+
+std::vector<realTimePositionController*> realTimePositionControllers = {&left_mtr_back_PID,&right_mtr_back_PID,&right_mtr_front_PID,&left_mtr_front_PID,&intake_lift_PID,&ramp_PID,&left_intake_PID,&right_intake_PID};
 
 void initializeAutoPilot() {
 
@@ -221,7 +225,7 @@ void initializeAutoPilot() {
 }
 
 realTimePositionController* getRealTimePositionController(std::string name) {
-  std::cout << "Searching for " + name + " - ";
+//  std::cout << "Searching for " + name + " - ";
   pros::delay(10);
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     realTimePositionController RTPSS = *RTPS;
@@ -278,12 +282,29 @@ void setDriveTrainPIDIsActivated(bool isActivated) {
 
 }
 
+void setIntakeAPIDIsActivated(bool isActivated){
+  setAPIDIsActivated("left_intake_PID", isActivated);
+  setAPIDIsActivated("right_intake_PID", isActivated);
+}
+
+void setIntakeAPIDTargetAndSpeed(double targPos, double speed) {
+  (*getRealTimePositionController("left_intake_PID")).setTargetPosition(targPos);
+  (*getRealTimePositionController("left_intake_PID")).setSpeedModifier(speed/63.5);
+  (*getRealTimePositionController("right_intake_PID")).setTargetPosition(targPos);
+  (*getRealTimePositionController("right_intake_PID")).setSpeedModifier(speed/63.5);
+}
+
 double getAPIDTarget(std::string apidName) {
   return (*getRealTimePositionController(apidName)).getTargetPosition();
 }
 
 void setAPIDTarget(std::string apidName, double targPos) {
   (*getRealTimePositionController(apidName)).setTargetPosition(targPos);
+}
+
+void setAPIDTargetAndSpeed(std::string apidName, double targPos, double speed) {
+  (*getRealTimePositionController(apidName)).setTargetPosition(targPos);
+  (*getRealTimePositionController(apidName)).setSpeedModifier(speed/63.5);
 }
 
 void setAPIDIsActivated(std::string apidName, bool isActivated) {

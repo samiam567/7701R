@@ -567,23 +567,93 @@ void extendRamp() {
   */
 }
 
-void extendRamptest() {
+void extendRamptest(double distance) {
+  //Distance from wall to block in INCHES
+  double rotationsRequired;
+  double distanceToBlock;
+  distanceToBlock = distance - 18;
+  rotationsRequired = distanceToBlock/12.56637 - 0.2;
 
-  consoleLogN("extending ramp");
+  consoleLogN("Let's attempt extending the ramp!");
   ramp_mtr.tare_position();
-  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
+  intake_lift_mtr.tare_position();
+
+  setAPIDIsActivated("ramp_PID", true);
+  setAPIDTargetAndSpeed("ramp_PID", 50 * 84/12, 255);
   left_intake.move(-255);
   right_intake.move(-255);
-  if (moveMotor(intake_lift_mtr,80 * 84/12,255,MOVE_DEGREES)) {
+  moveMotor(intake_lift_mtr, 80 * 84/12, 255, MOVE_DEGREES);
+  left_intake.move(0);
+  right_intake.move(0);
+  setAPIDIsActivated("intake_lift_PID", true);
+  setAPIDTargetAndSpeed("intake_lift_PID", 0, 255);
+  setAPIDTarget("ramp_PID", 0);
+  driveStraight(rotationsRequired, 190, MOVE_ROTATIONS); //Move distance from start to touching first block
+  /////////END EXTENDING RAMP////////////
+  setAPIDIsActivated("ramp_PID", false);
+  setAPIDIsActivated("intake_lift_PID", false);
 
-      setMotorPosition(ramp_mtr,50*84/12,255,MOVE_DEGREES);
-      pros::delay(20);
+}
 
-      moveMotor(intake_lift_mtr,-76*84/12,255,MOVE_DEGREES);
-      left_intake.move(0);
-      left_intake.move(0);
 
+//Move forward and pick up x number of blocks
+void grabBlocks(int blockNumber, int speed){
+
+  consoleLogN("Grabbing Blocks");
+
+  double moveAmount;
+  moveAmount = 0.25 * (double)blockNumber + 0.1;
+
+  left_intake.move(255);
+  right_intake.move(255);
+  driveStraight(0.6 * moveAmount, speed, MOVE_METERS);
+  pros::delay(10);
+
+  left_intake.move(0);
+  right_intake.move(0);
+
+}
+
+//Stack after reaching short or long zone.
+void unloadStack(double blockNumber) {
+
+  consoleLogN("Unloading Stack");
+  setIntakeAPIDIsActivated(true);
+
+  if(blockNumber<=6){
+    setIntakeAPIDTargetAndSpeed(-30, 200); //place blocks on ground bc not heavy enough
   }
+
+  if(blockNumber>6){
+    setIntakeAPIDTargetAndSpeed(-10, 200); //teensy bit should work
+  }
+
+  //////STACK///////////
+  setIntakeAPIDTargetAndSpeed(20, 40); //make sure blocks do not protrude
+  moveMotor(ramp_mtr, 80, 200, MOVE_DEGREES);
+  moveSquares(.02);
+
+  setIntakeAPIDIsActivated(false);
+
+  ///////BACKUP///////////
+  pros::delay(10);
+  left_mtr_back.tare_position();
+  right_mtr_back.tare_position();
+  left_mtr_front.tare_position();
+  right_mtr_front.tare_position();
+  setDriveTrainPIDIsActivated(true);
+  setDriveTrainTarget(-360 * 2, 150);
+
+  pros::delay(10);
+  left_intake.move(-150);
+  right_intake.move(-150);
+  pros::delay(500);
+
+  /////STOP/////////
+  setDriveTrainPIDIsActivated(false);
+  left_intake.move(0);
+  right_intake.move(0);
+
 }
 
 void autonomous(int auton_sel);
@@ -706,73 +776,84 @@ void autonomous(int auton_sel) {
 
     case(11): //tests
 
-/*
-     left_mtr_back.move(20);
-     right_mtr_back.move(20);
-     left_mtr_front.move(20);
-     right_mtr_front.move(20);
-     extendRamptest();
-     left_intake.move(255);
-     right_intake.move(255);
-     driveStraight(4, 100, MOVE_ROTATIONS);
-     left_intake.move(100);
-     right_intake.move(100);
-     moveSquares(-.75);
-     turn(-135 * SIDE_RIGHT, 255);
-     moveSquares(.5);
-     moveMotor(ramp_mtr, 1182 , 70, MOVE_DEGREES);
-     left_mtr_back.move(-50);
-     right_mtr_back.move(-50);
-     left_mtr_front.move(-50);
-     right_mtr_front.move(-50);
-     left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-     right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-*/
 
-
-//Here are my suggestions for what to do:
-
-
-//////////inside extend ramp function//////////////////////////////////////////////
-//instead of running the wheels in the background and the arms in the foreground, I would do just the opposite by using the arm pids
-  setAPIDIsActivated("intake_lift_PID", true); //turn on the arm autopilot
-  consoleLogN("extending ramp");
-  ramp_mtr.tare_position();
-  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
-
-    //turn on the intakes
-  left_intake.move(-255);
-  right_intake.move(-255);
-  setAPIDTarget("intake_lift_PID", 80 * 84/12);
-////////////////////////////////////////////////////////////////////////////////////
-
-//then just go about whatever else you wanted to do with the auton until you need the arms again
-driveStraight(2, 100, MOVE_ROTATIONS);
-
-setAPIDTarget("intake_lift_PID", 0); //bring the arms back down
-//stop the intakes
-left_intake.move(0);
-right_intake.move(0);
-
-driveStraight(2,100,MOVE_ROTATIONS); //just keep driving, just keep driving...
-
-//then when you need the arms again call turn off the pids and you can use the arms as normal
-setAPIDIsActivated("intake_lift_PID", false); //don't forget to turn of the arm autopilot when you're done!
+      double testNumber;
+      testNumber = 1;
 
 
 
-left_intake.move(100);
-right_intake.move(100);
-moveSquares(-.75);
-turn(-135 * SIDE_RIGHT, 255);
-moveSquares(.5);
-moveMotor(ramp_mtr, 70*84/12 , 70, MOVE_DEGREES);
-left_mtr_back.move(-50);
-right_mtr_back.move(-50);
-left_mtr_front.move(-50);
-right_mtr_front.move(-50);
-left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+
+      if(testNumber == 0 ){
+        //NULL
+      }
+
+      if(testNumber == 1){//ATTEMPTING TO GRAB 4 BLOCKS BLUE SHORT ZONE///
+        consoleLogN("Attempting Autonomous Test: Blue Short Zone");
+        extendRamptest(30);
+        grabBlocks(4,150);
+
+        moveSquares(-0.73);
+        turn(140 * SIDE_LEFT, 255);
+        moveSquares(.8);
+        pros::delay(100);
+
+        unloadStack(4);
+      }
+
+      if(testNumber == 2){
+        //ATTEMPTING TO GRAB 4 BLOCKS RED SHORT ZONE
+        consoleLogN("Attempting Autonomous Test: Red Short Zone");
+        extendRamptest(30);
+        grabBlocks(4, 150);
+
+        moveSquares(-0.73);
+        turn(140 * SIDE_RIGHT, 255);
+        moveSquares(.8);
+        pros::delay(100);
+
+        unloadStack(4);
+      }
+
+      if(testNumber == 3 ){
+        consoleLogN("Attempting Autonomous Test: Blue Long Zone");
+        extendRamptest(5.2);
+
+        left_intake.move(255);
+        right_intake.move(255);
+        moveSquares(1.5);
+        left_intake.move(100);
+        right_intake.move(100);
+
+        turn(365 * SIDE_RIGHT, 255);
+        moveSquares(1.9);
+        left_intake.move(0);
+        right_intake.move(0);
+
+        unloadStack(5);
+
+
+      }
+
+      if(testNumber == 4 ){
+        consoleLogN("Attempting Autonomous Test: Red Short Zone");
+
+        extendRamptest(5.2);
+
+        left_intake.move(255);
+        right_intake.move(255);
+        moveSquares(1.5);
+        left_intake.move(100);
+        right_intake.move(100);
+
+        turn(365 * SIDE_LEFT, 255);
+        moveSquares(1.9);
+        left_intake.move(0);
+        right_intake.move(0);
+
+        unloadStack(5);
+      }
+
+
 
 
     break;

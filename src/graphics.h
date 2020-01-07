@@ -121,7 +121,7 @@ namespace HEEA_Graphics {
         updateLine();
       }
 
-      
+
 
       Shape(lv_obj_t * renderLine1, std::vector<Point> points1, std::vector<int> pointRenderOrder1) : Physics_object(0,0,0,0), points(points1), renderLine(renderLine1), pointRenderOrder(pointRenderOrder1)  {
         customPointRenderOrder = true;
@@ -139,7 +139,7 @@ namespace HEEA_Graphics {
 
       void updateLine() { //update the LVGL line with the object's 2d point coordinates
 
-        static lv_point_t line_points[80];
+        static lv_point_t line_points[157];
 
         if (customPointRenderOrder) {
           for (int i = 0; i < pointRenderOrder.size(); i++) {
