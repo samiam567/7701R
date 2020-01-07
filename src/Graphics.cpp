@@ -15,7 +15,7 @@ if (displayText)  {
     lv_obj_t * label1 =  lv_label_create(lv_scr_act(), NULL);
 
     /*Modify the Label's text*/
-    lv_label_set_text(label1, "7701R - Revengers");
+    lv_label_set_text(label1, "7701R - Reseract");
 
     /* Align the Label to the center
      * NULL means align on parent (which is the screen n ow)
