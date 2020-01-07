@@ -184,7 +184,7 @@ HEEA_Graphics::RotatableShape makeShape() {
   //making shapes
   using namespace HEEA_Graphics;
 
-  int size = 10;
+  int size = 40;
 
   lv_style_copy(&HEEA_Style, &lv_style_plain);    /*Copy a built-in style to initialize the new style*/
   HEEA_Style.line.width = size/10;
@@ -307,7 +307,7 @@ HEEA_Graphics::RotatableShape makeShape() {
       Point(size*5,3*size,size*14,-size*14)
    };
 
-
+*/
    std::vector<int> tessaractPointRenderOrder{0,1,2,3,0,4,5,6,7,4,7,3,2,6,5,1,0,8,9,10,11,8,12,13,14,15,12,15,11,10,14,13,9,1,5,13,14,6,7,15,12,4,0,3,11,10,2};
    std::vector<Point> tessaractPoints{
      Point(-size,-size,-size,-size), //0
@@ -326,31 +326,6 @@ HEEA_Graphics::RotatableShape makeShape() {
      Point(size,-size,size,size), //13
      Point(size,size,size,size), //14
      Point(-size,size,size,size)//15
-   };
-*/
-   std::vector<int> teamRPointRenderOrder{0,1,2,3,4,5,6,7,8,9,0,10,11,1,11,12,2,12,13,3,13,14,4,14,15,5,15,16,6,16,17,7,17,18,8,18,19,9,19};
-   std::vector<Point> teamRPoints{
-     Point(-size,-size*3,-size,-size), //0
-     Point(-size,size*5,-size,-size), //1
-     Point(size*3,size*2,-size,-size), //2
-     Point(size,size*2,-size,-size),//3
-     Point(size*3.5,-size*3,-size,-size),//4
-     Point(size*2.5,-size*3,-size,-size), //5
-     Point(size*0,size*0,-size,-size), //6
-     Point(size*2,size*2,-size,-size), //7
-     Point(-size*0,size*3,-size,-size),//8
-     Point(-size*0,-size*3,-size,-size), //9
-     Point(-size,-size*3,size,-size), //10
-     Point(-size,size*5,size,-size), //11
-     Point(size*3,size*2,size,-size), //12
-     Point(size,size*2,size,-size),//13
-     Point(size*3.5,-size*3,size,-size),//14
-     Point(size*2.5,-size*3,size,-size), //15
-     Point(size*0,size*0,size,-size), //16
-     Point(size*2,size*2,size,-size), //17
-     Point(-size*0,size*3,size,-size),//18
-     Point(-size*0,-size*3,size,-size), //19
-
    };
 /*
 std::vector<int> breadPointRenderOrder{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38};
@@ -435,7 +410,7 @@ std::vector<Point> breadPoints{
   lv_line_set_style(line1,&HEEA_Style);
 
   //create the square
-  RotatableShape shape(line1,teamRPoints,teamRPointRenderOrder);
+  RotatableShape shape(line1,tessaractPoints,tessaractPointRenderOrder);
 
   //set attributes of the square
   shape.setPos(100,100,0,0);

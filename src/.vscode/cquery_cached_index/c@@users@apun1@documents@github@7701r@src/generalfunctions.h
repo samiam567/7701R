@@ -113,12 +113,8 @@ GEAH::driver getDriver(); //(in initialize.cpp)
 //autoPilot (in autoPilot.cpp)
 void autoPilotController(long loops);
 void setAPIDTarget(std::string apidName, double targPos);
-void setAPIDTargetAndSpeed(std::string apidName, double targPos, double speed);
 void setAPIDIsActivated(std::string apidName, bool isActivated);
 double getAPIDTarget(std::string apidName);
-
-void setIntakeAPIDTargetAndSpeed(double targPos, double speed);
-void setIntakeAPIDIsActivated(bool isActivated);
 
 void setDriveTrainTarget(double newTarg, double speed);
 void setLeftDriveTrainTarget(double newTarg, double speed);
