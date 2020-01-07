@@ -8,7 +8,7 @@
 
 void sayHello() {
 
-bool displayText = false;
+bool displayText = true;
 
 if (displayText)  {
   /*Create a Label on the currently active screen*/

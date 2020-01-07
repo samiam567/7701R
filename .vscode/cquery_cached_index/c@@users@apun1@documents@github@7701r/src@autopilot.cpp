@@ -230,7 +230,6 @@ realTimePositionController* getRealTimePositionController(std::string name) {
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     realTimePositionController RTPSS = *RTPS;
     if (RTPSS.getName() == name) {
-      std::cout << "found\n";
       return RTPS;
     }
   }
