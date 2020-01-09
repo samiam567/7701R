@@ -163,10 +163,10 @@ void runOpControl() {
       setAPIDTargetAndSpeed("intake_lift_PID",0, 255);
     }else if (GEAH::buttonIsPressed(driver.towerLow)) {
       setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 900, 255);
+      setAPIDTargetAndSpeed("intake_lift_PID", 60*84/12, 255);
     }else if (GEAH::buttonIsPressed(driver.towerHigh)) {
       setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 1200, 255);
+      setAPIDTargetAndSpeed("intake_lift_PID", 80*84/12, 255);
     }else{
       setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(0);

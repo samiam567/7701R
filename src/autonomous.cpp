@@ -574,6 +574,10 @@ void extendRamptest(double distance) {
   distanceToBlock = distance - 18;
   rotationsRequired = distanceToBlock/12.56637 - 0.2;
 
+  if(distance == 0){
+    rotationsRequired = 0;
+  }
+
   consoleLogN("Let's attempt extending the ramp!");
   ramp_mtr.tare_position();
   intake_lift_mtr.tare_position();
@@ -777,7 +781,7 @@ void autonomous(int auton_sel) {
     case(11): //tests
 
 
-      double testNumber;
+      int testNumber;
       testNumber = 1;
 
 
@@ -785,6 +789,7 @@ void autonomous(int auton_sel) {
 
       if(testNumber == 0 ){
         //NULL
+        extendRamptest(0);
       }
 
       if(testNumber == 1){//ATTEMPTING TO GRAB 4 BLOCKS BLUE SHORT ZONE///
