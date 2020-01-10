@@ -14,19 +14,12 @@ pros::Controller master(pros::E_CONTROLLER_MASTER), partner(pros::E_CONTROLLER_P
  GEAH::Motor right_mtr_front("right_mtr_front",ports::RIGHT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
 
  GEAH::Motor ramp_mtr("ramp_mtr",ports::RAMP_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
- GEAH::Motor intake_lift_mtr("intake_lift_mtr",ports::INTAKE_LIFT_MTR_PORT,pros::E_MOTOR_GEARSET_36,0,pros::E_MOTOR_ENCODER_DEGREES);
+ GEAH::Motor intake_lift_mtr("intake_lift_mtr",ports::INTAKE_LIFT_MTR_PORT,pros::E_MOTOR_GEARSET_36,1,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor left_intake("left_intake",ports::INTAKE_LEFT_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor right_intake("right_intake",ports::INTAKE_RIGHT_MTR_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
-/*
- //angler
- GEAH::Motor aim_mtr("aim_mtr",ports::CANNON_AIM_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
 
- //intake
- GEAH::Motor intake_mtr("intake_mtr",ports::INTAKE_PORT,pros::E_MOTOR_GEARSET_06,1,pros::E_MOTOR_ENCODER_DEGREES);
 
-//fire motor
- GEAH::Motor cannonFireMotor("cannonFireMotor",ports::BALL_FIRE_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
-*/
+
 std::vector<GEAH::Motor> Motors = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front,ramp_mtr,intake_lift_mtr,left_intake,right_intake};
 
 void initializeAutoPilot();
@@ -288,10 +281,7 @@ void initialize() {
    right_mtr_front.tare_position();
 
 
-   left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
-   right_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
-   left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
-   right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+
 
 
   setDriveTrainPIDIsActivated(false);
@@ -299,6 +289,7 @@ void initialize() {
   setAPIDIsActivated("ramp_PID", false);
   pros::delay(10);
 
+  intake_lift_mtr.set_brake_mode(MOTOR_BRAKE_BRAKE);
   std::cout << "Successfully initialized.\n";
 
   if (autonNames.at(auton_select) == "callibration") {

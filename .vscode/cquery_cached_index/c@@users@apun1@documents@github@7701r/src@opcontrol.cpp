@@ -81,7 +81,7 @@ void opcontrol() {
 }
 
 void runOpControl() {
-    if (loops % 10 == 0) {
+    if (loops % 3 == 0) { //prioratizes actual robot functions over graphics
       //update graphics
       square.update(1);
       updateStyle();
@@ -163,10 +163,10 @@ void runOpControl() {
       setAPIDTargetAndSpeed("intake_lift_PID",0, 255);
     }else if (GEAH::buttonIsPressed(driver.towerLow)) {
       setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 900, 255);
+      setAPIDTargetAndSpeed("intake_lift_PID", 60*84/12, 255);
     }else if (GEAH::buttonIsPressed(driver.towerHigh)) {
       setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 1200, 255);
+      setAPIDTargetAndSpeed("intake_lift_PID", 80*84/12, 255);
     }else{
       setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(0);
@@ -175,8 +175,8 @@ void runOpControl() {
     //LOCK WHEELS AND INTAKE
     if (GEAH::buttonIsPressed(driver.lockWheelsIntake)) {
       pros::delay(10);
-      left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-      right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+      left_intake.move(1.1 * left_mtr_front.get_actual_velocity());
+      right_intake.move(1.1 * left_mtr_front.get_actual_velocity());
       pros::delay(10);
     }else if (GEAH::buttonIsPressed(driver.intake_in)) {
       left_intake.move(255);

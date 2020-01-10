@@ -37,13 +37,17 @@ bool checkForStop() {
 
 bool usePIDForDriveTrainAutonMovement = true;
 
+long autoPilotLoops = 0;
 void concurrentOperations() {
   if (autonLockWheelsIntake) {
     pros::delay(1);
-    left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-    right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+    left_intake.move(1.1 * left_mtr_front.get_actual_velocity());
+    right_intake.move(1.1 * left_mtr_front.get_actual_velocity());
     pros::delay(1);
   }
+
+  autoPilotController(autoPilotLoops);
+  autoPilotLoops++;
 }
 
 bool driveStraight(double magnatude, int speed, int type) {
@@ -570,15 +574,26 @@ void bumpWall() {
 }
 
 
-void extendRamp() {
+void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
+    left_intake.move(-255);
+    right_intake.move(-255);
+    setAPIDIsActivated("intake_lift_PID", true);
+    setAPIDTargetAndSpeed("intake_lift_PID",  100 * 84/12, 255);
+    pros::delay(1000);
+    left_intake.move(0);
+    right_intake.move(0);
+    moveSquares(squares);
+    setAPIDTarget("intake_lift_PID", 0);
 
 }
 
-void stack() { //Alec's stacking method
-  left_intake.move(90);
-  right_intake.move(90);
-  setMotorPosition(ramp_mtr, 52 * 84/6, 200, MOVE_DEGREES);
-  pros::delay(10);
+void stack(int blockNum) { //Alec's stacking method
+  left_intake.move(15 * blockNum);
+  right_intake.move(15 * blockNum);
+  setMotorPosition(ramp_mtr, 60 * 84/6, 200, MOVE_DEGREES);
+  left_intake.move(0);
+  right_intake.move(0);
+  pros::delay(100);
   autonLockWheelsIntake = true;
   moveSquares(-0.5);
   autonLockWheelsIntake = false;
@@ -592,6 +607,10 @@ void extendRamptest(double distance) {
   double distanceToBlock;
   distanceToBlock = distance - 18;
   rotationsRequired = distanceToBlock/12.56637 - 0.2;
+
+  if(distance == 0){
+    rotationsRequired = 0;
+  }
 
   consoleLogN("Let's attempt extending the ramp!");
   ramp_mtr.tare_position();
@@ -679,16 +698,41 @@ void unloadStack(int blockNumber) {
 void autonomous(int auton_sel);
 
 void autonomous() {
+  left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  right_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  autonomous(getAuton(),0);
   left_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
   right_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
   left_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
   right_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
-  autonomous(getAuton());
 }
 
 
 
-void autonomous(int auton_sel) {
+  void grabAndStackAuton(int side, int mode) {
+    if (mode == 1) {
+      extendRampAndMoveSquares(-0.3);
+    }else{
+      moveSquares(-0.3);
+    }
+
+    turn(-90 * side,100);
+    bumpWall();
+    left_intake.move(255);
+    right_intake.move(255);
+    moveSquares(1);
+    pros::delay(50);
+    moveSquares(0.5);
+    left_intake.move(0);
+    right_intake.move(0);
+    moveSquares(-1);
+    turn(-90 * side,100);
+    moveSquares(0.8);
+    stack(4);
+  }
+void autonomous(int auton_sel,int mode) {
   setDriveTrainPIDIsActivated(true);
 
   lTarget = lTarget == ERROR ? left_mtr_back.get_position() : lTarget;
@@ -699,81 +743,40 @@ void autonomous(int auton_sel) {
   switch(auton_sel) {
     case(0)://backup
     moveSquares(-1.2);
-    moveSquares(1.2);
-    extendRamp();
+    if (mode == 0) {
+      extendRampAndMoveSquares(1.2);
+    }else{
+      moveSquares(1.2);
+    }
+
+
     break;
 
     case(1): //left
-    extendRamp();
     moveSquares(.3);
-    turn(-90 * SIDE_LEFT,100);
-    bumpWall();
-    left_intake.move(255);
-    right_intake.move(255);
-    moveSquares(1);
-    pros::delay(50);
-    moveSquares(0.5);
-    left_intake.move(0);
-    right_intake.move(0);
-    moveSquares(-1);
-    turn(-90 * SIDE_LEFT,100);
-    moveSquares(1.2);
-    stack();
+    turn(90 * SIDE_LEFT,100);
+    grabAndStackAuton(SIDE_LEFT,1);
     break;
 
     case(2): //right
-    extendRamp();
     moveSquares(.3);
-    turn(-90 * SIDE_RIGHT,100);
-    bumpWall();
-    left_intake.move(255);
-    right_intake.move(255);
-    moveSquares(1);
-    pros::delay(50);
-    moveSquares(0.5);
-    left_intake.move(0);
-    right_intake.move(0);
-    moveSquares(-1);
-    turn(-90 * SIDE_RIGHT,100);
-    moveSquares(1.2);
-    stack();
+    turn(90 * SIDE_RIGHT,100);
+    grabAndStackAuton(SIDE_RIGHT,1);
     break;
 
     case(3): //left side w/ backup
-    autonomous(getAuton("backup"));
     moveSquares(.3);
-    turn(-90 * SIDE_LEFT,100);
-    bumpWall();
-    left_intake.move(255);
-    right_intake.move(255);
-    moveSquares(1);
-    pros::delay(50);
-    moveSquares(0.5);
-    left_intake.move(0);
-    right_intake.move(0);
-    moveSquares(-1);
-    turn(-90 * SIDE_LEFT,100);
-    moveSquares(1.2);
-    stack();
+    turn(90 * SIDE_LEFT,100);
+    autonomous(getAuton("backup"),1);
+    grabAndStackAuton(SIDE_LEFT,0);
 
     break;
 
     case(4): //right side w/ backup
-    autonomous(getAuton("backup"));
     moveSquares(.3);
-    turn(-90 * SIDE_RIGHT,100);
-    bumpWall();
-    left_intake.move(255);
-    right_intake.move(255);
-    moveSquares(1);
-    pros::delay(50);
-    moveSquares(0.5);
-    left_intake.move(0);
-    right_intake.move(0);
-    moveSquares(-1);
-    turn(-90 * SIDE_RIGHT,100);
-    moveSquares(1.2);
-    stack();
+    turn(90 * SIDE_RIGHT,100);
+    autonomous(getAuton("backup"),1);
+    grabAndStackAuton(SIDE_RIGHT,0);
     break;
 
     case(5): //far-noPark
@@ -804,7 +807,7 @@ void autonomous(int auton_sel) {
     case(11): //tests
 
 
-      double testNumber;
+      int testNumber;
       testNumber = 1;
 
 
@@ -812,6 +815,7 @@ void autonomous(int auton_sel) {
 
       if(testNumber == 0 ){
         //NULL
+        extendRamptest(0);
       }
 
       if(testNumber == 1){//ATTEMPTING TO GRAB 4 BLOCKS BLUE SHORT ZONE///

@@ -30,7 +30,7 @@ bool runCallibration() {
 
   if (callibrationMode == "autonCallibration") {
     isCallibratingAuton = true;
-    autonomous(getAuton(remoteSettingSelect("Auton to test", autonNames,"console")));
+    autonomous(getAuton(remoteSettingSelect("Auton to test", autonNames,"console")),0);
     isCallibratingAuton = false;
   }else{
     std::cout << "Error in runCallibration(): invalid callibrationMode";

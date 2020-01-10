@@ -81,7 +81,7 @@ void opcontrol() {
 }
 
 void runOpControl() {
-    if (loops % 10 == 0) {
+    if (loops % 3 == 0) { //prioratizes actual robot functions over graphics
       //update graphics
       square.update(1);
       updateStyle();
@@ -175,8 +175,8 @@ void runOpControl() {
     //LOCK WHEELS AND INTAKE
     if (GEAH::buttonIsPressed(driver.lockWheelsIntake)) {
       pros::delay(10);
-      left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
-      right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+      left_intake.move(1.1 * left_mtr_front.get_actual_velocity());
+      right_intake.move(1.1 * left_mtr_front.get_actual_velocity());
       pros::delay(10);
     }else if (GEAH::buttonIsPressed(driver.intake_in)) {
       left_intake.move(255);

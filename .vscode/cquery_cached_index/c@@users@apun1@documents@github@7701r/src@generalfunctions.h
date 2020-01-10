@@ -18,7 +18,7 @@ bool moveMotor(pros::Motor motor, float magnatude, int speed, int type);
 bool setMotorPosition(pros::Motor motor, float magnatude, int speed, int type);
 
 void autonomous();
-void autonomous(int auton_sel);
+void autonomous(int auton_sel,int mode);
 
 bool checkForStop();
 

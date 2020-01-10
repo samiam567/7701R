@@ -462,8 +462,8 @@ std::vector<Point> breadPoints{
   //set attributes of the square
   shape.setPos(100,100,0,0);
   shape.setSpeed(5,2,0,0);
-
-  shape.setAngularVelocity(0,0,0.0,0.2,0.1,0.06);
+  shape.setRotation(0, 0, 3.141592, 0, 0, 0);
+  shape.setAngularVelocity(0,0,0.0,0.1,0.1,0.1);
 
   return shape;
 }
