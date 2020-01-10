@@ -205,8 +205,8 @@ realTimePositionController right_mtr_front_PID{&right_mtr_front,"rf_drive_PID",d
 realTimePositionController intake_lift_PID{&intake_lift_mtr,"intake_lift_PID",1.5f,0.1f,0.01f};
 realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.5f,0.1f,0.01f};
 
-realTimePositionController left_intake_PID{&left_intake,"left_intake_PID",1.5f,0.1f,0.01f};
-realTimePositionController right_intake_PID{&right_intake,"right_intake_PID",1.5f,0.1f,0.01f};
+realTimePositionController left_intake_PID{&left_intake,"left_intake_PID",0.5f,0.01f,0f};
+realTimePositionController right_intake_PID{&right_intake,"right_intake_PID",0.5f,0.01f,0f};
 
 
 
