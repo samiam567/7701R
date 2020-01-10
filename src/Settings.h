@@ -15,7 +15,7 @@ namespace ports{
  constexpr int RAMP_MTR_PORT = 5;
  constexpr int INTAKE_LIFT_MTR_PORT = 6;
  constexpr int INTAKE_LEFT_MTR_PORT = 7;
- constexpr int INTAKE_RIGHT_MTR_PORT = 8;
+ constexpr int INTAKE_RIGHT_MTR_PORT = 12;
 
   //LEDs
   constexpr int LED_1 = 1;

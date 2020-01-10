@@ -27,6 +27,8 @@
   extern GEAH::Motor right_intake;
 
 
+bool autonLockWheelsIntake = false;
+
 double lTarget = ERROR, rTarget = ERROR;
 int aTLoops = 0;
 bool checkForStop() {
@@ -35,7 +37,14 @@ bool checkForStop() {
 
 bool usePIDForDriveTrainAutonMovement = true;
 
-
+void concurrentOperations() {
+  if (autonLockWheelsIntake) {
+    pros::delay(1);
+    left_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+    right_intake.move(1.7 * left_mtr_front.get_actual_velocity());
+    pros::delay(1);
+  }
+}
 
 bool driveStraight(double magnatude, int speed, int type) {
 		//for type:
@@ -125,6 +134,7 @@ bool driveStraight(double magnatude, int speed, int type) {
         autoPilotController(counter);
         counter++;
         checkForStop();
+        concurrentOperations();
 
         if (counter > fabs(10 + 5*(wheelDegrees/M_PI)/speed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
@@ -191,6 +201,7 @@ bool driveStraight(double magnatude, int speed, int type) {
 
 
       checkForStop(); //this method should be continuously called the entire duration of the program
+      concurrentOperations();
 
       lValue = fabs(left_mtr_back.get_position()-lStart);
       rValue = fabs(right_mtr_back.get_position()-rStart);
@@ -325,6 +336,7 @@ bool turn(float theta, int speed) { //theta is in degrees
         autoPilotController(counter);
         counter++;
         checkForStop();
+        concurrentOperations();
 
         if (counter > fabs(10 + 5*(theta/M_PI)/speed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
@@ -420,6 +432,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
     while (value < degs ) {
         checkForStop(); //this method should be continuously called the entire duration of the program
+        concurrentOperations();
 
         value = fabs(motor.get_position()-start);
 
@@ -498,6 +511,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
   while ( fabs(value) < fabs(degs-start)) {
       checkForStop(); //this method should be continuously called the entire duration of the program
+      concurrentOperations();
 
       value = fabs(motor.get_position()-start);
 
@@ -534,6 +548,7 @@ void runAutoPilot(int times) {
   int count = 0;
   while (count < times) {
     autoPilotController(count);
+    concurrentOperations();
     count++;
     pros::delay(10);
   }
@@ -554,17 +569,21 @@ void bumpWall() {
   usePIDForDriveTrainAutonMovement = prevPidSetting;
 }
 
+
 void extendRamp() {
-/*
-  consoleLogN("extending ramp");
-  ramp_mtr.tare_position();
-  moveMotor(ramp_mtr,50*84/12,255,MOVE_DEGREES);
-  if (moveMotor(intake_lift_mtr,80 * 84/12,255,MOVE_DEGREES)) {
-      setMotorPosition(ramp_mtr,50*84/12,255,MOVE_DEGREES);
-    pros::delay(200);
-    moveMotor(intake_lift_mtr,-80*84/12,255,MOVE_DEGREES);
-  }
-  */
+
+}
+
+void stack() { //Alec's stacking method
+  left_intake.move(90);
+  right_intake.move(90);
+  setMotorPosition(ramp_mtr, 52 * 84/6, 200, MOVE_DEGREES);
+  pros::delay(10);
+  autonLockWheelsIntake = true;
+  moveSquares(-0.5);
+  autonLockWheelsIntake = false;
+  left_intake.move(0);
+  right_intake.move(0);
 }
 
 void extendRamptest(double distance) {
@@ -596,6 +615,7 @@ void extendRamptest(double distance) {
 }
 
 
+
 //Move forward and pick up x number of blocks
 void grabBlocks(int blockNumber, int speed){
 
@@ -615,7 +635,7 @@ void grabBlocks(int blockNumber, int speed){
 }
 
 //Stack after reaching short or long zone.
-void unloadStack(double blockNumber) {
+void unloadStack(int blockNumber) {
 
   consoleLogN("Unloading Stack");
   setIntakeAPIDIsActivated(true);
@@ -683,9 +703,7 @@ void autonomous(int auton_sel) {
     extendRamp();
     break;
 
-    case(1): //near left
-    moveSquares(.1);
-    turn(90 * SIDE_LEFT,100);
+    case(1): //left
     extendRamp();
     moveSquares(.3);
     turn(-90 * SIDE_LEFT,100);
@@ -697,11 +715,13 @@ void autonomous(int auton_sel) {
     moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
+    moveSquares(-1);
+    turn(-90 * SIDE_LEFT,100);
+    moveSquares(1.2);
+    stack();
     break;
 
-    case(2): //near right
-    moveSquares(.1);
-    turn(90 * SIDE_RIGHT,100);
+    case(2): //right
     extendRamp();
     moveSquares(.3);
     turn(-90 * SIDE_RIGHT,100);
@@ -713,13 +733,15 @@ void autonomous(int auton_sel) {
     moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
+    moveSquares(-1);
+    turn(-90 * SIDE_RIGHT,100);
+    moveSquares(1.2);
+    stack();
     break;
 
-    case(3): //left side far
-    moveSquares(.1);
-    turn(90 * SIDE_LEFT,100);
+    case(3): //left side w/ backup
     autonomous(getAuton("backup"));
-    moveSquares(.4);
+    moveSquares(.3);
     turn(-90 * SIDE_LEFT,100);
     bumpWall();
     left_intake.move(255);
@@ -729,14 +751,16 @@ void autonomous(int auton_sel) {
     moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
+    moveSquares(-1);
+    turn(-90 * SIDE_LEFT,100);
+    moveSquares(1.2);
+    stack();
 
     break;
 
-    case(4): //right side far
-    moveSquares(.1);
-    turn(90 * SIDE_RIGHT,100);
+    case(4): //right side w/ backup
     autonomous(getAuton("backup"));
-    moveSquares(.4);
+    moveSquares(.3);
     turn(-90 * SIDE_RIGHT,100);
     bumpWall();
     left_intake.move(255);
@@ -746,7 +770,10 @@ void autonomous(int auton_sel) {
     moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
-
+    moveSquares(-1);
+    turn(-90 * SIDE_RIGHT,100);
+    moveSquares(1.2);
+    stack();
     break;
 
     case(5): //far-noPark

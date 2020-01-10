@@ -101,7 +101,7 @@ GEAH::driver getDriver() {
 }
 
 bool auton_selected = false,driver_selected = false;
-std::vector<std::string> autonNames = {"backup","left-near","right-near","left-far-park","right-far-park","far-noPark","exFarLeft","exFarRight","Skills","callibration","none","tests"};
+std::vector<std::string> autonNames = {"backup","left","right","left  w/ backup","right w/ backup","far-noPark","exFarLeft","exFarRight","Skills","callibration","none","tests"};
 
 int getAuton() {
 	return auton_select;
