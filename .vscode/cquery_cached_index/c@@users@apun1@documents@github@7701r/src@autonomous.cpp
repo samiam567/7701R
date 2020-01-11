@@ -264,7 +264,7 @@ bool driveStraight(double magnatude, int speed, int type) {
   }
 }
 
-bool turn(float theta, int speed) { //theta is in degrees
+bool turn(double theta, int speed) { //theta is in degrees
     std::cout << "turn called for theta: " << theta << " and speed " << speed << "\n";
 
     double wheelDegrees = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
@@ -342,9 +342,9 @@ bool turn(float theta, int speed) { //theta is in degrees
         checkForStop();
         concurrentOperations();
 
-        if (counter > fabs(10 + 5*(theta/M_PI)/speed) ) {
+        if (counter > fabs(20 + 300*(theta/M_PI)/speed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
-          std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << fabs(speed * theta/M_PI) << ") \n" << "terminating turn... \n";\
+          std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << fabs(20 + 300*(theta/M_PI)/speed) << ") \n" << "terminating turn... \n";\
           break;
         }
 
@@ -561,7 +561,7 @@ void runAutoPilot(int times) {
 
 
 void moveSquares(double numSquares) {
-  driveStraight(0.6 * numSquares,100,MOVE_METERS);
+  driveStraight(0.6 * numSquares,150,MOVE_METERS);
 }
 
 void bumpWall() {
@@ -575,27 +575,36 @@ void bumpWall() {
 
 
 void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
+
     left_intake.move(-255);
     right_intake.move(-255);
     setAPIDIsActivated("intake_lift_PID", true);
+    pros::delay(150);
     setAPIDTargetAndSpeed("intake_lift_PID",  100 * 84/12, 255);
-    pros::delay(1000);
+    moveSquares(squares);
     left_intake.move(0);
     right_intake.move(0);
-    moveSquares(squares);
-    setAPIDTarget("intake_lift_PID", 0);
 
+    setAPIDTarget("intake_lift_PID", 0);
+    runAutoPilot(100);
+    setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
+    setAPIDIsActivated("intake_lift_PID", false);
+    pros::delay(10);
 }
 
 void stack(int blockNum) { //Alec's stacking method
-  left_intake.move(15 * blockNum);
-  right_intake.move(15 * blockNum);
-  setMotorPosition(ramp_mtr, 60 * 84/6, 200, MOVE_DEGREES);
+  lTarget = left_mtr_back.get_position();
+  rTarget = right_mtr_back.get_position();
+  if (blockNum > 4) {
+    left_intake.move(15 * blockNum-1);
+    right_intake.move(15 * blockNum-1);
+  }
+  setMotorPosition(ramp_mtr, 80 * 84/6, 1000, MOVE_DEGREES);
   left_intake.move(0);
   right_intake.move(0);
-  pros::delay(100);
+  pros::delay(1000);
   autonLockWheelsIntake = true;
-  moveSquares(-0.5);
+  moveSquares(-0.7);
   autonLockWheelsIntake = false;
   left_intake.move(0);
   right_intake.move(0);
@@ -723,7 +732,7 @@ void autonomous() {
     left_intake.move(255);
     right_intake.move(255);
     moveSquares(1);
-    pros::delay(50);
+    pros::delay(5);
     moveSquares(0.5);
     left_intake.move(0);
     right_intake.move(0);
@@ -779,8 +788,8 @@ void autonomous(int auton_sel,int mode) {
     grabAndStackAuton(SIDE_RIGHT,0);
     break;
 
-    case(5): //far-noPark
-
+    case(5): //stack
+      stack(10);
       break;
 
     case(6): //experimental left far

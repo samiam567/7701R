@@ -94,7 +94,7 @@ GEAH::driver getDriver() {
 }
 
 bool auton_selected = false,driver_selected = false;
-std::vector<std::string> autonNames = {"backup","left","right","left  w/ backup","right w/ backup","far-noPark","exFarLeft","exFarRight","Skills","callibration","none","tests"};
+std::vector<std::string> autonNames = {"backup","left","right","left  w/ backup","right w/ backup","stackTest","exFarLeft","exFarRight","Skills","callibration","none","tests"};
 
 int getAuton() {
 	return auton_select;
@@ -307,7 +307,12 @@ void disabled() {
 
 	remoteSettingSelect();
 
-
+  while(true) {
+		LEDs(false);
+		pros::delay(1000);
+		LEDs(true);
+		pros::delay(100);
+	}
 
 }
 
