@@ -6,16 +6,16 @@ static const double ERROR = -0.001;
 static const double version = 1.55;
 namespace ports{
   //drivetrain
-  constexpr int LEFT_WHEEL_BACK_PORT = 2;
-  constexpr int RIGHT_WHEEL_BACK_PORT = 1;
-  constexpr int LEFT_WHEEL_FRONT_PORT = 4;
-  constexpr int RIGHT_WHEEL_FRONT_PORT = 3;
+  constexpr int LEFT_WHEEL_BACK_PORT = 11;
+  constexpr int RIGHT_WHEEL_BACK_PORT = 2;
+  constexpr int LEFT_WHEEL_FRONT_PORT = 3;
+  constexpr int RIGHT_WHEEL_FRONT_PORT = 9;
     //note: for two wheel drive, you should be able to set the front and back motor ports for each side equal to the same port
 
  constexpr int RAMP_MTR_PORT = 5;
- constexpr int INTAKE_LIFT_MTR_PORT = 6;
- constexpr int INTAKE_LEFT_MTR_PORT = 7;
- constexpr int INTAKE_RIGHT_MTR_PORT = 12;
+ constexpr int INTAKE_LIFT_MTR_PORT = 1;
+ constexpr int INTAKE_LEFT_MTR_PORT = 4;
+ constexpr int INTAKE_RIGHT_MTR_PORT = 8;
 
   //LEDs
   constexpr int LED_1 = 1;

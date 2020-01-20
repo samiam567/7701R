@@ -195,6 +195,12 @@ void runOpControl() {
     }else if (GEAH::buttonIsPressed(driver.ramp_down)) {
       setAPIDIsActivated("ramp_PID", false);
       ramp_mtr.move(-100);
+    }else if (GEAH::buttonIsPressed(driver.fine_ramp_up)) {
+      setAPIDIsActivated("ramp_PID", false);
+      ramp_mtr.move(50);
+    }else if (GEAH::buttonIsPressed(driver.fine_ramp_down)) {
+      setAPIDIsActivated("ramp_PID", false);
+      ramp_mtr.move(-50);
     }else if (GEAH::buttonIsPressed(driver.unloadReset)) {
       setAPIDIsActivated("ramp_PID", true);
       setAPIDTargetAndSpeed("ramp_PID", 3, 255);

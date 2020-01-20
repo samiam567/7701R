@@ -579,12 +579,14 @@ void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
     left_intake.move(-255);
     right_intake.move(-255);
     setAPIDIsActivated("intake_lift_PID", true);
-    pros::delay(150);
+    pros::delay(250);
     setAPIDTargetAndSpeed("intake_lift_PID",  100 * 84/12, 255);
+    pros::delay(150);
     moveSquares(squares);
+    runAutoPilot(100);
     left_intake.move(0);
     right_intake.move(0);
-
+    runAutoPilot(200);
     setAPIDTarget("intake_lift_PID", 0);
     runAutoPilot(100);
     setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
@@ -711,7 +713,7 @@ void autonomous() {
   right_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
   left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
   right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
-  autonomous(getAuton(),0);
+  autonomous(getAuton(),1);
   left_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
   right_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
   left_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
@@ -722,24 +724,24 @@ void autonomous() {
 
   void grabAndStackAuton(int side, int mode) {
     if (mode == 1) {
-      extendRampAndMoveSquares(-0.3);
-    }else{
-      moveSquares(-0.3);
-    }
+  	      extendRampAndMoveSquares(-0.3);
+  	    }else{
+  	      moveSquares(-0.3);
+  	    }
 
-    turn(-90 * side,100);
-    bumpWall();
-    left_intake.move(255);
-    right_intake.move(255);
-    moveSquares(1);
-    pros::delay(5);
-    moveSquares(0.5);
-    left_intake.move(0);
-    right_intake.move(0);
-    moveSquares(-1);
-    turn(-90 * side,100);
-    moveSquares(0.8);
-    stack(4);
+  	    turn(-90 * side,100);
+  	    bumpWall();
+  	    left_intake.move(255);
+  	    right_intake.move(255);
+  	    moveSquares(1);
+  	    pros::delay(5);
+  	    moveSquares(0.5);
+  	    left_intake.move(0);
+  	    right_intake.move(0);
+  	    moveSquares(-1.5);
+  	    turn(-90 * side,100);
+  	    moveSquares(0.8);
+  	    stack(5);
   }
 void autonomous(int auton_sel,int mode) {
   setDriveTrainPIDIsActivated(true);
@@ -752,39 +754,39 @@ void autonomous(int auton_sel,int mode) {
   switch(auton_sel) {
     case(0)://backup
     moveSquares(-1.2);
-    if (mode == 0) {
+    pros::delay(700);
+    if (mode ==  1) {
       extendRampAndMoveSquares(1.2);
     }else{
       moveSquares(1.2);
     }
 
-
     break;
 
     case(1): //left
-    moveSquares(.3);
+    extendRampAndMoveSquares(0.3);
     turn(90 * SIDE_LEFT,100);
-    grabAndStackAuton(SIDE_LEFT,1);
+    grabAndStackAuton(SIDE_LEFT,0);
     break;
 
     case(2): //right
-    moveSquares(.3);
+    extendRampAndMoveSquares(0.3);
     turn(90 * SIDE_RIGHT,100);
-    grabAndStackAuton(SIDE_RIGHT,1);
+    grabAndStackAuton(SIDE_RIGHT,0);
     break;
 
     case(3): //left side w/ backup
-    moveSquares(.3);
+    extendRampAndMoveSquares(0.3);
     turn(90 * SIDE_LEFT,100);
-    autonomous(getAuton("backup"),1);
+    autonomous(getAuton("backup"),0);
     grabAndStackAuton(SIDE_LEFT,0);
 
     break;
 
     case(4): //right side w/ backup
-    moveSquares(.3);
+    extendRampAndMoveSquares(0.3);
     turn(90 * SIDE_RIGHT,100);
-    autonomous(getAuton("backup"),1);
+    autonomous(getAuton("backup"),0);
     grabAndStackAuton(SIDE_RIGHT,0);
     break;
 

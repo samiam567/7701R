@@ -92,6 +92,7 @@ namespace GEAH {
     int drive_type; //0 = arcade, 1 = tank, 2 = drone
     GEAH::controllerButton shiftButton; //this will change all the buttons to their shift states(which doubles the number of funtion possibilities)
     GEAH::controllerButton ramp_up, ramp_down;
+    GEAH::controllerButton fine_ramp_up, fine_ramp_down;
     GEAH::controllerButton intake_up, intake_down;
     GEAH::controllerButton intake_in, intake_out;
     GEAH::controllerButton lockWheelsIntake;
