@@ -166,13 +166,13 @@ void updateStyle() {
   g+= incG;
   b+= incB;
 
-  if ((r >= 242) || (r <= 20))  {
+  if ((r >= 242) || (r <= 50))  {
     incR = (rand() % 10 + 3) * -incR/fabs(incR);
   }
-  if ((g >= 242) || (g <= 20))  {
+  if ((g >= 242) || (g <= 50))  {
     incG =  (rand() % 10 + 3) * -incG/fabs(incG);
   }
-  if ((b >= 242) || (b <= 20))  {
+  if ((b >= 242) || (b <= 50))  {
     incB =  (rand() % 10 + 3) * -incB/fabs(incB);
   }
 
@@ -184,7 +184,7 @@ HEEA_Graphics::RotatableShape makeShape() {
   //making shapes
   using namespace HEEA_Graphics;
 
-  int size = 15;
+  int size = 25;
 
   lv_style_copy(&HEEA_Style, &lv_style_plain);    /*Copy a built-in style to initialize the new style*/
   HEEA_Style.line.width = size/10;

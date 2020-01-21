@@ -612,99 +612,6 @@ void stack(int blockNum) { //Alec's stacking method
   right_intake.move(0);
 }
 
-void extendRamptest(double distance) {
-  //Distance from wall to block in INCHES
-  double rotationsRequired;
-  double distanceToBlock;
-  distanceToBlock = distance - 18;
-  rotationsRequired = distanceToBlock/12.56637 - 0.2;
-
-  if(distance == 0){
-    rotationsRequired = 0;
-  }
-
-  consoleLogN("Let's attempt extending the ramp!");
-  ramp_mtr.tare_position();
-  intake_lift_mtr.tare_position();
-
-  setAPIDIsActivated("ramp_PID", true);
-  setAPIDTargetAndSpeed("ramp_PID", 50 * 84/12, 255);
-  left_intake.move(-255);
-  right_intake.move(-255);
-  moveMotor(intake_lift_mtr, 80 * 84/12, 255, MOVE_DEGREES);
-  left_intake.move(0);
-  right_intake.move(0);
-  setAPIDIsActivated("intake_lift_PID", true);
-  setAPIDTargetAndSpeed("intake_lift_PID", 0, 255);
-  setAPIDTarget("ramp_PID", 0);
-  driveStraight(rotationsRequired, 190, MOVE_ROTATIONS); //Move distance from start to touching first block
-  /////////END EXTENDING RAMP////////////
-  setAPIDIsActivated("ramp_PID", false);
-  setAPIDIsActivated("intake_lift_PID", false);
-
-}
-
-
-
-//Move forward and pick up x number of blocks
-void grabBlocks(int blockNumber, int speed){
-
-  consoleLogN("Grabbing Blocks");
-
-  double moveAmount;
-  moveAmount = 0.25 * (double)blockNumber + 0.1;
-
-  left_intake.move(255);
-  right_intake.move(255);
-  driveStraight(0.6 * moveAmount, speed, MOVE_METERS);
-  pros::delay(10);
-
-  left_intake.move(0);
-  right_intake.move(0);
-
-}
-
-//Stack after reaching short or long zone.
-void unloadStack(int blockNumber) {
-
-  consoleLogN("Unloading Stack");
-  setIntakeAPIDIsActivated(true);
-
-  if(blockNumber<=6){
-    setIntakeAPIDTargetAndSpeed(-30, 200); //place blocks on ground bc not heavy enough
-  }
-
-  if(blockNumber>6){
-    setIntakeAPIDTargetAndSpeed(-10, 200); //teensy bit should work
-  }
-
-  //////STACK///////////
-  setIntakeAPIDTargetAndSpeed(20, 40); //make sure blocks do not protrude
-  moveMotor(ramp_mtr, 80, 200, MOVE_DEGREES);
-  moveSquares(.02);
-
-  setIntakeAPIDIsActivated(false);
-
-  ///////BACKUP///////////
-  pros::delay(10);
-  left_mtr_back.tare_position();
-  right_mtr_back.tare_position();
-  left_mtr_front.tare_position();
-  right_mtr_front.tare_position();
-  setDriveTrainPIDIsActivated(true);
-  setDriveTrainTarget(-360 * 2, 150);
-
-  pros::delay(10);
-  left_intake.move(-150);
-  right_intake.move(-150);
-  pros::delay(500);
-
-  /////STOP/////////
-  setDriveTrainPIDIsActivated(false);
-  left_intake.move(0);
-  right_intake.move(0);
-
-}
 
 void autonomous(int auton_sel);
 
@@ -752,6 +659,7 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
+<<<<<<< HEAD
   	    case(0)://backup
   	    moveSquares(-1.2);
   	    pros::delay(700);
@@ -803,6 +711,7 @@ void autonomous(int auton_sel,int mode) {
 
 
   	    break;
+
 
   	    case(3): //red left
   	    extendRampAndMoveSquares(0.2);
