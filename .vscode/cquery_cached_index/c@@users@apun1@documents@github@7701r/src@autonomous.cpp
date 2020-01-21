@@ -752,163 +752,165 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
-    case(0)://backup
-    moveSquares(-1.2);
-    pros::delay(700);
-    if (mode ==  1) {
-      extendRampAndMoveSquares(1.2);
-    }else{
-      moveSquares(1.2);
-    }
+  	    case(0)://backup
+  	    moveSquares(-1.2);
+  	    pros::delay(700);
+  	    if (mode ==  1) {
+  	      extendRampAndMoveSquares(1.2);
+  	    }else{
+  	      moveSquares(1.2);
+  	    }
 
-    break;
+  	    break;
 
-    case(1): //left
-    extendRampAndMoveSquares(0.3);
-    turn(90 * SIDE_LEFT,100);
-    grabAndStackAuton(SIDE_LEFT,0);
-    break;
+  	    case(1): //blue left
+  	    extendRampAndMoveSquares(0.3);
+  	  	turn(-55,100);
 
-    case(2): //right
-    extendRampAndMoveSquares(0.3);
-    turn(90 * SIDE_RIGHT,100);
-    grabAndStackAuton(SIDE_RIGHT,0);
-    break;
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(0.5);
+  	  	pros::delay(5);
+  	  	turn(55 * SIDE_LEFT,100);
+  	  	moveSquares(1);
+  	  	left_intake.move(0);
+  	  	right_intake.move(0);
+  	  	moveSquares(-0.8);
+  	  	turn(-135 ,100);
+  	  	moveSquares(0.8);
+  	  	stack(4);
 
-    case(3): //left side w/ backup
-    extendRampAndMoveSquares(0.3);
-    turn(90 * SIDE_LEFT,100);
-    autonomous(getAuton("backup"),0);
-    grabAndStackAuton(SIDE_LEFT,0);
+  	    break;
 
-    break;
+  	    case(2): //blue right
 
-    case(4): //right side w/ backup
-    extendRampAndMoveSquares(0.3);
-    turn(90 * SIDE_RIGHT,100);
-    autonomous(getAuton("backup"),0);
-    grabAndStackAuton(SIDE_RIGHT,0);
-    break;
-
-    case(5): //stack
-      stack(10);
-      break;
-
-    case(6): //experimental left far
-
-      break;
-
-    case(7): //experimental far right
-
-    break;
-
-    case(8): //skills
-
-    break;
-
-    case(9): //calibration
-
-    break;
-
-    case(10): //none
+  	  	extendRampAndMoveSquares(0.2);
+  	    turn(-90,100);
+  	    moveSquares(0.33333333333);
+  	    turn(90,100);
+  	    left_intake.move(255);
+  	    right_intake.move(255);
+  	    moveSquares(1.2);
+  	    pros::delay(500);
+  	    moveSquares(0.6);
+  	    pros::delay(5);
+  	    left_intake.move(0);
+  	    right_intake.move(0);
+  	    moveSquares(-1.8);
+  	    turn(90,100);
+  	    moveSquares(1.21);
+  	    stack(5);
 
 
-    break;
+  	    break;
 
-    case(11): //tests
+  	    case(3): //red left
+  	    extendRampAndMoveSquares(0.2);
+  	    turn(90,100);
+  	    moveSquares(0.33333333333);
+  	    turn(-90,100);
+  	    left_intake.move(255);
+  	    right_intake.move(255);
+  	    moveSquares(1.2);
+  	    pros::delay(500);
+  	    moveSquares(0.6);
+  	    pros::delay(5);
+  	    left_intake.move(0);
+  	    right_intake.move(0);
+  	    moveSquares(-1.8);
+  	    turn(-90,100);
+  	    moveSquares(1.21);
+  	    stack(5);
+  	    break;
+
+  	    case(4): //red right
+  	    extendRampAndMoveSquares(0.3);
+  	  	turn(55 * SIDE_LEFT,100);
+
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(0.5);
+  	  	pros::delay(5);
+  	  	turn(-55 * SIDE_LEFT,100);
+  	  	moveSquares(1);
+  	  	left_intake.move(0);
+  	  	right_intake.move(0);
+  	  	moveSquares(-0.8);
+  	  	turn(135 * SIDE_LEFT,100);
+  	  	moveSquares(1.1);
+  	  	stack(4);
+  	    break;
+
+  	    case(5): //blue left 8 stak
+  	    extendRampAndMoveSquares(0.3);
+  	  	turn(-55 * SIDE_LEFT,100);
+
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(0.5);
+  	  	pros::delay(5);
+  	  	turn(55 * SIDE_LEFT,100);
+  	  	moveSquares(1);
+  	  	left_intake.move(0);
+  	  	right_intake.move(0);
+  	  	moveSquares(-1);
+  	  	turn(90,100);
+  	  	moveSquares(1);
+  	  	turn(-90,100);
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(0.7);
+  	  	pros::delay(500);
+  	  	moveSquares(0.3);
+  	  	turn(-130,100);
+  	  	moveSquares(2.2);
+  	  	stack(8);
+  	    break;
+
+  	    case(6): //red right 8 stak
+  	    extendRampAndMoveSquares(0.3);
+  	  	turn(55 * SIDE_LEFT,100);
+
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(0.5);
+  	  	pros::delay(5);
+  	  	turn(-55 * SIDE_LEFT,100);
+  	  	moveSquares(1);
+  	  	left_intake.move(0);
+  	  	right_intake.move(0);
+  	  	moveSquares(-1);
+  	  	turn(-90,100);
+  	  	moveSquares(1);
+  	  	turn(90,100);
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(0.7);
+  	  	pros::delay(500);
+  	  	moveSquares(0.3);
+  	  	turn(130,100);
+  	  	moveSquares(2.2);
+  	  	stack(8);
+  	    break;
+
+  	    case(7): //stack
+  	      stack(10);
+  	      break;
 
 
-      int testNumber;
-      testNumber = 1;
+
+  	    case(8): //skills
+
+  	    break;
+
+  	    case(9): //calibration
+
+  	    break;
+
+  	    case(10): //none
 
 
-
-
-      if(testNumber == 0 ){
-        //NULL
-        extendRamptest(0);
-      }
-
-      if(testNumber == 1){//ATTEMPTING TO GRAB 4 BLOCKS BLUE SHORT ZONE///
-        consoleLogN("Attempting Autonomous Test: Blue Short Zone");
-        extendRamptest(30);
-        grabBlocks(4,150);
-
-        moveSquares(-0.73);
-        turn(140 * SIDE_LEFT, 255);
-        moveSquares(.8);
-        pros::delay(100);
-
-        unloadStack(4);
-      }
-
-      if(testNumber == 2){
-        //ATTEMPTING TO GRAB 4 BLOCKS RED SHORT ZONE
-        consoleLogN("Attempting Autonomous Test: Red Short Zone");
-        extendRamptest(30);
-        grabBlocks(4, 150);
-
-        moveSquares(-0.73);
-        turn(140 * SIDE_RIGHT, 255);
-        moveSquares(.8);
-        pros::delay(100);
-
-        unloadStack(4);
-      }
-
-      if(testNumber == 3 ){
-        consoleLogN("Attempting Autonomous Test: Blue Long Zone");
-        extendRamptest(5.2);
-
-        left_intake.move(255);
-        right_intake.move(255);
-        moveSquares(1.5);
-        left_intake.move(100);
-        right_intake.move(100);
-
-        turn(365 * SIDE_RIGHT, 255);
-        moveSquares(1.9);
-        left_intake.move(0);
-        right_intake.move(0);
-
-        unloadStack(5);
-
-
-      }
-
-      if(testNumber == 4 ){
-        consoleLogN("Attempting Autonomous Test: Red Short Zone");
-
-        extendRamptest(5.2);
-
-        left_intake.move(255);
-        right_intake.move(255);
-        moveSquares(1.5);
-        left_intake.move(100);
-        right_intake.move(100);
-
-        turn(365 * SIDE_LEFT, 255);
-        moveSquares(1.9);
-        left_intake.move(0);
-        right_intake.move(0);
-
-        unloadStack(5);
-      }
-
-
-
-
-    break;
-
-    default:
-      LEDs(true);
-      pros::delay(100);
-      LEDs(false);
-      pros::delay(200);
-      LEDs(true);
-      pros::delay(100);
-      LEDs(false);
-    break;
+  	    break;
   }
   setDriveTrainPIDIsActivated(false);
 
