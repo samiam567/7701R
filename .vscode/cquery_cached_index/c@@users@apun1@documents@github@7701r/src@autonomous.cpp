@@ -659,7 +659,6 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
-<<<<<<< HEAD
   	    case(0)://backup
   	    moveSquares(-1.2);
   	    pros::delay(700);
@@ -672,19 +671,19 @@ void autonomous(int auton_sel,int mode) {
   	    break;
 
   	    case(1): //blue left
-  	    extendRampAndMoveSquares(0.3);
-  	  	turn(-55,100);
+        extendRampAndMoveSquares(0.3);
+   	  	turn(-70,100);
 
-  	  	left_intake.move(255);
-  	  	right_intake.move(255);
-  	  	moveSquares(0.5);
-  	  	pros::delay(5);
-  	  	turn(55 * SIDE_LEFT,100);
-  	  	moveSquares(1);
-  	  	left_intake.move(0);
-  	  	right_intake.move(0);
-  	  	moveSquares(-0.8);
-  	  	turn(-135 ,100);
+   	  	left_intake.move(255);
+   	  	right_intake.move(255);
+   	  	moveSquares(0.39);
+   	  	pros::delay(5);
+   	  	turn(70 * SIDE_LEFT,100);
+   	  	moveSquares(1.2);
+   	  	left_intake.move(0);
+   	  	right_intake.move(0);
+   	  	moveSquares(-0.8);
+  	  	turn(-130 ,100);
   	  	moveSquares(0.8);
   	  	stack(4);
 
@@ -733,21 +732,21 @@ void autonomous(int auton_sel,int mode) {
   	    break;
 
   	    case(4): //red right
-  	    extendRampAndMoveSquares(0.3);
-  	  	turn(55 * SIDE_LEFT,100);
+        extendRampAndMoveSquares(0.3);
+        turn(70,100);
 
-  	  	left_intake.move(255);
-  	  	right_intake.move(255);
-  	  	moveSquares(0.5);
-  	  	pros::delay(5);
-  	  	turn(-55 * SIDE_LEFT,100);
-  	  	moveSquares(1);
-  	  	left_intake.move(0);
-  	  	right_intake.move(0);
-  	  	moveSquares(-0.8);
-  	  	turn(135 * SIDE_LEFT,100);
-  	  	moveSquares(1.1);
-  	  	stack(4);
+        left_intake.move(255);
+        right_intake.move(255);
+        moveSquares(0.39);
+        pros::delay(5);
+        turn(-70 * SIDE_LEFT,100);
+        moveSquares(1.2);
+        left_intake.move(0);
+        right_intake.move(0);
+        moveSquares(-0.8);
+        turn(130 ,100);
+        moveSquares(0.8);
+        stack(4);
   	    break;
 
   	    case(5): //blue left 8 stak

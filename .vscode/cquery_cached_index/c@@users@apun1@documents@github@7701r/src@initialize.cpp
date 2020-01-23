@@ -14,7 +14,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER), partner(pros::E_CONTROLLER_P
  GEAH::Motor right_mtr_front("right_mtr_front",ports::RIGHT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
 
  GEAH::Motor ramp_mtr("ramp_mtr",ports::RAMP_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
- GEAH::Motor intake_lift_mtr("intake_lift_mtr",ports::INTAKE_LIFT_MTR_PORT,pros::E_MOTOR_GEARSET_36,1,pros::E_MOTOR_ENCODER_DEGREES);
+ GEAH::Motor intake_lift_mtr("intake_lift_mtr",ports::INTAKE_LIFT_MTR_PORT,pros::E_MOTOR_GEARSET_36,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor left_intake("left_intake",ports::INTAKE_LEFT_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor right_intake("right_intake",ports::INTAKE_RIGHT_MTR_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
 
@@ -290,6 +290,7 @@ void initialize() {
   pros::delay(10);
 
   intake_lift_mtr.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  ramp_mtr.set_brake_mode(MOTOR_BRAKE_HOLD);
   std::cout << "Successfully initialized.\n";
 
   if (autonNames.at(auton_select) == "callibration") {

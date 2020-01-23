@@ -194,9 +194,9 @@ class realTimePositionController {
 
 
 //drivePIDs
-const float drivePorportion = 0.5f;
+const float drivePorportion = 0.6f;
 const float driveIntegral = 0.01f;
-const float driveDerivative = 0.35f;
+const float driveDerivative = 0.30f;
 realTimePositionController left_mtr_back_PID{&left_mtr_back,"lb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController right_mtr_back_PID{&right_mtr_back,"rb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController left_mtr_front_PID{&left_mtr_front,"lf_drive_PID",drivePorportion,driveIntegral,driveDerivative};

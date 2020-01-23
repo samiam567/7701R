@@ -63,6 +63,16 @@ namespace GEAH {
       return false;
     }
   }
+
+  bool buttonIsPressedNoShift(GEAH::controllerButton button) {
+    if (button.name == "notAssigned") return false; //if the button is not assigned return false
+
+    if ( (controllers[button.controller].get_digital(button.baseButton))) {
+      return true;
+    }else{
+      return false;
+    }
+  }
 }
 
 void runOpControl();
@@ -172,16 +182,18 @@ void runOpControl() {
       intake_lift_mtr.move(0);
     }
 
+
+
     //LOCK WHEELS AND INTAKE
     if (GEAH::buttonIsPressed(driver.lockWheelsIntake)) {
       pros::delay(10);
       left_intake.move(1.1 * left_mtr_front.get_actual_velocity());
       right_intake.move(1.1 * left_mtr_front.get_actual_velocity());
       pros::delay(10);
-    }else if (GEAH::buttonIsPressed(driver.intake_in)) {
+    }else if (GEAH::buttonIsPressedNoShift(driver.intake_in)) {
       left_intake.move(255);
       right_intake.move(255);
-    }else if (GEAH::buttonIsPressed(driver.intake_out)) {
+    }else if (GEAH::buttonIsPressedNoShift(driver.intake_out)) {
       left_intake.move(-100);
       right_intake.move(-100);
     }else{

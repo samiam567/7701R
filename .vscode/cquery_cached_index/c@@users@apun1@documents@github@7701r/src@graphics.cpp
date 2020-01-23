@@ -159,7 +159,7 @@ static lv_style_t HEEA_Style;
 //for rainbow
 static unsigned char r=70,g=25,b=240;
 static int incR = (rand() % 10 + 3), incG = (rand() % 10 + 3), incB = (rand() % 10 + 3);
-
+static int rDirec = 1, gDirec = 1, bDirec = -1;
 
 void updateStyle() {
   r+= incR;
@@ -167,13 +167,13 @@ void updateStyle() {
   b+= incB;
 
   if ((r >= 242) || (r <= 50))  {
-    incR = (rand() % 10 + 3) * -incR/fabs(incR);
+    incR = /*(rand() % 10 + 3) */ -incR/fabs(incR);
   }
   if ((g >= 242) || (g <= 50))  {
-    incG =  (rand() % 10 + 3) * -incG/fabs(incG);
+    incG =  /*(rand() % 10 + 3) */ -incG/fabs(incG);
   }
   if ((b >= 242) || (b <= 50))  {
-    incB =  (rand() % 10 + 3) * -incB/fabs(incB);
+    incB =  /*(rand() % 10 + 3) */ -incB/fabs(incB);
   }
 
   HEEA_Style.line.color = LV_COLOR_MAKE(r,g,b);
@@ -184,10 +184,10 @@ HEEA_Graphics::RotatableShape makeShape() {
   //making shapes
   using namespace HEEA_Graphics;
 
-  int size = 25;
+  int size = 5;
 
   lv_style_copy(&HEEA_Style, &lv_style_plain);    /*Copy a built-in style to initialize the new style*/
-  HEEA_Style.line.width = size/10;
+  HEEA_Style.line.width = size/8;
   HEEA_Style.body.main_color = LV_COLOR_BLACK;
 
 /*
