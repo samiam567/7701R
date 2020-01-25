@@ -97,7 +97,7 @@ namespace GEAH {
     GEAH::controllerButton intake_in, intake_out;
     GEAH::controllerButton lockWheelsIntake;
     GEAH::controllerButton unloadReset;
-    GEAH::controllerButton towerLow, towerHigh;
+    GEAH::controllerButton autoTowerUp, autoTowerDown;
     GEAH::controllerButton LAUNCH_AUTON;
     GEAH::controllerButton BREAKS_ON,BREAKS_OFF;
 
@@ -118,6 +118,7 @@ void setAPIDTarget(std::string apidName, double targPos);
 void setAPIDTargetAndSpeed(std::string apidName, double targPos, double speed);
 void setAPIDIsActivated(std::string apidName, bool isActivated);
 double getAPIDTarget(std::string apidName);
+GEAH::Motor getAPIDMotor(std::string name);
 
 void setIntakeAPIDTargetAndSpeed(double targPos, double speed);
 void setIntakeAPIDIsActivated(bool isActivated);

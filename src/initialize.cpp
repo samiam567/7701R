@@ -54,13 +54,13 @@ GEAH::controllerButton getButtonObject(std::string name) {
   return GEAH::controllerButtons[0];
 }
 
-//  (name, drive_type,n shiftButton, ramp_up, ramp_down,intake_up, intake_down, intake_in, intake_out,lockWheelsIntake, LAUNCH_AUTON, BREAKS_ON, BREAKS_OFF)
+//  (name, drive_type,n shiftButton, ramp_up, ramp_down, ramp_up_slow, ramp_down_slow, intake_up, intake_down, intake_in, intake_out,lockWheelsIntake, LAUNCH_AUTON, BREAKS_ON, BREAKS_OFF)
 
 //drivers
 namespace GEAH {
-driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("sc0R2"),getButtonObject("sc0R1"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
-driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("sc0R2"),getButtonObject("sc0R1"),getButtonObject("sc0UP"),getButtonObject("c0B"),getButtonObject("sc0B")};
-driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("sc0R2"),getButtonObject("sc0R1"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("sc0A"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("sc0A"),getButtonObject("c0B"),getButtonObject("sc0B")};
+driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("sc0A"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 
 }
 

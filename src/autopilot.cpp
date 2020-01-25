@@ -3,11 +3,11 @@
 
 //motor declaration (declaraton is in initialize.cpp)
   //wheels
- extern pros::Motor left_mtr_back;
- extern pros::Motor right_mtr_back;
+ extern GEAH::Motor left_mtr_back;
+ extern GEAH::Motor right_mtr_back;
 
- extern pros::Motor left_mtr_front;
- extern pros::Motor right_mtr_front;
+ extern GEAH::Motor left_mtr_front;
+ extern GEAH::Motor right_mtr_front;
 
  extern GEAH::Motor ramp_mtr;
  extern GEAH::Motor intake_lift_mtr;
@@ -21,7 +21,7 @@ extern std::vector<realTimePositionController*> realTimePositionControllers;
 
 class realTimePositionController {
   private:
-    pros::Motor* motorToControl;
+    GEAH::Motor* motorToControl;
     std::string name = "";
     bool isActivated = true;
 
@@ -67,11 +67,11 @@ class realTimePositionController {
     }
 
   public:
-    realTimePositionController(pros::Motor* motorToControl1, std::string name1) : motorToControl{motorToControl1}, name{name1} {
+    realTimePositionController(GEAH::Motor* motorToControl1, std::string name1) : motorToControl{motorToControl1}, name{name1} {
       PID = false;
     }
 
-    realTimePositionController(pros::Motor* motorToControl1, std::string name1,float porportion1, float integral1, float derivative1) : motorToControl{motorToControl1}, name{name1}, porportion{porportion1}, integral{integral1}, derivative{derivative1} {
+    realTimePositionController(GEAH::Motor* motorToControl1, std::string name1,float porportion1, float integral1, float derivative1) : motorToControl{motorToControl1}, name{name1}, porportion{porportion1}, integral{integral1}, derivative{derivative1} {
       PID = true;
     }
 
@@ -159,6 +159,10 @@ class realTimePositionController {
     return isActivated;
   }
 
+  GEAH::Motor* getMotorPointer() {
+    return motorToControl;
+  }
+
   void setMotorSystemRadius(double newMotorSystemRadius) {
     motorSystemRadius = newMotorSystemRadius;
   }
@@ -203,7 +207,7 @@ realTimePositionController left_mtr_front_PID{&left_mtr_front,"lf_drive_PID",dri
 realTimePositionController right_mtr_front_PID{&right_mtr_front,"rf_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 
 realTimePositionController intake_lift_PID{&intake_lift_mtr,"intake_lift_PID",1.5f,1.0f,0.01f};
-realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.5f,0.1f,0.01f};
+realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.5f,0.5f,0.01f};
 
 realTimePositionController left_intake_PID{&left_intake,"left_intake_PID",0.5f,0.01f,0.0f};
 realTimePositionController right_intake_PID{&right_intake,"right_intake_PID",0.5f,0.01f,0.0f};
@@ -311,8 +315,9 @@ void setAPIDIsActivated(std::string apidName, bool isActivated) {
 }
 
 
-void intakeBot();
-void realTimeCannonAimer();
+GEAH::Motor getAPIDMotor(std::string apidName) {
+  return *((*getRealTimePositionController(apidName)).getMotorPointer());
+}
 
 void autoPilotController(long loops) {
 
