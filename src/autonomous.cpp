@@ -576,6 +576,8 @@ void bumpWall() {
 
 void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
 
+    setAPIDIsActivated("ramp_PID", true);
+    setAPIDTargetAndSpeed("ramp_PID",  25 * 84/12, 255);
     left_intake.move(-255);
     right_intake.move(-255);
     setAPIDIsActivated("intake_lift_PID", true);
@@ -589,8 +591,11 @@ void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
     runAutoPilot(200);
     setAPIDTarget("intake_lift_PID", 0);
     runAutoPilot(100);
-    setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
     setAPIDIsActivated("intake_lift_PID", false);
+    setAPIDIsActivated("ramp_PID", false);
+    setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
+    setMotorPosition(ramp_mtr, 0, 255, MOVE_DEGREES);
+
     pros::delay(10);
 }
 
