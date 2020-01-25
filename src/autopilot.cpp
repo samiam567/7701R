@@ -200,14 +200,14 @@ class realTimePositionController {
 //drivePIDs
 const float drivePorportion = 0.6f;
 const float driveIntegral = 0.01f;
-const float driveDerivative = 0.26f;
+const float driveDerivative = 0.30f;
 realTimePositionController left_mtr_back_PID{&left_mtr_back,"lb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController right_mtr_back_PID{&right_mtr_back,"rb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController left_mtr_front_PID{&left_mtr_front,"lf_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController right_mtr_front_PID{&right_mtr_front,"rf_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 
 realTimePositionController intake_lift_PID{&intake_lift_mtr,"intake_lift_PID",1.5f,1.0f,0.01f};
-realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",15.0f,0.1f,0.5f};
+realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.5f,0.5f,0.01f};
 
 realTimePositionController left_intake_PID{&left_intake,"left_intake_PID",0.5f,0.01f,0.0f};
 realTimePositionController right_intake_PID{&right_intake,"right_intake_PID",0.5f,0.01f,0.0f};

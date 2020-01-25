@@ -592,7 +592,7 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
   int counter = 0;
   setAPIDIsActivated(APIDName,true);
   setAPIDTargetAndSpeed(APIDName,degs,speed);
-  while (fabs(value-degs) > callibrationSettings::MOTOR_POSITION_ERROR){
+  while (value-degs > callibrationSettings::MOTOR_POSITION_ERROR){
     value = motor.get_position();
 
     autoPilotController(counter);
@@ -604,7 +604,7 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
     checkForStop();
     concurrentOperations();
 
-    if (counter/1000 > fabs(10 + (degs/M_PI)/speed) ) {
+    if (counter > fabs(10 + 5*(degs/M_PI)/speed) ) {
       consoleLogN("-ERROR- setAPIDPosition taking too long. Terminating...");
       std::cout << "-ERROR- setAPIDPosition of pos: " << degs << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
       break;
@@ -709,18 +709,16 @@ void stack(int blockNum) { //Alec's stacking method
     right_intake.move(15 * blockNum-1);
   }
   //setMotorPosition(ramp_mtr, 80 * 84/6, 1000, MOVE_DEGREES);
-  setAPIDPosition("ramp_PID",81 * 84/6,200,MOVE_DEGREES);
+  setAPIDPosition("ramp_PID",80 * 84/6,255,MOVE_DEGREES);
 
   left_intake.move(0);
   right_intake.move(0);
-  pros::delay(500);
+  pros::delay(1000);
   autonLockWheelsIntake = true;
-  setAPIDTargetAndSpeed("ramp_PID",0,200);
   moveSquares(-0.7);
   autonLockWheelsIntake = false;
   left_intake.move(0);
   right_intake.move(0);
-  setAPIDIsActivated("ramp_PID",false);
 }
 
 

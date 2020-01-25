@@ -146,6 +146,8 @@ void runOpControl() {
     }
 
 
+
+
     //wheel lock
     if (GEAH::buttonIsPressed(driver.BREAKS_ON)) {
       consoleLogN("-Breaks on-");
@@ -174,32 +176,28 @@ void runOpControl() {
     }else if (GEAH::buttonIsPressed(driver.autoTowerUp)) {
       if ((! autoTowerPressedAlready) && (autoTowerSetting < 2)) {
         autoTowerSetting++;
-        consoleLog(autoTowerSetting);
-        autoTowerPressedAlready = true;
       }
-
+      autoTowerPressedAlready = true;
     }else if (GEAH::buttonIsPressed(driver.autoTowerDown)) {
       if ((! autoTowerPressedAlready) && (autoTowerSetting > 0)) {
         autoTowerSetting--;
-        consoleLog(autoTowerSetting);
-        autoTowerPressedAlready = true;
-
       }
-
+      autoTowerPressedAlready = true;
     }else{
       autoTowerPressedAlready = false;
+      setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(0);
     }
 
     //setting APID for autotower operation
-    if ((autoTowerSetting == 0)) {
+    if ((autoTowerSetting == 0) && (autoTowerPressedAlready)) {
       setAPIDIsActivated("intake_lift_PID",true);
       setAPIDTarget("intake_lift_PID", 0);
     }else if ((autoTowerSetting == 1) && (autoTowerPressedAlready)) {
       //tower low
       setAPIDIsActivated("intake_lift_PID", true);
       setAPIDTargetAndSpeed("intake_lift_PID", 70*84/12, 255);
-    }if ((autoTowerSetting == 2)) {
+    }if ((autoTowerSetting == 2) && (autoTowerPressedAlready)) {
       //tower high
       setAPIDIsActivated("intake_lift_PID", true);
       setAPIDTargetAndSpeed("intake_lift_PID", 90*84/12, 255);
@@ -243,7 +241,7 @@ void runOpControl() {
     }
 
     //moving the ramp forwards when the arms are lifted
-    if ((intake_lift_mtr.get_position() < 7*84/12) && (intake_lift_mtr.get_position() >  3*84/12) && (intake_lift_mtr.get_actual_velocity() > 0.1) ) {
+    if ((intake_lift_mtr.get_position() >  3*84/12) && (intake_lift_mtr.get_actual_velocity() > 0.1) ) {
       setAPIDIsActivated("ramp_PID", true);
       setAPIDTargetAndSpeed("ramp_PID", 105 * 84/12, 255);
     }else if (((intake_lift_mtr.get_position() <  3*84/12) && (intake_lift_mtr.get_actual_velocity() < -0.1) )) {
