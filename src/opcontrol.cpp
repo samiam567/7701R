@@ -159,49 +159,30 @@ void runOpControl() {
       setDriveTrainPIDIsActivated(false);
     }
 
-
-
-//arms
-    bool autoTowerPressedAlready = false;
-    int autoTowerSetting = 0; //0=down, 1=low, 2=high
+  //  double intakeLiftSpeed = 5;
     if (GEAH::buttonIsPressed(driver.intake_up)) {
       setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(200);
+    //  setAPIDTarget("intake_lift_PID", getAPIDTarget("intake_lift_PID") + intakeLiftSpeed);
     }else if (GEAH::buttonIsPressed(driver.intake_down)) {
       setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(-200);
+  //    setAPIDTarget("intake_lift_PID", getAPIDTarget("intake_lift_PID") - intakeLiftSpeed);
     }else if (GEAH::buttonIsPressed(driver.unloadReset)) {
       setAPIDIsActivated("intake_lift_PID", true);
       setAPIDTargetAndSpeed("intake_lift_PID",0, 255);
-    }else if (GEAH::buttonIsPressed(driver.autoTowerUp)) {
-      if ((! autoTowerPressedAlready) && (autoTowerSetting < 2)) {
-        autoTowerSetting++;
-      }
-      autoTowerPressedAlready = true;
-    }else if (GEAH::buttonIsPressed(driver.autoTowerDown)) {
-      if ((! autoTowerPressedAlready) && (autoTowerSetting > 0)) {
-        autoTowerSetting--;
-      }
-      autoTowerPressedAlready = true;
+    }else if (GEAH::buttonIsPressed(driver.towerLow)) {
+      setAPIDIsActivated("intake_lift_PID", true);
+      setAPIDTargetAndSpeed("intake_lift_PID", 70*84/12, 255);
+    }else if (GEAH::buttonIsPressed(driver.towerHigh)) {
+      setAPIDIsActivated("intake_lift_PID", true);
+      setAPIDTargetAndSpeed("intake_lift_PID", 90*84/12, 255);
     }else{
-      autoTowerPressedAlready = false;
       setAPIDIsActivated("intake_lift_PID", false);
       intake_lift_mtr.move(0);
     }
 
-    //setting APID for autotower operation
-    if ((autoTowerSetting == 0) && (autoTowerPressedAlready)) {
-      setAPIDIsActivated("intake_lift_PID",true);
-      setAPIDTarget("intake_lift_PID", 0);
-    }else if ((autoTowerSetting == 1) && (autoTowerPressedAlready)) {
-      //tower low
-      setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 70*84/12, 255);
-    }if ((autoTowerSetting == 2) && (autoTowerPressedAlready)) {
-      //tower high
-      setAPIDIsActivated("intake_lift_PID", true);
-      setAPIDTargetAndSpeed("intake_lift_PID", 90*84/12, 255);
-    }
+
 
     //LOCK WHEELS AND INTAKE
     if (GEAH::buttonIsPressed(driver.lockWheelsIntake)) {
@@ -220,7 +201,6 @@ void runOpControl() {
       right_intake.move(0);
     }
 
-//ramp stuff
     if (GEAH::buttonIsPressed(driver.ramp_up)) {
       setAPIDIsActivated("ramp_PID", false);
       ramp_mtr.move(100);
@@ -236,19 +216,16 @@ void runOpControl() {
     }else if (GEAH::buttonIsPressed(driver.unloadReset)) {
       setAPIDIsActivated("ramp_PID", true);
       setAPIDTargetAndSpeed("ramp_PID", 3, 255);
-    }else{
-      ramp_mtr.move(0);
-    }
-
-    //moving the ramp forwards when the arms are lifted
-    if ((intake_lift_mtr.get_position() >  3*84/12) && (intake_lift_mtr.get_actual_velocity() > 0.1) ) {
+    }else if (GEAH::buttonIsPressed(driver.towerLow)) {
       setAPIDIsActivated("ramp_PID", true);
       setAPIDTargetAndSpeed("ramp_PID", 105 * 84/12, 255);
-    }else if (((intake_lift_mtr.get_position() <  3*84/12) && (intake_lift_mtr.get_actual_velocity() < -0.1) )) {
+    }else if (GEAH::buttonIsPressed(driver.towerHigh)) {
       setAPIDIsActivated("ramp_PID", true);
-      setAPIDTargetAndSpeed("ramp_PID",0, 255);
+      setAPIDTargetAndSpeed("ramp_PID", 105 * 84/12, 255);
+    }else{
+      setAPIDIsActivated("ramp_PID", false);
+      ramp_mtr.move(0);
     }
-
 
 /*
     if(GEAH::buttonIsPressed(driver.auto_unload)){
@@ -280,6 +257,89 @@ void runOpControl() {
   }
 */
 
+/*
+    //aim motor
+    if (GEAH::buttonIsPressed(driver.CANNON_UP)) {
+      setAPIDTarget("cannonAngler", aim_mtr.get_position()+10*5);
+    }else if (GEAH::buttonIsPressed(driver.CANNON_DOWN)) {
+      setAPIDTarget("cannonAngler", aim_mtr.get_position()-10*5);
+    }else{
+    }
+
+
+    //launcher
+    if (GEAH::buttonIsPressed(driver.FIRE_CANNON)) {
+      cannonFireMotor.move(127);
+    }else{
+        cannonFireMotor.move(0);
+    }
+
+
+		//auton button
+		if (GEAH::buttonIsPressed(driver.LAUNCH_AUTON)) {
+			LEDs(true);
+			pros::delay(100);
+			LEDs(false);
+			autonomous();
+		}
+
+    if(GEAH::buttonIsPressed(driver.getXDistance)) {
+      getXDistance();
+    }
+
+
+
+  extern bool intake_moving;
+    if (GEAH::buttonIsPressed(driver.aimLowFlag)) {
+      setTargetFlag(LOW_FLAG);
+      pros::c::adi_digital_write(ports::LASER_TARGETER_PORT, true);
+      intake_mtr = 0;
+      intake_moving = false;
+    }else if (GEAH::buttonIsPressed(driver.aimMedFlag)){
+      setTargetFlag(MED_FLAG);
+      pros::c::adi_digital_write(ports::LASER_TARGETER_PORT, true);
+      intake_mtr = 0;
+      intake_moving = false;
+    }else if (GEAH::buttonIsPressed(driver.aimHighFlag)) {
+      setTargetFlag(HIGH_FLAG);
+      pros::c::adi_digital_write(ports::LASER_TARGETER_PORT, true);
+      intake_mtr = 0;
+      intake_moving = false;
+    }else if (GEAH::buttonIsPressed(driver.aimCurrentCannonAngle)) {
+      setTargetFlag(NONE_FLAG);
+      pros::c::adi_digital_write(ports::LASER_TARGETER_PORT, true);
+      setAPIDIsActivated("cannonAngler", false);
+    }
+
+
+
+    //intake
+    if (GEAH::buttonIsPressed(driver.intakeOn)) {
+      if (intake_moving) {
+        intake_mtr = 0;
+        intake_moving = false;
+       }else{
+         intake_mtr = 200;
+         intake_moving = true;
+
+       }
+       pros::delay(50);
+    }else if (GEAH::buttonIsPressed(driver.intakeOff)) {
+          intake_mtr = -200;
+          intake_moving = true;
+          setTargetCannonAngle(-21);
+          setTargetFlag(NONE_FLAG);
+    }
+
+    GEAH::controllerButton getButtonObject(std::string btn);
+    extern bool useFrontSensorForDistance;
+    if (GEAH::buttonIsPressed(driver.useFrontSensorForDistance)) {
+      useFrontSensorForDistance = true;
+    }else if (GEAH::buttonIsPressed(driver.useBackSensorForDistance)) {
+      useFrontSensorForDistance = false;
+    }
+
+*/
 
 
 
@@ -287,7 +347,7 @@ void runOpControl() {
 
     checkForStop();
 
-		pros::delay(5);
+		pros::delay(10);
 
 
 		loops++;

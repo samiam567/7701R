@@ -3,7 +3,7 @@
 
 static const double ERROR = -0.001;
 
-static const std::string version = "V1.96.2";
+static const double version = 1.95;
 namespace ports{
   //drivetrain
   constexpr int LEFT_WHEEL_BACK_PORT = 11;

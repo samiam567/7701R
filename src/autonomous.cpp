@@ -545,108 +545,6 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   return true; // movement was successful
 }
 
-bool setAPIDPosition(std::string APIDName, float position, int speed, int type) { //return true if successful, false if not
-
-  GEAH::Motor motor = getAPIDMotor(APIDName);
-  //for type:
-  //0 = rotations
-  //1 = meters
-  //2 = degrees
-
-  float magnatude = position;
-
-  float wheelRotations;
-
-  float degs;
-
-  if (type == MOVE_ROTATIONS) {
-    wheelRotations = magnatude;
-    degs = fabs(360*wheelRotations);
-  }else if (type == MOVE_METERS) {
-    wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
-    degs = fabs(360*wheelRotations);
-  }else if (type == MOVE_DEGREES) {
-    degs = magnatude;
-  }else{
-    //default to distance
-    wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
-    degs = fabs(360*wheelRotations);
-  }
-
-  double value,start;
-
-  value = 0.000001;
-
-  start = motor.get_position();
-
-  pros::motor_brake_mode_e_t prevBrakeMode = motor.get_brake_mode();
-  motor.set_brake_mode(MOTOR_BRAKE_HOLD);
-
-  if (motor.get_position() < degs) {
-    speed = fabs(speed);
-  }else {
-    speed = -fabs(speed);
-  }
-
-  int motorCannotMoveCounter = 0;
-  int counter = 0;
-  setAPIDIsActivated(APIDName,true);
-  setAPIDTargetAndSpeed(APIDName,degs,speed);
-  while (value-degs > callibrationSettings::MOTOR_POSITION_ERROR){
-    value = motor.get_position();
-
-    autoPilotController(counter);
-
-
-    pros::delay(5);
-    autoPilotController(counter);
-    counter++;
-    checkForStop();
-    concurrentOperations();
-
-    if (counter > fabs(10 + 5*(degs/M_PI)/speed) ) {
-      consoleLogN("-ERROR- setAPIDPosition taking too long. Terminating...");
-      std::cout << "-ERROR- setAPIDPosition of pos: " << degs << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
-      break;
-    }
-
-
-
-    if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * speed ) {
-        motorCannotMoveCounter++;
-        speed *= 1.05;
-    }else{
-        motorCannotMoveCounter/=2;
-    }
-
-    if (motorCannotMoveCounter > 1000) {
-      consoleLogN("Error:: " + motor.getName() + " cannot move");
-      consoleLogN("setAPIDPosition Terminated");
-      std::cout << "Motor cannot move, terminating setAPIDPosition " << "\n ActualVelocity:" << left_mtr_back.get_actual_velocity() << "\n";
-      setDriveTrainPIDIsActivated(false);
-      left_mtr_back.move(0);
-      right_mtr_back.move(0);
-      left_mtr_front.move(0);
-      right_mtr_front.move(0);
-      return false; //motor movement was in some way inhibited
-    }
-
-  }
-
-  setAPIDIsActivated(APIDName,false);
-
-  //reverse motor to counter momentum
-  motor.move(0);
-  pros::delay(150);
-  motor.set_brake_mode(prevBrakeMode);
-
-  std::vector<GEAH::Motor>motors{motor};
-  GEAH::autonRequestReceipt receipt("setMotorPosition",motors,magnatude,speed,type);
-  recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
-
-  return true; // movement was successful
-}
-
 constexpr int SIDE_LEFT = 1;
 constexpr int SIDE_RIGHT = -1;
 
@@ -708,9 +606,7 @@ void stack(int blockNum) { //Alec's stacking method
     left_intake.move(15 * blockNum-1);
     right_intake.move(15 * blockNum-1);
   }
-  //setMotorPosition(ramp_mtr, 80 * 84/6, 1000, MOVE_DEGREES);
-  setAPIDPosition("ramp_PID",80 * 84/6,255,MOVE_DEGREES);
-
+  setMotorPosition(ramp_mtr, 80 * 84/6, 1000, MOVE_DEGREES);
   left_intake.move(0);
   right_intake.move(0);
   pros::delay(1000);
