@@ -511,7 +511,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
     speed = -fabs(speed);
   }
 
-  float min_V = 0.1f; //the minimum voltage the motor will use
+  float min_V = 0.5f; //the minimum voltage the motor will use
 
   while ( fabs(value) < fabs(degs-start)) {
       checkForStop(); //this method should be continuously called the entire duration of the program
@@ -519,7 +519,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
       value = fabs(motor.get_position()-start);
 
-      motor.move_velocity(min_V*speed/fabs(speed) + fabs(value - (degs-start))*speed/fabs(127)/180);
+      motor.move_velocity(min_V*speed/fabs(speed) + 10*fabs(value - (degs-start))*speed/fabs(127)/180);
 
       if (fabs(motor.get_actual_velocity()) <= 0.03) {
         min_V+= 0.005; //if the motor is stuck then up the voltage
@@ -560,8 +560,9 @@ void runAutoPilot(int times) {
 
 
 
+
 void moveSquares(double numSquares) {
-  driveStraight(0.6 * numSquares,150,MOVE_METERS);
+  driveStraight(0.6 * numSquares,200,MOVE_METERS);
 }
 
 void bumpWall() {
@@ -577,12 +578,12 @@ void bumpWall() {
 void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
 
     setAPIDIsActivated("ramp_PID", true);
-    setAPIDTargetAndSpeed("ramp_PID",  25 * 84/12, 255);
+    setAPIDTargetAndSpeed("ramp_PID",  40 * 84/12, 255);
     left_intake.move(-255);
     right_intake.move(-255);
     setAPIDIsActivated("intake_lift_PID", true);
     pros::delay(250);
-    setAPIDTargetAndSpeed("intake_lift_PID",  100 * 84/12, 255);
+    setAPIDTargetAndSpeed("intake_lift_PID",  110 * 84/12, 255);
     pros::delay(150);
     moveSquares(squares);
     runAutoPilot(100);
@@ -606,7 +607,7 @@ void stack(int blockNum) { //Alec's stacking method
     left_intake.move(15 * blockNum-1);
     right_intake.move(15 * blockNum-1);
   }
-  setMotorPosition(ramp_mtr, 80 * 84/6, 1000, MOVE_DEGREES);
+  setMotorPosition(ramp_mtr, 80 * 84/6, 500, MOVE_DEGREES);
   left_intake.move(0);
   right_intake.move(0);
   pros::delay(1000);
@@ -655,6 +656,7 @@ void autonomous() {
   	    moveSquares(0.8);
   	    stack(5);
   }
+
 void autonomous(int auton_sel,int mode) {
   setDriveTrainPIDIsActivated(true);
 
@@ -666,31 +668,26 @@ void autonomous(int auton_sel,int mode) {
   switch(auton_sel) {
   	    case(0)://backup
   	    moveSquares(-1.2);
+        moveSquares(1.2);
   	    pros::delay(700);
   	    if (mode ==  1) {
-  	      extendRampAndMoveSquares(1.2);
-  	    }else{
-  	      moveSquares(1.2);
+  	      extendRampAndMoveSquares(0);
   	    }
 
   	    break;
 
   	    case(1): //blue left
         extendRampAndMoveSquares(0.3);
-   	  	turn(-70,100);
-
-   	  	left_intake.move(255);
-   	  	right_intake.move(255);
-   	  	moveSquares(0.39);
-   	  	pros::delay(5);
-   	  	turn(70 * SIDE_LEFT,100);
-   	  	moveSquares(1.2);
-   	  	left_intake.move(0);
-   	  	right_intake.move(0);
-   	  	moveSquares(-0.8);
-  	  	turn(-130 ,100);
-  	  	moveSquares(0.8);
+  	  	left_intake.move(255);
+  	  	right_intake.move(255);
+  	  	moveSquares(1.6);
+  	  	left_intake.move(0);
+  	  	right_intake.move(0);
+  	  	moveSquares(-0.9);
+  	  	turn(-135 ,150);
+  	  	moveSquares(1.1);
   	  	stack(4);
+
 
   	    break;
 
@@ -738,19 +735,14 @@ void autonomous(int auton_sel,int mode) {
 
   	    case(4): //red right
         extendRampAndMoveSquares(0.3);
-        turn(70,100);
-
         left_intake.move(255);
         right_intake.move(255);
-        moveSquares(0.39);
-        pros::delay(5);
-        turn(-70 * SIDE_LEFT,100);
-        moveSquares(1.2);
+        moveSquares(1.6);
         left_intake.move(0);
         right_intake.move(0);
-        moveSquares(-0.8);
-        turn(130 ,100);
-        moveSquares(0.8);
+        moveSquares(-0.9);
+        turn(135 ,150);
+        moveSquares(1.1);
         stack(4);
   	    break;
 
