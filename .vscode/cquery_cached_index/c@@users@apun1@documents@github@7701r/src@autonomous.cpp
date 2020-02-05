@@ -511,7 +511,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
     speed = -fabs(speed);
   }
 
-  float min_V = 0.1f; //the minimum voltage the motor will use
+  float min_V = 0.5f; //the minimum voltage the motor will use
 
   while ( fabs(value) < fabs(degs-start)) {
       checkForStop(); //this method should be continuously called the entire duration of the program
@@ -519,7 +519,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
       value = fabs(motor.get_position()-start);
 
-      motor.move_velocity(min_V*speed/fabs(speed) + fabs(value - (degs-start))*speed/fabs(127)/180);
+      motor.move_velocity(min_V*speed/fabs(speed) + 10*fabs(value - (degs-start))*speed/fabs(127)/180);
 
       if (fabs(motor.get_actual_velocity()) <= 0.03) {
         min_V+= 0.005; //if the motor is stuck then up the voltage
@@ -545,6 +545,109 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   return true; // movement was successful
 }
 
+/*
+bool setAPIDPosition(std::string APIDName, float position, int speed, int type) { //return true if successful, false if not
+
+  GEAH::Motor motor = getAPIDMotor(APIDName);
+  //for type:
+  //0 = rotations
+  //1 = meters
+  //2 = degrees
+
+  float magnatude = position;
+
+  float wheelRotations;
+
+  float degs;
+
+  if (type == MOVE_ROTATIONS) {
+    wheelRotations = magnatude;
+    degs = fabs(360*wheelRotations);
+  }else if (type == MOVE_METERS) {
+    wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
+    degs = fabs(360*wheelRotations);
+  }else if (type == MOVE_DEGREES) {
+    degs = magnatude;
+  }else{
+    //default to distance
+    wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
+    degs = fabs(360*wheelRotations);
+  }
+
+  double value,start;
+
+  value = 0.000001;
+
+  start = motor.get_position();
+
+  pros::motor_brake_mode_e_t prevBrakeMode = motor.get_brake_mode();
+  motor.set_brake_mode(MOTOR_BRAKE_HOLD);
+
+  if (motor.get_position() < degs) {
+    speed = fabs(speed);
+  }else {
+    speed = -fabs(speed);
+  }
+
+  int motorCannotMoveCounter = 0;
+  int counter = 0;
+  setAPIDIsActivated(APIDName,true);
+  setAPIDTargetAndSpeed(APIDName,degs,speed);
+  while (value-degs > callibrationSettings::MOTOR_POSITION_ERROR){
+    value = motor.get_position();
+
+    autoPilotController(counter);
+
+
+    pros::delay(5);
+    autoPilotController(counter);
+    counter++;
+    checkForStop();
+    concurrentOperations();
+
+    if (counter > fabs(10 + 5*(degs/M_PI)/speed) ) {
+      consoleLogN("-ERROR- setAPIDPosition taking too long. Terminating...");
+      std::cout << "-ERROR- setAPIDPosition of pos: " << degs << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
+      break;
+    }
+
+
+
+    if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * speed ) {
+        motorCannotMoveCounter++;
+        speed *= 1.05;
+    }else{
+        motorCannotMoveCounter/=2;
+    }
+
+    if (motorCannotMoveCounter > 1000) {
+      consoleLogN("Error:: " + motor.getName() + " cannot move");
+      consoleLogN("setAPIDPosition Terminated");
+      std::cout << "Motor cannot move, terminating setAPIDPosition " << "\n ActualVelocity:" << left_mtr_back.get_actual_velocity() << "\n";
+      setDriveTrainPIDIsActivated(false);
+      left_mtr_back.move(0);
+      right_mtr_back.move(0);
+      left_mtr_front.move(0);
+      right_mtr_front.move(0);
+      return false; //motor movement was in some way inhibited
+    }
+
+  }
+
+  setAPIDIsActivated(APIDName,false);
+
+  //reverse motor to counter momentum
+  motor.move(0);
+  pros::delay(150);
+  motor.set_brake_mode(prevBrakeMode);
+
+  std::vector<GEAH::Motor>motors{motor};
+  GEAH::autonRequestReceipt receipt("setMotorPosition",motors,magnatude,speed,type);
+  recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
+
+  return true; // movement was successful
+}
+
 constexpr int SIDE_LEFT = 1;
 constexpr int SIDE_RIGHT = -1;
 
@@ -557,11 +660,12 @@ void runAutoPilot(int times) {
     pros::delay(10);
   }
 }
+*/
 
 
 
 void moveSquares(double numSquares) {
-  driveStraight(0.6 * numSquares,150,MOVE_METERS);
+  driveStraight(0.6 * numSquares,200,MOVE_METERS);
 }
 
 void bumpWall() {
@@ -576,21 +680,26 @@ void bumpWall() {
 
 void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
 
+//    setAPIDIsActivated("ramp_PID", true);
+//    setAPIDTargetAndSpeed("ramp_PID",  40 * 84/12, 255);
     left_intake.move(-255);
     right_intake.move(-255);
-    setAPIDIsActivated("intake_lift_PID", true);
-    pros::delay(250);
-    setAPIDTargetAndSpeed("intake_lift_PID",  100 * 84/12, 255);
-    pros::delay(150);
+//    setAPIDIsActivated("intake_lift_PID", true);
+//    pros::delay(250);
+//    setAPIDTargetAndSpeed("intake_lift_PID",  110 * 84/12, 255);
+//    pros::delay(150);
     moveSquares(squares);
-    runAutoPilot(100);
+//    runAutoPilot(100);
     left_intake.move(0);
     right_intake.move(0);
-    runAutoPilot(200);
-    setAPIDTarget("intake_lift_PID", 0);
-    runAutoPilot(100);
-    setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
-    setAPIDIsActivated("intake_lift_PID", false);
+//    runAutoPilot(200);
+//    setAPIDTarget("intake_lift_PID", 0);
+//    runAutoPilot(100);
+//    setAPIDIsActivated("intake_lift_PID", false);
+///    setAPIDIsActivated("ramp_PID", false);
+//    setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
+//    setMotorPosition(ramp_mtr, 0, 255, MOVE_DEGREES);
+
     pros::delay(10);
 }
 
@@ -601,7 +710,7 @@ void stack(int blockNum) { //Alec's stacking method
     left_intake.move(15 * blockNum-1);
     right_intake.move(15 * blockNum-1);
   }
-  setMotorPosition(ramp_mtr, 80 * 84/6, 1000, MOVE_DEGREES);
+  setMotorPosition(ramp_mtr, 80 * 84/6, 500, MOVE_DEGREES);
   left_intake.move(0);
   right_intake.move(0);
   pros::delay(1000);
@@ -650,6 +759,7 @@ void autonomous() {
   	    moveSquares(0.8);
   	    stack(5);
   }
+
 void autonomous(int auton_sel,int mode) {
   setDriveTrainPIDIsActivated(true);
 
@@ -659,33 +769,26 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
-  	    case(0)://backup
-  	    moveSquares(-1.2);
-  	    pros::delay(700);
-  	    if (mode ==  1) {
-  	      extendRampAndMoveSquares(1.2);
-  	    }else{
-  	      moveSquares(1.2);
-  	    }
-
+  	    case(0)://forward-up
+           if (mode ==  1) {
+             extendRampAndMoveSquares(1.2);
+           }else{
+             moveSquares(1.2);
+           }
+           pros::delay(500);
+      	   moveSquares(-1.2);
   	    break;
 
   	    case(1): //blue left
-        extendRampAndMoveSquares(0.3);
-   	  	turn(-70,100);
+        extendRampAndMoveSquares(1.9);
 
-   	  	left_intake.move(255);
-   	  	right_intake.move(255);
-   	  	moveSquares(0.39);
-   	  	pros::delay(5);
-   	  	turn(70 * SIDE_LEFT,100);
-   	  	moveSquares(1.2);
-   	  	left_intake.move(0);
-   	  	right_intake.move(0);
-   	  	moveSquares(-0.8);
-  	  	turn(-130 ,100);
-  	  	moveSquares(0.8);
+  	  	left_intake.move(0);
+  	  	right_intake.move(0);
+  	  	moveSquares(-0.9);
+  	  	turn(-135 ,150);
+  	  	moveSquares(1.1);
   	  	stack(4);
+
 
   	    break;
 
@@ -732,20 +835,12 @@ void autonomous(int auton_sel,int mode) {
   	    break;
 
   	    case(4): //red right
-        extendRampAndMoveSquares(0.3);
-        turn(70,100);
-
-        left_intake.move(255);
-        right_intake.move(255);
-        moveSquares(0.39);
-        pros::delay(5);
-        turn(-70 * SIDE_LEFT,100);
-        moveSquares(1.2);
+        extendRampAndMoveSquares(1.9);
         left_intake.move(0);
         right_intake.move(0);
-        moveSquares(-0.8);
-        turn(130 ,100);
-        moveSquares(0.8);
+        moveSquares(-0.9);
+        turn(135 ,150);
+        moveSquares(1.1);
         stack(4);
   	    break;
 

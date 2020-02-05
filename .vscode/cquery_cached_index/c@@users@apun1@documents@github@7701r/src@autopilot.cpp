@@ -316,6 +316,25 @@ void realTimeCannonAimer();
 
 void autoPilotController(long loops) {
 
+  if (loops % 30 == 0) {
+    if (ramp_mtr.get_temperature() >= 55) {
+      consoleLogN("ramp_mtr is overheated!");
+      std::cout << "ramp_mtr is overheated!" << ramp_mtr.get_temperature() << "\n";
+    }
+    if (intake_lift_mtr.get_temperature() >= 55) {
+      consoleLogN("intake_lift_mtr is overheated!");
+      std::cout << "intake_lift_mtr is overheated!" << intake_lift_mtr.get_temperature() << "\n";
+    }
+
+    if (left_intake.get_temperature() >= 55) {
+      consoleLogN("left_intake is overheated!");
+      std::cout << "left_intake is overheated!" << left_intake.get_temperature() << "\n";
+    }
+    if (right_intake.get_temperature() >= 55) {
+      consoleLogN("right_intake is overheated!");
+      std::cout << "right_intake is overheated!" << right_intake.get_temperature() << "\n";
+    }
+  }
 
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     (*RTPS).run();
