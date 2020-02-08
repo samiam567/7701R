@@ -117,34 +117,28 @@ bool driveStraight(double magnatude, double speed, int type) {
 
       int motorCannotMoveCounter = 0;
       double lSpeed = speed, rSpeed = speed;
-      double driveSpeed = speed;
+      double driveSpeed = 0;
       while ( (fabs( lValue - (wheelDegrees+lStart)) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) >= callibrationSettings::MOTOR_POSITION_ERROR)){
-      //  if (driveSpeed < speed) driveSpeed += speed/3;
+        if (driveSpeed < speed) driveSpeed += speed/10;
 
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
 
 
-        double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
-        //double vDiff = fabs(lValue-(wheelDegrees+lStart)) - fabs(rValue-(wheelDegrees+rStart));
+        //double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
+        double vDiff = fabs(lValue-(wheelDegrees+lStart)) - fabs(rValue-(wheelDegrees+rStart));
 
-        if (speed >= 0) {
-          lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
-          rSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
-        }else{
-          lSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
-          rSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
-        }
-
+        lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
+        rSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
 
 
         setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
         setRightDriveTrainTarget(wheelDegrees + rStart,rSpeed);
 
-        autoPilotController(counter);
+
 
         if (counter %500==0) std::cout << "driving straight\nlValue: " << lValue << "\nrValue: " << rValue << "\ncounter:" << counter << "\n--\n";
-
+        autoPilotController(counter);
         counter++;
         checkForStop();
         concurrentOperations();
@@ -322,7 +316,7 @@ bool turn(double theta, int speed) { //theta is in degrees
 
       double lSpeed = speed, rSpeed = speed;
       int counter = 0;
-      double driveSpeed = speed;
+      double driveSpeed = 0;
       setDriveTrainPIDIsActivated(true);
 
       left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
@@ -331,7 +325,7 @@ bool turn(double theta, int speed) { //theta is in degrees
       left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
       while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR)){
-        //if (driveSpeed < speed) driveSpeed += speed/3; //gradually increase the speed of the motors
+        if (driveSpeed < speed) driveSpeed += speed/10; //gradually increase the speed of the motors
 
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
@@ -340,28 +334,17 @@ bool turn(double theta, int speed) { //theta is in degrees
           driveSpeed+= 0.1;
         }
 
-        double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
-        //double vDiff = fabs(fabs( fabs(lValue-lStart) - wheelDegrees) - fabs( fabs(rValue-rStart) - wheelDegrees));
+        //double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
+        double vDiff = fabs(fabs( fabs(lValue-lStart) - wheelDegrees) - fabs( fabs(rValue-rStart) - wheelDegrees));
 
-        if (lSpeed >= 0) {
-          lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
-        }else{
-          lSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
-        }
-
-        if (rSpeed >= 0) {
-          rSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
-        }else{
-          rSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
-        }
+        lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
+        rSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
 
         setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
         setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
 
-        autoPilotController(counter);
-
         if (counter %100==0) std::cout << "turning straight\nlValue: " << lValue << "\nrValue: " << rValue << "\n counter: " << counter << "--\n";
-
+        autoPilotController(counter);
         counter++;
         checkForStop();
         concurrentOperations();

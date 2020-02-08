@@ -200,7 +200,7 @@ class realTimePositionController {
 
 
 //drivePIDs
-const float drivePorportion = 1.0f;
+const float drivePorportion = 8.0f;
 const float driveIntegral = 0.01f;
 const float driveDerivative = 0.05f;
 realTimePositionController left_mtr_back_PID{&left_mtr_back,"lb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
