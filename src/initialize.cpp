@@ -58,9 +58,9 @@ GEAH::controllerButton getButtonObject(std::string name) {
 
 //drivers
 namespace GEAH {
-driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
-driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("c0B"),getButtonObject("sc0B")};
-driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("c0B"),getButtonObject("sc0B")};
+driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 
 }
 
@@ -94,7 +94,7 @@ GEAH::driver getDriver() {
 }
 
 bool auton_selected = false,driver_selected = false;
-std::vector<std::string> autonNames = {"backup","blue left","blue right","red left", "red right","blue left 8 stak", "red right 8 stak","stack","Skills","callibration","none"};
+std::vector<std::string> autonNames = {"forward-up","blue left","blue right","red left", "red right","blue left 8 stak", "red right 8 stak","stack","Skills","callibration","none"};
 
 int getAuton() {
 	return auton_select;

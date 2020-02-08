@@ -19,6 +19,7 @@ bool setMotorPosition(pros::Motor motor, float magnatude, int speed, int type);
 
 void autonomous();
 void autonomous(int auton_sel,int mode);
+void resetAutonTargets();
 
 bool checkForStop();
 
@@ -98,7 +99,7 @@ namespace GEAH {
     GEAH::controllerButton lockWheelsIntake;
     GEAH::controllerButton unloadReset;
     GEAH::controllerButton towerLow, towerHigh;
-    GEAH::controllerButton LAUNCH_AUTON;
+    GEAH::controllerButton LAUNCH_AUTON,autoStack;
     GEAH::controllerButton BREAKS_ON,BREAKS_OFF;
 
 
@@ -127,6 +128,8 @@ void setLeftDriveTrainTarget(double newTarg, double speed);
 void setRightDriveTrainTarget(double newTarg, double speed);
 
 void setDriveTrainPIDIsActivated(bool isActivated);
+
+GEAH::Motor getAPIDMotor(std::string name);
 
 //console (in Graphics.cpp)
 void consoleLog(std::string data);

@@ -3,7 +3,7 @@
 
 static const double ERROR = -0.001;
 
-static const double version = 2.2;
+static const double version = 2.02;
 namespace ports{
   //drivetrain
   constexpr int LEFT_WHEEL_BACK_PORT = 11;
@@ -51,8 +51,8 @@ namespace callibrationSettings {
   //  constexpr float flagDistFromWall = 27.5;
   //  constexpr float fronSensorToFrontOfCannonDist = 8;
 
-    constexpr double TURN_CORRECTION = 0.6;
-    constexpr double MOTOR_POSITION_ERROR = 7; //deviation in degrees from where the motor is set to be NOTE: if made too small the motor's accuraccy won't be abe to keep up and, among other things, the auton will be stuck trying to reach it''s set point forever
+    constexpr double TURN_CORRECTION = 0.5;
+    constexpr double MOTOR_POSITION_ERROR = 2; //deviation in degrees from where the motor is set to be NOTE: if made too small the motor's accuraccy won't be abe to keep up and, among other things, the auton will be stuck trying to reach it''s set point forever
     //constexpr int CANNON_LAUNCH_ON_OFF_DELAY = 300;
 
 }

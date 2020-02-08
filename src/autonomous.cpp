@@ -50,7 +50,7 @@ void concurrentOperations() {
   autoPilotLoops++;
 }
 
-bool driveStraight(double magnatude, int speed, int type) {
+bool driveStraight(double magnatude, double speed, int type) {
 		//for type:
 		//0 = rotations
 		//1 = meters
@@ -117,15 +117,19 @@ bool driveStraight(double magnatude, int speed, int type) {
 
       int motorCannotMoveCounter = 0;
       double lSpeed = speed, rSpeed = speed;
-      while ( (fabs( lValue - (wheelDegrees+lStart)) > callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) > callibrationSettings::MOTOR_POSITION_ERROR)){
+      int driveSpeed = 0;
+      while ( (fabs( lValue - (wheelDegrees+lStart)) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) >= callibrationSettings::MOTOR_POSITION_ERROR)){
+        if (driveSpeed < speed) driveSpeed += 20;
+
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
 
 
-        double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
+        //double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
+        double vDiff = fabs(lValue-(wheelDegrees+lStart)) - fabs(rValue-(wheelDegrees+rStart));
 
-        lSpeed = speed + vDiff/2;
-        rSpeed = speed - vDiff/2;
+        lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
+        rSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
 
 
         setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
@@ -134,30 +138,29 @@ bool driveStraight(double magnatude, int speed, int type) {
 
 
         if (counter %500==0) std::cout << "driving straight\nlValue: " << lValue << "\nrValue: " << rValue << "\ncounter:" << counter << "\n--\n";
-        pros::delay(5);
         autoPilotController(counter);
         counter++;
         checkForStop();
         concurrentOperations();
 
-        if (counter > fabs(10 + 5*(wheelDegrees/M_PI)/speed) ) {
-          consoleLogN("-ERROR- Turn taking too long. Terminating...");
+        if (counter > fabs(10 + 10*(wheelDegrees/M_PI)/speed) ) {
+          consoleLogN("-ERROR- Movement taking too long. Terminating...");
           std::cout << "-ERROR- DriveStraight of magn: " << wheelDegrees << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
           break;
         }
 
 
 
-        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * speed ) {
+        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * driveSpeed ) {
             motorCannotMoveCounter++;
-            speed *= 1.05;
+            driveSpeed *= 1.05;
         }else{
             motorCannotMoveCounter/=2;
         }
 
         if (motorCannotMoveCounter > 1000) {
           consoleLogN("Error:: drivetrain cannot move");
-          consoleLogN("Turn Terminated");
+          consoleLogN("DriveStraight Terminated");
           std::cout << "Drivetrain cannot move, terminating turn " << "\n ActualVelocity:" << left_mtr_back.get_actual_velocity() << "\n";
           setDriveTrainPIDIsActivated(false);
           left_mtr_back.move(0);
@@ -166,6 +169,8 @@ bool driveStraight(double magnatude, int speed, int type) {
           right_mtr_front.move(0);
           return false; //motor movement was in some way inhibited
         }
+
+        pros::delay(1);
 
       }
 
@@ -311,6 +316,7 @@ bool turn(double theta, int speed) { //theta is in degrees
 
       double lSpeed = speed, rSpeed = speed;
       int counter = 0;
+      int driveSpeed = 0;
       setDriveTrainPIDIsActivated(true);
 
       left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
@@ -318,31 +324,32 @@ bool turn(double theta, int speed) { //theta is in degrees
       right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
       left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
-      while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) > callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) > callibrationSettings::MOTOR_POSITION_ERROR)){
+      while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR)){
+        if (driveSpeed < speed) driveSpeed+= 20; //gradually increase the speed of the motors
+
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
 
         if ((left_mtr_back.get_actual_velocity() == 0) && (right_mtr_back.get_actual_velocity() == 0) ) {
-          speed+= 0.1;
+          driveSpeed+= 0.1;
         }
 
-        double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
+        //double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
+        double vDiff = fabs(fabs( fabs(lValue-lStart) - wheelDegrees) - fabs( fabs(rValue-rStart) - wheelDegrees));
 
-
-        lSpeed = speed + vDiff*0.5;
-        rSpeed = speed - vDiff*0.5;
+        lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
+        rSpeed = driveSpeed - vDiff*callibrationSettings::TURN_CORRECTION;
 
         setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
         setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
 
         if (counter %100==0) std::cout << "turning straight\nlValue: " << lValue << "\nrValue: " << rValue << "\n counter: " << counter << "--\n";
-        pros::delay(1);
         autoPilotController(counter);
         counter++;
         checkForStop();
         concurrentOperations();
 
-        if (counter > fabs(20 + 300*(theta/M_PI)/speed) ) {
+        if (counter > fabs(20 + 600*(theta/M_PI)/driveSpeed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
           std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << fabs(20 + 300*(theta/M_PI)/speed) << ") \n" << "terminating turn... \n";\
           break;
@@ -350,7 +357,7 @@ bool turn(double theta, int speed) { //theta is in degrees
 
 
 
-        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * speed ) {
+        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * driveSpeed ) {
           motorCannotMoveCounter++;
           speed *= 1.05;
         }else{
@@ -545,7 +552,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   return true; // movement was successful
 }
 
-/*
+
 bool setAPIDPosition(std::string APIDName, float position, int speed, int type) { //return true if successful, false if not
 
   GEAH::Motor motor = getAPIDMotor(APIDName);
@@ -593,7 +600,7 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
   int counter = 0;
   setAPIDIsActivated(APIDName,true);
   setAPIDTargetAndSpeed(APIDName,degs,speed);
-  while (value-degs > callibrationSettings::MOTOR_POSITION_ERROR){
+  while (fabs(value-degs) >= callibrationSettings::MOTOR_POSITION_ERROR){
     value = motor.get_position();
 
     autoPilotController(counter);
@@ -605,7 +612,7 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
     checkForStop();
     concurrentOperations();
 
-    if (counter > fabs(10 + 5*(degs/M_PI)/speed) ) {
+    if (counter/1000 > fabs(10 + (degs/M_PI)/speed) ) {
       consoleLogN("-ERROR- setAPIDPosition taking too long. Terminating...");
       std::cout << "-ERROR- setAPIDPosition of pos: " << degs << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
       break;
@@ -624,16 +631,14 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
       consoleLogN("Error:: " + motor.getName() + " cannot move");
       consoleLogN("setAPIDPosition Terminated");
       std::cout << "Motor cannot move, terminating setAPIDPosition " << "\n ActualVelocity:" << left_mtr_back.get_actual_velocity() << "\n";
-      setDriveTrainPIDIsActivated(false);
-      left_mtr_back.move(0);
-      right_mtr_back.move(0);
-      left_mtr_front.move(0);
-      right_mtr_front.move(0);
+      setAPIDIsActivated(APIDName, false);
+
       return false; //motor movement was in some way inhibited
     }
 
   }
 
+  setAPIDTargetAndSpeed(APIDName, motor.get_position(),0);
   setAPIDIsActivated(APIDName,false);
 
   //reverse motor to counter momentum
@@ -660,7 +665,7 @@ void runAutoPilot(int times) {
     pros::delay(10);
   }
 }
-*/
+
 
 
 
@@ -704,23 +709,36 @@ void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
 }
 
 void stack(int blockNum) { //Alec's stacking method
+  setDriveTrainPIDIsActivated(false);
   lTarget = left_mtr_back.get_position();
   rTarget = right_mtr_back.get_position();
   if (blockNum > 4) {
     left_intake.move(15 * blockNum-1);
     right_intake.move(15 * blockNum-1);
   }
-  setMotorPosition(ramp_mtr, 80 * 84/6, 500, MOVE_DEGREES);
-  left_intake.move(0);
-  right_intake.move(0);
-  pros::delay(1000);
-  autonLockWheelsIntake = true;
-  moveSquares(-0.7);
-  autonLockWheelsIntake = false;
-  left_intake.move(0);
-  right_intake.move(0);
+  //setMotorPosition(ramp_mtr, 80 * 84/6, 500, MOVE_DEGREES);
+  if (setAPIDPosition("ramp_PID",81 * 84/6,100,MOVE_DEGREES)) {
+    setAPIDIsActivated("ramp_PID",false);
+    left_intake.move(0);
+    right_intake.move(0);
+    pros::delay(500);
+    autonLockWheelsIntake = true;
+    moveSquares(-0.7);
+    autonLockWheelsIntake = false;
+    left_intake.move(0);
+    right_intake.move(0);
+    std::cout << "stack successful" << std::endl;
+  }else{
+    setAPIDIsActivated("ramp_PID", false);
+    std::cout << "stack failed" << std::endl;
+  }
+
 }
 
+void resetAutonTargets() {
+  lTarget = left_mtr_back.get_position();
+  rTarget = right_mtr_back.get_position();
+}
 
 void autonomous(int auton_sel);
 
@@ -769,152 +787,150 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
-  	    case(0)://forward-up
-           if (mode ==  1) {
-             extendRampAndMoveSquares(1.2);
-           }else{
-             moveSquares(1.2);
-           }
-           pros::delay(500);
-      	   moveSquares(-1.2);
-  	    break;
+ 	    case(0)://forward-up
+          if (mode ==  1) {
+            extendRampAndMoveSquares(1.2);
+          }else{
+            moveSquares(1.2);
+          }
+          pros::delay(500);
+     	   moveSquares(-1.2);
+ 	    break;
 
-  	    case(1): //blue left
-        extendRampAndMoveSquares(1.9);
+ 	    case(1): //blue left
+      extendRampAndMoveSquares(0.3);
 
-  	  	left_intake.move(0);
-  	  	right_intake.move(0);
-  	  	moveSquares(-0.9);
-  	  	turn(-135 ,150);
-  	  	moveSquares(1.1);
-  	  	stack(4);
-
-
-  	    break;
-
-  	    case(2): //blue right
-
-  	  	extendRampAndMoveSquares(0.2);
-  	    turn(-90,100);
-  	    moveSquares(0.33333333333);
-  	    turn(90,100);
-  	    left_intake.move(255);
-  	    right_intake.move(255);
-  	    moveSquares(1.2);
-  	    pros::delay(500);
-  	    moveSquares(0.6);
-  	    pros::delay(5);
-  	    left_intake.move(0);
-  	    right_intake.move(0);
-  	    moveSquares(-1.8);
-  	    turn(90,100);
-  	    moveSquares(1.21);
-  	    stack(5);
+ 	  	left_intake.move(255);
+ 	  	right_intake.move(255);
+      moveSquares(1.6);
+      pros::delay(50);
+      left_intake.move(0);
+      right_intake.move(0);
+      pros::delay(100);
+ 	  	moveSquares(-0.9);
+ 	  	turn(-135 ,150);
+ 	  	moveSquares(1.1);
+ 	  	stack(4);
 
 
-  	    break;
+ 	    break;
+
+ 	    case(2): //blue right
+
+ 	  	extendRampAndMoveSquares(0.3);
+ 	    left_intake.move(255);
+ 	    right_intake.move(255);
+      moveSquares(1.1);
+ 	    pros::delay(500);
+ 	    moveSquares(0.6);
+ 	    pros::delay(5);
+ 	    left_intake.move(0);
+ 	    right_intake.move(0);
+ 	    moveSquares(-1.85);
+ 	    turn(90,100);
+ 	    moveSquares(1.21);
+ 	    stack(5);
 
 
-  	    case(3): //red left
-  	    extendRampAndMoveSquares(0.2);
-  	    turn(90,100);
-  	    moveSquares(0.33333333333);
-  	    turn(-90,100);
-  	    left_intake.move(255);
-  	    right_intake.move(255);
-  	    moveSquares(1.2);
-  	    pros::delay(500);
-  	    moveSquares(0.6);
-  	    pros::delay(5);
-  	    left_intake.move(0);
-  	    right_intake.move(0);
-  	    moveSquares(-1.8);
-  	    turn(-90,100);
-  	    moveSquares(1.21);
-  	    stack(5);
-  	    break;
+ 	    break;
 
-  	    case(4): //red right
-        extendRampAndMoveSquares(1.9);
+
+ 	    case(3): //red left
+      extendRampAndMoveSquares(0.3);
+ 	    left_intake.move(255);
+ 	    right_intake.move(255);
+      moveSquares(1.1);
+ 	    pros::delay(500);
+ 	    moveSquares(0.6);
+ 	    pros::delay(5);
+ 	    left_intake.move(0);
+ 	    right_intake.move(0);
+ 	    moveSquares(-1.85);
+ 	    turn(-90,100);
+ 	    moveSquares(1.21);
+ 	    stack(4);
+ 	    break;
+
+ 	    case(4): //red right
+ 	     extendRampAndMoveSquares(0.3);
+
+   	  	left_intake.move(255);
+   	  	right_intake.move(255);
+        moveSquares(1.6);
+        pros::delay(50);
         left_intake.move(0);
         right_intake.move(0);
-        moveSquares(-0.9);
-        turn(135 ,150);
-        moveSquares(1.1);
-        stack(4);
-  	    break;
+        pros::delay(100);
+   	  	moveSquares(-0.9);
+   	  	turn(135 ,150);
+   	  	moveSquares(1.1);
+   	  	stack(5);
+ 	    break;
 
-  	    case(5): //blue left 8 stak
-  	    extendRampAndMoveSquares(0.3);
-  	  	turn(-55 * SIDE_LEFT,100);
+ 	    case(5): //blue left 8 stak
+ 	    extendRampAndMoveSquares(2.35);
 
-  	  	left_intake.move(255);
-  	  	right_intake.move(255);
-  	  	moveSquares(0.5);
-  	  	pros::delay(5);
-  	  	turn(55 * SIDE_LEFT,100);
-  	  	moveSquares(1);
-  	  	left_intake.move(0);
-  	  	right_intake.move(0);
-  	  	moveSquares(-1);
-  	  	turn(90,100);
-  	  	moveSquares(1);
-  	  	turn(-90,100);
-  	  	left_intake.move(255);
-  	  	right_intake.move(255);
-  	  	moveSquares(0.7);
-  	  	pros::delay(500);
-  	  	moveSquares(0.3);
-  	  	turn(-130,100);
-  	  	moveSquares(2.2);
-  	  	stack(8);
-  	    break;
+ 	  	pros::delay(5);
+ 	  	turn(90 * SIDE_LEFT,255);
+ 	  	moveSquares(1);
+ 	  	left_intake.move(0);
+ 	  	right_intake.move(0);
+ 	  	turn(90 * SIDE_LEFT,100);
+ 	  	left_intake.move(255);
+ 	  	right_intake.move(255);
+ 	  	moveSquares(2.3);
+ 	  	turn(90 * SIDE_LEFT,255);
 
-  	    case(6): //red right 8 stak
-  	    extendRampAndMoveSquares(0.3);
-  	  	turn(55 * SIDE_LEFT,100);
+ 	  	moveSquares(1.7);
 
-  	  	left_intake.move(255);
-  	  	right_intake.move(255);
-  	  	moveSquares(0.5);
-  	  	pros::delay(5);
-  	  	turn(-55 * SIDE_LEFT,100);
-  	  	moveSquares(1);
-  	  	left_intake.move(0);
-  	  	right_intake.move(0);
-  	  	moveSquares(-1);
-  	  	turn(-90,100);
-  	  	moveSquares(1);
-  	  	turn(90,100);
-  	  	left_intake.move(255);
-  	  	right_intake.move(255);
-  	  	moveSquares(0.7);
-  	  	pros::delay(500);
-  	  	moveSquares(0.3);
-  	  	turn(130,100);
-  	  	moveSquares(2.2);
-  	  	stack(8);
-  	    break;
+ 	  	stack(8);
+ 	    break;
 
-  	    case(7): //stack
-  	      stack(10);
-  	      break;
+ 	    case(6): //red right 8 stak
+ 	    	extendRampAndMoveSquares(2.35);
+
+ 	  	pros::delay(5);
+ 	  	turn(90 * SIDE_RIGHT,255);
+ 	  	moveSquares(1);
+ 	  	left_intake.move(0);
+ 	  	right_intake.move(0);
+ 	  	turn(90 * SIDE_RIGHT,100);
+ 	  	left_intake.move(255);
+ 	  	right_intake.move(255);
+ 	  	moveSquares(2.3);
+ 	  	turn(90 * SIDE_RIGHT,255);
+
+ 	  	moveSquares(1.7);
+
+ 	  	stack(8);
+ 	    break;
+
+ 	    case(7): //stack
+ 	      stack(10);
+ 	      break;
 
 
 
-  	    case(8): //skills
+ 	    case(8): //skills
+ 	    	extendRampAndMoveSquares(4.5);
 
-  	    break;
+ 		  	left_intake.move(0);
+ 		  	right_intake.move(0);
+ 		  	turn(-45 ,150);
+ 		  	moveSquares(1.1);
+ 		  	stack(8);
 
-  	    case(9): //calibration
+ 	    break;
 
-  	    break;
+ 	    case(9): //calibration
 
-  	    case(10): //none
+ 	    break;
+
+ 	    case(10): //none
 
 
-  	    break;
-  }
+ 	    break;
+ 	  }
   setDriveTrainPIDIsActivated(false);
 
   std::cout << "-END OF AUTON:  " << getAutonName(auton_sel) << "-\n";

@@ -141,8 +141,15 @@ void runOpControl() {
 
 
     if (GEAH::buttonIsPressed(driver.LAUNCH_AUTON)) {
+      resetAutonTargets();
       pros::delay(500);
       autonomous();
+    }
+
+    if (GEAH::buttonIsPressed(driver.autoStack)) {
+      resetAutonTargets();
+      pros::delay(500);
+      autonomous(getAuton("stack"),0);
     }
 
 
