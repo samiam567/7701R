@@ -192,6 +192,8 @@ class realTimePositionController {
   void setPositionType(int newPosType){
     positionType = newPosType;
   }
+
+
 };
 
 
@@ -257,8 +259,6 @@ void setDriveTrainTarget(double newTarg,double speed) {
   (*getRealTimePositionController("rb_drive_PID")).setSpeedModifier(speedModifier);
   (*getRealTimePositionController("rf_drive_PID")).setSpeedModifier(speedModifier);
   (*getRealTimePositionController("lf_drive_PID")).setSpeedModifier(speedModifier);
-
-
 }
 
 void setLeftDriveTrainTarget(double newTarg,double speed) {
@@ -343,5 +343,10 @@ void autoPilotController(long loops) {
 
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     (*RTPS).run();
+  }
+
+  if (   (*getRealTimePositionController("lb_drive_PID")).getIsActivated()) { //if drive Pids are activated
+    left_mtr_front.move_velocity(left_mtr_back.get_target_velocity());
+    right_mtr_front.move_velocity(right_mtr_back.get_target_velocity());
   }
 }

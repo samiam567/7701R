@@ -117,9 +117,9 @@ bool driveStraight(double magnatude, double speed, int type) {
 
       int motorCannotMoveCounter = 0;
       double lSpeed = speed, rSpeed = speed;
-      int driveSpeed = 0;
+      double driveSpeed = 0;
       while ( (fabs( lValue - (wheelDegrees+lStart)) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) >= callibrationSettings::MOTOR_POSITION_ERROR)){
-        if (driveSpeed < speed) driveSpeed += 20;
+        if (driveSpeed < speed) driveSpeed += speed/10;
 
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
@@ -316,7 +316,7 @@ bool turn(double theta, int speed) { //theta is in degrees
 
       double lSpeed = speed, rSpeed = speed;
       int counter = 0;
-      int driveSpeed = 0;
+      double driveSpeed = 0;
       setDriveTrainPIDIsActivated(true);
 
       left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
@@ -325,7 +325,7 @@ bool turn(double theta, int speed) { //theta is in degrees
       left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
       while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR)){
-        if (driveSpeed < speed) driveSpeed+= 20; //gradually increase the speed of the motors
+        if (driveSpeed < speed) driveSpeed += speed/10; //gradually increase the speed of the motors
 
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();

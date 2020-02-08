@@ -9,7 +9,7 @@ namespace ports{
   constexpr int LEFT_WHEEL_BACK_PORT = 11;
   constexpr int RIGHT_WHEEL_BACK_PORT = 2;
   constexpr int LEFT_WHEEL_FRONT_PORT = 3;
-  constexpr int RIGHT_WHEEL_FRONT_PORT = 9;
+  constexpr int RIGHT_WHEEL_FRONT_PORT = 9; 
     //note: for two wheel drive, you should be able to set the front and back motor ports for each side equal to the same port
 
  constexpr int RAMP_MTR_PORT = 5;
