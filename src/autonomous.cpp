@@ -141,10 +141,11 @@ bool driveStraight(double magnatude, double speed, int type) {
         setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
         setRightDriveTrainTarget(wheelDegrees + rStart,rSpeed);
 
-        autoPilotController(counter);
+
 
         if (counter %500==0) std::cout << "driving straight\nlValue: " << lValue << "\nrValue: " << rValue << "\ncounter:" << counter << "\n--\n";
 
+        autoPilotController(counter);
         counter++;
         checkForStop();
         concurrentOperations();
@@ -201,7 +202,7 @@ bool driveStraight(double magnatude, double speed, int type) {
 
       std::cout << "finalPos:\n" << lValue << "\n" << rValue << "\n--\n";
 
-      std::vector<GEAH::Motor>motors{left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
+      std::vector<GEAH::Motor>motors = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
       GEAH::autonRequestReceipt receipt("driveStraight",motors,magnatude,speed,type);
       recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
       return true;
@@ -338,6 +339,7 @@ bool turn(double theta, int speed) { //theta is in degrees
 
         if ((left_mtr_back.get_actual_velocity() == 0) && (right_mtr_back.get_actual_velocity() == 0) ) {
           driveSpeed+= 0.1;
+          motorCannotMoveCounter++;
         }
 
         double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
@@ -366,19 +368,10 @@ bool turn(double theta, int speed) { //theta is in degrees
         checkForStop();
         concurrentOperations();
 
-        if (counter > fabs(20 + 600*(theta/M_PI)/driveSpeed) ) {
+        if (counter > fabs(20 + 50*(theta/M_PI)/driveSpeed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
           std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << fabs(20 + 300*(theta/M_PI)/speed) << ") \n" << "terminating turn... \n";\
           break;
-        }
-
-
-
-        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * driveSpeed ) {
-          motorCannotMoveCounter++;
-          speed *= 1.05;
-        }else{
-            motorCannotMoveCounter/=2;
         }
 
         if (motorCannotMoveCounter > 1000) {
@@ -413,7 +406,7 @@ bool turn(double theta, int speed) { //theta is in degrees
       left_mtr_front.set_brake_mode(prevBrakeMode);
       std::cout << "finalPos:\n" << lValue << "\n" << rValue << "\n--\n";
 
-      std::vector<GEAH::Motor>motors{left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
+      std::vector<GEAH::Motor>motors = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
       GEAH::autonRequestReceipt receipt("driveStraight",motors,theta,speed,MOVE_DEGREES);
       recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
@@ -562,7 +555,7 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   pros::delay(150);
   motor.set_brake_mode(prevBrakeMode);
 
-  std::vector<GEAH::Motor>motors{motor};
+  std::vector<GEAH::Motor>motors = {motor};
   GEAH::autonRequestReceipt receipt("setMotorPosition",motors,magnatude,speed,type);
   recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
@@ -663,7 +656,7 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
   pros::delay(150);
   motor.set_brake_mode(prevBrakeMode);
 
-  std::vector<GEAH::Motor>motors{motor};
+  std::vector<GEAH::Motor>motors = {motor};
   GEAH::autonRequestReceipt receipt("setMotorPosition",motors,magnatude,speed,type);
   recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
@@ -825,7 +818,7 @@ void autonomous(int auton_sel,int mode) {
       right_intake.move(0);
       pros::delay(100);
  	  	moveSquares(-0.9);
- 	  	turn(-135 ,150);
+ 	  	turn(-130 ,150);
  	  	moveSquares(1.1);
  	  	stack(4);
 
@@ -874,12 +867,12 @@ void autonomous(int auton_sel,int mode) {
    	  	left_intake.move(255);
    	  	right_intake.move(255);
         moveSquares(1.6);
-        pros::delay(50);
+        pros::delay(10);
         left_intake.move(0);
         right_intake.move(0);
-        pros::delay(100);
+        pros::delay(10);
    	  	moveSquares(-0.9);
-   	  	turn(135 ,150);
+   	  	turn(130,130);
    	  	moveSquares(1.1);
    	  	stack(5);
  	    break;
