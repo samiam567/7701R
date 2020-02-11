@@ -118,6 +118,12 @@ bool driveStraight(double magnatude, double speed, int type) {
       int motorCannotMoveCounter = 0;
       double lSpeed = speed, rSpeed = speed;
       double driveSpeed = speed;
+
+
+      //WE ONLY CALL THESE ONCE NOW
+      setLeftDriveTrainTarget(wheelDegrees + lStart, speed);
+      setRightDriveTrainTarget(wheelDegrees + rStart,speed);
+
       while ( (fabs( lValue - (wheelDegrees+lStart)) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) >= callibrationSettings::MOTOR_POSITION_ERROR)){
       //  if (driveSpeed < speed) driveSpeed += speed/3;
 
@@ -138,8 +144,8 @@ bool driveStraight(double magnatude, double speed, int type) {
 
 
 
-        setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
-        setRightDriveTrainTarget(wheelDegrees + rStart,rSpeed);
+        //setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
+        //setRightDriveTrainTarget(wheelDegrees + rStart,rSpeed);
 
 
 
@@ -331,6 +337,10 @@ bool turn(double theta, int speed) { //theta is in degrees
       right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
       left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
+      //THESE ARE ONLY CALLED ONCE NOW
+      setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
+      setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
+
       while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR)){
         //if (driveSpeed < speed) driveSpeed += speed/3; //gradually increase the speed of the motors
 
@@ -357,8 +367,8 @@ bool turn(double theta, int speed) { //theta is in degrees
           rSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
         }
 
-        setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
-        setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
+      //  setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
+      //  setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
 
         autoPilotController(counter);
 

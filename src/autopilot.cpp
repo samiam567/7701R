@@ -150,6 +150,7 @@ class realTimePositionController {
   }
   void setSpeedModifier(float speedModifier1) {
     speedModifier = speedModifier1;
+    run();
   }
   std::string getName() {
     return name;
@@ -168,6 +169,7 @@ class realTimePositionController {
   }
   void setTargetPosition(double newPos) {
     targetPosition = newPos;
+    run();
   }
 
   void setIsModulated(bool mod) {
@@ -179,14 +181,15 @@ class realTimePositionController {
   }
 
   void setIsActivated(bool isActive1) {
-
+    isActivated = isActive1;
     if ((isActive1) && (! isActivated)) {
       initialize();
+      run();
     }else if ((! isActive1) && (isActivated)){
       disable();
     }
 
-    isActivated = isActive1;
+
   }
 
   void setPositionType(int newPosType){
@@ -341,10 +344,11 @@ void autoPilotController(long loops) {
     }
   }
 
+/*
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     (*RTPS).run();
   }
-
+*/
   if (   (*getRealTimePositionController("lb_drive_PID")).getIsActivated()) { //if drive Pids are activated
     left_mtr_front.move_velocity(left_mtr_back.get_target_velocity());
     right_mtr_front.move_velocity(right_mtr_back.get_target_velocity());
