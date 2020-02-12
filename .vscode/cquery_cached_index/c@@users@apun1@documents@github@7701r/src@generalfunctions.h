@@ -1,7 +1,7 @@
 #ifndef GENERAL_FUNCTIONS_H
 #define GENERAL_FUNCTIONS_H
 #include "main.h"
-
+#include "GEAH_Motor.hpp"
 
 //position/movement types
 constexpr int MOVE_METERS = 0;
@@ -33,41 +33,7 @@ void vibrateController(const char*rumble_pattern); //(in opcontroll.cpp)
 
 namespace GEAH {
 
-  class Motor : public pros::Motor {
-    private:
-       std::string name = "unNamed";
-       double preCallibrationPos = 0; //for autonCallibration
-    public:
 
-
-      Motor(std::string Name, const std::uint8_t port, const pros::motor_gearset_e_t gearset, const std::uint8_t isReversed, const pros::motor_encoder_units_e_t encoderMode) : pros::Motor(port,gearset,isReversed,encoderMode) {
-        name = Name;
-        std::cout << name << " has been created \n";
-      }
-
-      void operator= (int voltage ) {
-        move(voltage);
-      }
-
-      void operator= (double voltage ) {
-        move(voltage);
-      }
-      void operator= (long voltage ) {
-        move(voltage);
-      }
-
-      void setPreCallibrationPos(double preCalPos) {
-        preCallibrationPos = preCalPos;
-      }
-
-      double getPreCallibrationPos() {
-        return preCallibrationPos;
-      }
-
-      std::string getName() {
-        return name;
-      }
-  };
 
   class autonRequestReceipt {
     public:
@@ -126,7 +92,8 @@ void setIntakeAPIDIsActivated(bool isActivated);
 void setDriveTrainTarget(double newTarg, double speed);
 void setLeftDriveTrainTarget(double newTarg, double speed);
 void setRightDriveTrainTarget(double newTarg, double speed);
-
+void setLeftDriveTrainPIDSpeedModifier(double newSpeed);
+void setRightDriveTrainPIDSpeedModifier(double newSpeed);
 void setDriveTrainPIDIsActivated(bool isActivated);
 
 GEAH::Motor getAPIDMotor(std::string name);
@@ -153,4 +120,5 @@ void recordRobotAutonMovement(GEAH::autonRequestReceipt receipt); //<- used for 
 
 //opControl (in opcontrol.cpp)
 void runOpControl();
+
 #endif

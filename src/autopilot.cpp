@@ -25,12 +25,10 @@ class realTimePositionController {
     std::string name = "";
     bool isActivated = true;
 
-    float speedModifier = 1;
+    double speedModifier = 1;
     bool modulated = false;
     int positionType = MOVE_DEGREES;
-    int direction = 0; //-1 = only backwards, 1 = only forwards, 0 = either forwards or backwards
 
-    bool PID;
     float porportion, integral, derivative;
 
     int motorSystemRadius = callibrationSettings::wheelRadius;
@@ -40,46 +38,21 @@ class realTimePositionController {
     float moveVelocity = 0;
     int motorPowerIncreaser = 0;
 
-  private:
-    double getMotorPosition() {
-      double deg_value =(double) (*motorToControl).get_position();
-      if (modulated) deg_value = (double)  (((int)deg_value) % 360);
 
-      switch(positionType) {
-
-        case(MOVE_ROTATIONS):
-          return deg_value/360;
-        break;
-
-        case(MOVE_METERS):
-          return motorSystemRadius * deg_value * PI / 180;
-        break;
-
-        case(MOVE_DEGREES):
-          return deg_value;
-          break;
-        default:
-          consoleLogN("ERROR in APID " + name + ": invaid positionType");
-          return ERROR;
-          break;
-      };
-
-    }
 
   public:
     realTimePositionController(GEAH::Motor* motorToControl1, std::string name1) : motorToControl{motorToControl1}, name{name1} {
-      PID = false;
+      consoleLogN("ERROR - NON-PID APID CONSTRUCTOR SHOULD NEVER BE USED!");
+      std::cout << "ERROR - NON-PID APID CONSTRUCTOR SHOULD NEVER BE USED!" << std::endl;
     }
 
-    realTimePositionController(GEAH::Motor* motorToControl1, std::string name1,float porportion1, float integral1, float derivative1) : motorToControl{motorToControl1}, name{name1}, porportion{porportion1}, integral{integral1}, derivative{derivative1} {
-      PID = true;
-    }
+    realTimePositionController(GEAH::Motor* motorToControl1, std::string name1,float porportion1, float integral1, float derivative1) : motorToControl{motorToControl1}, name{name1}, porportion{porportion1}, integral{integral1}, derivative{derivative1} {}
 
     void initialize() {
-      if (PID) {
-        pros::motor_pid_full_s_t pid = pros::Motor::convert_pid_full(0,porportion, integral, derivative,1,1,callibrationSettings::MOTOR_POSITION_ERROR/2,10);
-        (*motorToControl).set_pos_pid_full(pid);
-      }
+      pros::motor_pid_full_s_t pid = pros::Motor::convert_pid_full(0,porportion, integral, derivative,1,1,callibrationSettings::MOTOR_POSITION_ERROR/2,10);
+      (*motorToControl).set_pos_pid_full(pid);
+      (*motorToControl).setAPIDConstants(porportion, integral, derivative);
+      (*motorToControl).setSpeedModifier(&speedModifier);
     }
 
     GEAH::Motor* getMotorPointer() {
@@ -87,69 +60,16 @@ class realTimePositionController {
     }
 
     void disable() {
-      if (PID) {
-        pros::motor_pid_s_t pid = pros::Motor::convert_pid(0,0,0,0);
-        (*motorToControl).set_pos_pid(pid);
-      }
+      pros::motor_pid_s_t pid = pros::Motor::convert_pid(0,0,0,0);
+      (*motorToControl).set_pos_pid(pid);
     }
     void run() {
-      if (PID) {
-        if (isActivated) {
-          if (targetPosition != ERROR) (*motorToControl).move_absolute(targetPosition, 63.5 * speedModifier);
-        }
-      }else{
-        pros::delay(1);
-        if ((moveVelocity > 0.001) && ((*motorToControl).get_actual_velocity() == 0)) {
-          cannotMoveCounter++;
-        }else{
-          cannotMoveCounter = 0;
-        }
-
-        if (cannotMoveCounter > 20) {
-          consoleLogN("aim motor cannot move. Terminating movement...");
-          std::cout << ("aim motor cannot move. Terminating movement...");
-          moveVelocity = 0;
-          (*motorToControl).move_velocity(0);
-        }else if (isActivated) {
-          if (modulated) {
-            angleDelta =  ((int)targetPosition % 360) - getMotorPosition();
-          }else{
-            angleDelta = targetPosition - getMotorPosition();
-          }
-          pros::delay(1);
-          moveVelocity = fabs(angleDelta)/angleDelta * (motorPowerIncreaser + speedModifier * (0.7*fabs(angleDelta)+3*sqrt(fabs(angleDelta))-3*pow(fabs(angleDelta),1/4)+.322496));
-          if (direction == 0) {
-            (*motorToControl).move_velocity(moveVelocity);
-          }else{
-            if (direction == 1) {
-              if (moveVelocity >= 0) {
-                (*motorToControl).move_velocity(moveVelocity);
-              }else{
-                (*motorToControl).move_velocity(0);
-              }
-            }else if (direction == -1) {
-              if (moveVelocity <= 0) {
-                (*motorToControl).move_velocity(moveVelocity);
-              }else{
-                (*motorToControl).move_velocity(0);
-              }
-            }else{
-              consoleLogN("ERROR in APID: " + name + " -- invalid direction");
-              std::cout << ("ERROR in APID: " + name + " -- invalid direction (direction:") << direction << ")\n";
-            }
-          }
-          if ((fabs((*motorToControl).get_actual_velocity()) < 0.5 * fabs(moveVelocity)) && (fabs(moveVelocity) > 0.1)) {
-            motorPowerIncreaser++;
-          }else{
-            if (motorPowerIncreaser > 0) motorPowerIncreaser--;
-          }
-        }else{
-          moveVelocity = 0;
-        }
+      if (isActivated) {
+        if (targetPosition != ERROR) (*motorToControl).runPid();
       }
   }
-  void setSpeedModifier(float speedModifier1) {
-    speedModifier = speedModifier1;
+  void setSpeedModifier(double speedModifier1) {
+    speedModifier = std::abs(speedModifier1);
     run();
   }
   std::string getName() {
@@ -169,27 +89,18 @@ class realTimePositionController {
   }
   void setTargetPosition(double newPos) {
     targetPosition = newPos;
-    run();
-  }
-
-  void setIsModulated(bool mod) {
-    modulated = mod;
-  }
-
-  void setDirection(int dir) {
-    direction = dir;
+    (*motorToControl).setAPIDTarget(newPos);
   }
 
   void setIsActivated(bool isActive1) {
-    isActivated = isActive1;
+
     if ((isActive1) && (! isActivated)) {
       initialize();
-      run();
     }else if ((! isActive1) && (isActivated)){
       disable();
     }
 
-
+    isActivated = isActive1; //do this after so we can use isActivated as a prev var for the if statements
   }
 
   void setPositionType(int newPosType){
@@ -212,15 +123,13 @@ realTimePositionController left_mtr_front_PID{&left_mtr_front,"lf_drive_PID",dri
 realTimePositionController right_mtr_front_PID{&right_mtr_front,"rf_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 
 realTimePositionController intake_lift_PID{&intake_lift_mtr,"intake_lift_PID",1.5f,1.0f,0.01f};
-realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",10.0f,0.01f,0.30f};
-
-realTimePositionController left_intake_PID{&left_intake,"left_intake_PID",0.5f,0.01f,0.0f};
-realTimePositionController right_intake_PID{&right_intake,"right_intake_PID",0.5f,0.01f,0.0f};
+realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.0f,0.01f,0.30f};
 
 
 
 
-std::vector<realTimePositionController*> realTimePositionControllers = {&left_mtr_back_PID,&right_mtr_back_PID,&right_mtr_front_PID,&left_mtr_front_PID,&intake_lift_PID,&ramp_PID,&left_intake_PID,&right_intake_PID};
+
+std::vector<realTimePositionController*> realTimePositionControllers = {&left_mtr_back_PID,&right_mtr_back_PID,/*&right_mtr_front_PID,&left_mtr_front_PID,*/&intake_lift_PID,&ramp_PID};
 
 void initializeAutoPilot() {
 
@@ -253,7 +162,7 @@ realTimePositionController* getRealTimePositionController(std::string name) {
 
 
 void setDriveTrainTarget(double newTarg,double speed) {
-  double speedModifier = speed/63.5;
+  double speedModifier = speed;
   setAPIDTarget("rb_drive_PID",newTarg);
   setAPIDTarget("lb_drive_PID",newTarg);
   setAPIDTarget("lf_drive_PID",newTarg);
@@ -265,7 +174,7 @@ void setDriveTrainTarget(double newTarg,double speed) {
 }
 
 void setLeftDriveTrainTarget(double newTarg,double speed) {
-  double speedModifier = speed/63.5;
+  double speedModifier = speed;
   setAPIDTarget("lb_drive_PID",newTarg);
   setAPIDTarget("lf_drive_PID",newTarg);
   (*getRealTimePositionController("lb_drive_PID")).setSpeedModifier(speedModifier);
@@ -273,11 +182,21 @@ void setLeftDriveTrainTarget(double newTarg,double speed) {
 }
 
 void setRightDriveTrainTarget(double newTarg,double speed) {;
-  double speedModifier = speed/63.5;
+  double speedModifier = speed;
   setAPIDTarget("rb_drive_PID",newTarg);
   setAPIDTarget("rf_drive_PID",newTarg);
   (*getRealTimePositionController("rb_drive_PID")).setSpeedModifier(speedModifier);
   (*getRealTimePositionController("rf_drive_PID")).setSpeedModifier(speedModifier);
+}
+
+void setLeftDriveTrainPIDSpeedModifier(double newSpeed) {
+  (*getRealTimePositionController("rb_drive_PID")).setSpeedModifier(newSpeed);
+  (*getRealTimePositionController("rf_drive_PID")).setSpeedModifier(newSpeed);
+}
+
+void setRightDriveTrainPIDSpeedModifier(double newSpeed) {
+  (*getRealTimePositionController("lb_drive_PID")).setSpeedModifier(newSpeed);
+  (*getRealTimePositionController("lf_drive_PID")).setSpeedModifier(newSpeed);
 }
 
 void setDriveTrainPIDIsActivated(bool isActivated) {
@@ -288,17 +207,8 @@ void setDriveTrainPIDIsActivated(bool isActivated) {
 
 }
 
-void setIntakeAPIDIsActivated(bool isActivated){
-  setAPIDIsActivated("left_intake_PID", isActivated);
-  setAPIDIsActivated("right_intake_PID", isActivated);
-}
 
-void setIntakeAPIDTargetAndSpeed(double targPos, double speed) {
-  (*getRealTimePositionController("left_intake_PID")).setTargetPosition(targPos);
-  (*getRealTimePositionController("left_intake_PID")).setSpeedModifier(speed/63.5);
-  (*getRealTimePositionController("right_intake_PID")).setTargetPosition(targPos);
-  (*getRealTimePositionController("right_intake_PID")).setSpeedModifier(speed/63.5);
-}
+
 
 double getAPIDTarget(std::string apidName) {
   return (*getRealTimePositionController(apidName)).getTargetPosition();
@@ -320,7 +230,16 @@ void setAPIDIsActivated(std::string apidName, bool isActivated) {
 GEAH::Motor getAPIDMotor(std::string apidName) {
   return *((*getRealTimePositionController(apidName)).getMotorPointer());
 }
+
+void runPIDs() {
+  for (realTimePositionController *RTPS : realTimePositionControllers) {
+    (*RTPS).run();
+  }
+}
+
 void autoPilotController(long loops) {
+
+  runPIDs();
 
   if (loops % 30 == 0) {
     if (ramp_mtr.get_temperature() >= 55) {
@@ -344,11 +263,6 @@ void autoPilotController(long loops) {
     }
   }
 
-/*
-  for (realTimePositionController *RTPS : realTimePositionControllers) {
-    (*RTPS).run();
-  }
-*/
   if (   (*getRealTimePositionController("lb_drive_PID")).getIsActivated()) { //if drive Pids are activated
     left_mtr_front.move_velocity(left_mtr_back.get_target_velocity());
     right_mtr_front.move_velocity(right_mtr_back.get_target_velocity());

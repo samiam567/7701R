@@ -142,10 +142,8 @@ bool driveStraight(double magnatude, double speed, int type) {
           rSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
         }
 
-
-
-        //setLeftDriveTrainTarget(wheelDegrees + lStart, lSpeed);
-        //setRightDriveTrainTarget(wheelDegrees + rStart,rSpeed);
+        setLeftDriveTrainPIDSpeedModifier(lSpeed);
+        setRightDriveTrainPIDSpeedModifier(rSpeed);
 
 
 
@@ -208,7 +206,8 @@ bool driveStraight(double magnatude, double speed, int type) {
 
       std::cout << "finalPos:\n" << lValue << "\n" << rValue << "\n--\n";
 
-      std::vector<GEAH::Motor>motors = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
+      GEAH::Motor motorsArr[] = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
+      std::vector<GEAH::Motor> motors (motorsArr, motorsArr + sizeof(motorsArr));
       GEAH::autonRequestReceipt receipt("driveStraight",motors,magnatude,speed,type);
       recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
       return true;
@@ -367,8 +366,8 @@ bool turn(double theta, int speed) { //theta is in degrees
           rSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
         }
 
-      //  setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
-      //  setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
+        setLeftDriveTrainPIDSpeedModifier(lSpeed);
+        setRightDriveTrainPIDSpeedModifier(rSpeed);
 
         autoPilotController(counter);
 
@@ -416,7 +415,9 @@ bool turn(double theta, int speed) { //theta is in degrees
       left_mtr_front.set_brake_mode(prevBrakeMode);
       std::cout << "finalPos:\n" << lValue << "\n" << rValue << "\n--\n";
 
-      std::vector<GEAH::Motor>motors = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
+      GEAH::Motor motorsArr[] = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front};
+      std::vector<GEAH::Motor> motors (motorsArr, motorsArr + sizeof(motorsArr));
+
       GEAH::autonRequestReceipt receipt("driveStraight",motors,theta,speed,MOVE_DEGREES);
       recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
@@ -489,7 +490,10 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
     //set motor to zero after the bot has gone the specified amount
     motor.move(0);
 
-    std::vector<GEAH::Motor>motors{motor};
+
+    GEAH::Motor motorsArr[] = {motor};
+    std::vector<GEAH::Motor> motors (motorsArr, motorsArr + sizeof(motorsArr));
+
     GEAH::autonRequestReceipt receipt("moveMotor",motors,magnatude,speed,type);
     recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
@@ -540,6 +544,8 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
   float min_V = 0.5f; //the minimum voltage the motor will use
 
+  motor.setAPIDTarget(value);
+
   while ( fabs(value) < fabs(degs-start)) {
       checkForStop(); //this method should be continuously called the entire duration of the program
       concurrentOperations();
@@ -565,7 +571,8 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   pros::delay(150);
   motor.set_brake_mode(prevBrakeMode);
 
-  std::vector<GEAH::Motor>motors = {motor};
+  GEAH::Motor motorsArr[] = {motor};
+  std::vector<GEAH::Motor> motors (motorsArr, motorsArr + sizeof(motorsArr));
   GEAH::autonRequestReceipt receipt("setMotorPosition",motors,magnatude,speed,type);
   recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
@@ -666,8 +673,9 @@ bool setAPIDPosition(std::string APIDName, float position, int speed, int type) 
   pros::delay(150);
   motor.set_brake_mode(prevBrakeMode);
 
-  std::vector<GEAH::Motor>motors = {motor};
-  GEAH::autonRequestReceipt receipt("setMotorPosition",motors,magnatude,speed,type);
+  GEAH::Motor motorsArr[] = {motor};
+  std::vector<GEAH::Motor> motors (motorsArr, motorsArr + sizeof(motorsArr));
+  GEAH::autonRequestReceipt receipt("setAPIDPosition",motors,magnatude,speed,type);
   recordRobotAutonMovement(receipt); //<- used for odometry and auton callibration
 
   return true; // movement was successful
