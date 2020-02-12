@@ -22,7 +22,7 @@ void GEAH::Motor::runPid() {
 
   double porportion = (*speedModifier) * kP * y;
   double derivative =  ( -kD * accel / get_position());
-  double integral = ( kI * ((porportion + derivative) - accel) );
+  double integral = ( kI * ((porportion + derivative) - accel)*dt );
 
   double PID = porportion + integral + derivative;
 
