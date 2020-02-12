@@ -3,7 +3,7 @@
 
 static const double ERROR = -0.001;
 
-static const double version = 2.02;
+static const double version = 3.00;
 namespace ports{
   //drivetrain
   constexpr int LEFT_WHEEL_BACK_PORT = 7;
@@ -41,7 +41,7 @@ namespace world_settings {
 
 namespace callibrationSettings {
 
-  const double kM = 1; //for PIDs. This is what we assume the conversion between volts and mass is. 
+  const double kM = 1; //for PIDs. This is what we assume the conversion between volts and mass is.
 
   constexpr double wheelRadius = 0.053; //radius of the wheels in meters
   constexpr double wheelBaseRadius = 0.17526; //dist from wheels to center of the robot (meters)
