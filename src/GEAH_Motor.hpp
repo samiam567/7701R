@@ -10,11 +10,14 @@ namespace GEAH {
        std::string name = "unNamed";
 
     //for APIDs
+       double one = 1; //this is the number one. (For setting the initial value of speedModifier)
        float kP, kI, kD; //the constants for the pid
        double pidTarget;
        double prevVelocity;
        long prevTime;
        double* speedModifier;
+       double porportion, integral, derivative;
+       double counter;
     //end APID vars
 
        double preCallibrationPos = 0; //for autonCallibration

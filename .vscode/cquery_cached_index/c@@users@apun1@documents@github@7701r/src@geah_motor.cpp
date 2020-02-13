@@ -12,6 +12,14 @@ GEAH::Motor::Motor(std::string Name, const std::uint8_t port, const pros::motor_
   kI = 0.0f;
   kD = 0.01f;
 
+  porportion = 0;
+  integral = 0;
+  derivative = 0;
+  prevVelocity = 0;
+  pidTarget = 0;
+  prevTime = time(0);
+  speedModifier = &one; //set speedModifier to SOMETHING. This should be changed later
+  counter = 0;
 }
 
 void GEAH::Motor::runPid() {
@@ -27,15 +35,16 @@ void GEAH::Motor::runPid() {
   double accel = (get_actual_velocity() - prevVelocity)/dt;
   double y = get_position()-pidTarget;
 
-  double porportion = (*speedModifier) * kP * y;
-  double derivative =  ( -kD * accel / get_position());
-  double integral = ( kI * ((porportion + derivative) - accel)*dt );
+  porportion = (*speedModifier) * kP * y;
+  derivative =  ( -kD * accel / get_position());
+  integral = integral*counter + ( kI * ((porportion + derivative) - accel)*dt );
+  integral /= counter++;
 
   double PID = porportion + integral + derivative;
 
   move_voltage(callibrationSettings::kM * PID);
 
-  if (pidTuningInProgress) std::cout << "dt: " << dt << " time: " << prevTime << " accel: " << accel << " y: " << y << " porportion: " << porportion << " integral: " << integral << " derivative: " << derivative << " PID: " << PID << " moveVoltage: " << callibrationSettings::kM * PID;
+  if (pidTuningInProgress) std::cout << " counter: " << counter << " dt: " << dt << " time: " << prevTime << " accel: " << accel << " y: " << y << " porportion: " << porportion << " integral: " << integral << " derivative: " << derivative << " PID: " << PID << " moveVoltage: " << callibrationSettings::kM * PID;
   prevVelocity = get_actual_velocity();
 }
 
