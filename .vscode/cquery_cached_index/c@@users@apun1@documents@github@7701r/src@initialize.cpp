@@ -13,6 +13,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER), partner(pros::E_CONTROLLER_P
  GEAH::Motor left_mtr_front("left_mtr_front",ports::LEFT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor right_mtr_front("right_mtr_front",ports::RIGHT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
 
+
  GEAH::Motor ramp_mtr("ramp_mtr",ports::RAMP_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor intake_lift_mtr("intake_lift_mtr",ports::INTAKE_LIFT_MTR_PORT,pros::E_MOTOR_GEARSET_36,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor left_intake("left_intake",ports::INTAKE_LEFT_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
@@ -248,6 +249,12 @@ void initialize() {
 	pros::lcd::set_text(5,"select auton\\/");
 	std::string a_s_str0 = getAutonName(0);
 	pros::lcd::set_text(6, a_s_str0);
+
+
+   left_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+   right_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+   left_mtr_front.setKM(callibrationSettings::DrivetrainKM);
+   right_mtr_front.setKM(callibrationSettings::DrivetrainKM);
 
 	pros::lcd::register_btn1_cb(on_center_button);
 	pros::lcd::register_btn0_cb(on_left_button);

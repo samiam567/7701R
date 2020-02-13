@@ -12,8 +12,10 @@ namespace GEAH {
     //for APIDs
        double one = 1; //this is the number one. (For setting the initial value of speedModifier)
        float kP, kI, kD; //the constants for the pid
+       float kM;
        double pidTarget;
        double prevVelocity;
+       double prevY;
        long prevTime;
        double* speedModifier;
        double porportion, integral, derivative;
@@ -38,6 +40,7 @@ namespace GEAH {
       void setSpeedModifier(double* newSpeedModifier);
       void setAPIDTarget(double targ);
       void setAPIDConstants(double nkP, double nkI, double nkD);
+      void setKM(float kM);
 
       void runPid();
 
