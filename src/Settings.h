@@ -3,7 +3,7 @@
 
 static const double ERROR = -0.001;
 
-static const double version = 3.00;
+static const double version = 3.10;
 namespace ports{
   //drivetrain
   constexpr int LEFT_WHEEL_BACK_PORT = 7;
@@ -41,7 +41,7 @@ namespace world_settings {
 
 namespace callibrationSettings {
 
-  const double kM = 1; //for APIDs. This is what we assume the conversion between volts and acceleration It should be porportional to how hard the robot is to accellerate
+  const double kM = 0.05; //for APIDs. This is what we assume the conversion between volts and acceleration It should be porportional to how hard the robot is to accellerate
 
   constexpr double wheelRadius = 0.053; //radius of the wheels in meters
   constexpr double wheelBaseRadius = 0.17526; //dist from wheels to center of the robot (meters)
@@ -53,7 +53,7 @@ namespace callibrationSettings {
   //  constexpr float flagDistFromWall = 27.5;
   //  constexpr float fronSensorToFrontOfCannonDist = 8;
 
-    constexpr double TURN_CORRECTION = 0.50;
+    constexpr double TURN_CORRECTION = 0.5;
     constexpr double MOTOR_POSITION_ERROR = 10; //deviation in degrees from where the motor is set to be NOTE: if made too small the motor's accuraccy won't be abe to keep up and, among other things, the auton will be stuck trying to reach it''s set point forever
     //constexpr int CANNON_LAUNCH_ON_OFF_DELAY = 300;
 

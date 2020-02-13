@@ -23,6 +23,7 @@ GEAH::Motor::Motor(std::string Name, const std::uint8_t port, const pros::motor_
 }
 
 void GEAH::Motor::runPid() {
+
   bool pidTuningInProgress = true;
   // HOW TO TUNE:
   //Adjust kM in settings until acccel = PID
@@ -30,22 +31,29 @@ void GEAH::Motor::runPid() {
   //increase kD if system is oscillating
   //increase kP if the system doesn't reach target position fast enough
 
-  double dt = time(0) - prevTime;
+  double dt = 5;//time(0) - prevTime;
   prevTime = time(0);
+  double velocity = get_actual_velocity() * 360 / 60;
   double accel = (get_actual_velocity() - prevVelocity)/dt;
-  double y = get_position()-pidTarget;
+  double y = pidTarget-get_position();
 
   porportion = (*speedModifier) * kP * y;
-  derivative =  ( -kD * accel / get_position());
-  integral = integral*counter + ( kI * ((porportion + derivative) - accel)*dt );
-  integral /= counter++;
+  derivative = -(kD * velocity / y);
+
+  integral = 0;
+  //integral = integral*counter + ( kI * ((porportion + derivative) - accel)*dt );
+  //integral /= counter++;
 
   double PID = porportion + integral + derivative;
 
-  move_voltage(callibrationSettings::kM * PID);
+  move(callibrationSettings::kM * PID);
 
-  if (pidTuningInProgress) std::cout << " counter: " << counter << " dt: " << dt << " time: " << prevTime << " accel: " << accel << " y: " << y << " porportion: " << porportion << " integral: " << integral << " derivative: " << derivative << " PID: " << PID << " moveVoltage: " << callibrationSettings::kM * PID;
-  prevVelocity = get_actual_velocity();
+   std::cout << "actualV: " << velocity << " pos: " << get_position() << std::endl;
+   if (pidTuningInProgress) std::cout << " counter: " << counter << " dt: " << dt << " time: " << prevTime << " accel: " << accel << " y: " << y << " porportion: " << porportion << " integral: " << integral << " derivative: " << derivative << " PID: " << PID << " moveVoltage: " << callibrationSettings::kM * PID << std::endl;
+
+   prevVelocity = velocity;
+
+
 }
 
 void GEAH::Motor::setAPIDConstants(double nkP, double nkI, double nkD) {

@@ -114,36 +114,35 @@ class realTimePositionController {
 
 
 //drivePIDs
-const float drivePorportion = 0.7f;
+const float drivePorportion = 0.6f;
 const float driveIntegral = 0.01f;
-const float driveDerivative = 0.02f;
+const float driveDerivative = 0.001f;
 realTimePositionController left_mtr_back_PID{&left_mtr_back,"lb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController right_mtr_back_PID{&right_mtr_back,"rb_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController left_mtr_front_PID{&left_mtr_front,"lf_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 realTimePositionController right_mtr_front_PID{&right_mtr_front,"rf_drive_PID",drivePorportion,driveIntegral,driveDerivative};
 
 realTimePositionController intake_lift_PID{&intake_lift_mtr,"intake_lift_PID",1.5f,1.0f,0.01f};
-realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",1.0f,0.01f,0.30f};
+realTimePositionController ramp_PID{&ramp_mtr,"ramp_PID",0.5f,0.01f,0.5f};
 
 
 
 
 
-std::vector<realTimePositionController*> realTimePositionControllers = {&left_mtr_back_PID,&right_mtr_back_PID,/*&right_mtr_front_PID,&left_mtr_front_PID,*/&intake_lift_PID,&ramp_PID};
+std::vector<realTimePositionController*> realTimePositionControllers = {&left_mtr_back_PID,&right_mtr_back_PID,&right_mtr_front_PID,&left_mtr_front_PID,&intake_lift_PID,&ramp_PID};
 
 void initializeAutoPilot() {
 
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     std::cout << "initializing " << (*RTPS).getName() << "\n";
     (*RTPS).initialize();
+    (*RTPS).setIsActivated(true);
+    (*RTPS).setIsActivated(false);
   }
-
-
-
 }
 
 realTimePositionController* getRealTimePositionController(std::string name) {
-//  std::cout << "Searching for " + name + " - ";
+///  std::cout << "Searching for " + name + " - ";
   pros::delay(10);
   for (realTimePositionController *RTPS : realTimePositionControllers) {
     realTimePositionController RTPSS = *RTPS;
@@ -154,7 +153,7 @@ realTimePositionController* getRealTimePositionController(std::string name) {
   pros::delay(10);
   consoleLogN("ERROR: realTimePositionController " + name + " was not found");
   pros::delay(10);
-  std::cout << "ERROR: realTimePositionController " + name + " was not found" << "\n";
+  std::cout << "ERROR: realTimePositionController " + name + " was not found. " << " Memory permission error will be thrown.";
   pros::delay(10);
   return NULL;
 }
@@ -175,9 +174,14 @@ void setDriveTrainTarget(double newTarg,double speed) {
 
 void setLeftDriveTrainTarget(double newTarg,double speed) {
   double speedModifier = speed;
+  std::cout << "set lb_drive_PID  targ" << std::endl;
+  pros::delay(10);
   setAPIDTarget("lb_drive_PID",newTarg);
   setAPIDTarget("lf_drive_PID",newTarg);
+
+  std::cout << "set speed modifier" << std::endl;
   (*getRealTimePositionController("lb_drive_PID")).setSpeedModifier(speedModifier);
+
   (*getRealTimePositionController("lf_drive_PID")).setSpeedModifier(speedModifier);
 }
 
@@ -241,6 +245,8 @@ void autoPilotController(long loops) {
 
   runPIDs();
 
+
+
   if (loops % 30 == 0) {
     if (ramp_mtr.get_temperature() >= 55) {
       consoleLogN("ramp_mtr is overheated!");
@@ -264,7 +270,7 @@ void autoPilotController(long loops) {
   }
 
   if (   (*getRealTimePositionController("lb_drive_PID")).getIsActivated()) { //if drive Pids are activated
-    left_mtr_front.move_velocity(left_mtr_back.get_target_velocity());
-    right_mtr_front.move_velocity(right_mtr_back.get_target_velocity());
+    left_mtr_front.move_velocity(left_mtr_back.get_actual_velocity());
+    right_mtr_front.move_velocity(right_mtr_back.get_actual_velocity());
   }
 }
