@@ -41,7 +41,7 @@ namespace world_settings {
 
 namespace callibrationSettings {
 
-  const double kM = 1; //for PIDs. This is what we assume the conversion between volts and mass is.
+  const double kM = 1; //for APIDs. This is what we assume the conversion between volts and acceleration It should be porportional to how hard the robot is to accellerate
 
   constexpr double wheelRadius = 0.053; //radius of the wheels in meters
   constexpr double wheelBaseRadius = 0.17526; //dist from wheels to center of the robot (meters)
