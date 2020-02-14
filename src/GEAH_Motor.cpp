@@ -36,7 +36,7 @@ void GEAH::Motor::runPid() {
   double dt = 5;//time(0) - prevTime;
   prevTime = time(0);
   double velocity = get_actual_velocity() * 360 / 60;
-  double accel = (get_actual_velocity() - prevVelocity)/dt;
+  double accel = (velocity - prevVelocity)/dt;
   double y = pidTarget-get_position();
 
   porportion = (*speedModifier) * kP * y;

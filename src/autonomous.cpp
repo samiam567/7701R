@@ -479,7 +479,7 @@ bool drive(double magnatude,double theta, double speed) {
   right_mtr_back.move(0);
   left_mtr_front.move(0);
   right_mtr_front.move(0);
-  
+
   return true;
 }
 
@@ -680,9 +680,11 @@ void runAutoPilot(int times) {
 
 
 
-
+void moveSquares(double numSquares, double speed) {
+  drive(0.6 * numSquares,0,speed);
+}
 void moveSquares(double numSquares) {
-  drive(0.6 * numSquares,0,155);
+  moveSquares(numSquares,100);
 }
 
 void bumpWall() {
