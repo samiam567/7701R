@@ -741,15 +741,15 @@ void stack(int blockNum) { //Alec's stacking method
     right_intake.move(10 * blockNum-1);
   }
 
-    double k = 1;
-    double targ = 84*84/6;
+    double k = 2;
+    double targ = 85*84/6;
     double pos = ramp_mtr.get_position();
     while (pos < targ) {
        pos = ramp_mtr.get_position();
        if ((targ-pos) > .65 * targ) {
          ramp_mtr.move_velocity(k * (targ-pos));
        }else{
-         ramp_mtr.move_velocity(10 + (targ-pos)/15);
+         ramp_mtr.move_velocity(10 + (targ-pos)/7);
        }
 
     }
@@ -833,7 +833,12 @@ void autonomous(int auton_sel,int mode) {
 
  	  	left_intake.move(255);
  	  	right_intake.move(255);
-      moveSquares(1.6);
+
+      //pick up cubes
+      moveSquares(0.6,90);
+      moveSquares(0.6,90);
+      moveSquares(0.4,80);
+
       pros::delay(50);
       left_intake.move(0);
       right_intake.move(0);
