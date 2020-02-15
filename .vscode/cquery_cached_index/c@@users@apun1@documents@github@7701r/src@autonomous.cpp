@@ -434,24 +434,41 @@ bool turn(double theta, int speed) { //theta is in degrees
 */
 
 
-bool drive(double magnatude,double theta, double speed) {
+
+bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed) {
   double degs = 360 * magnatude / ( 2 * callibrationSettings::wheelRadius* M_PI);
+
+  if (degs > 0) {
+    consoleLog("driving ");
+    consoleLog(degs);
+    consoleLogN(" degrees.");
+  }
 
   double turnDegs = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
   turnDegs *= .75; //this number was derived form the callibrator and is likely different for each robot
 
+  if (turnDegs > 0) {
+    consoleLog("driving ");
+    consoleLog(turnDegs);
+    consoleLogN(" degrees.");
+  }
 
   double lValue = left_mtr_back.get_position(), rValue = right_mtr_back.get_position();
   lTarget += degs + turnDegs;
   rTarget += degs - turnDegs;
 
+  //reset the pids incase we've used them before
+  left_mtr_back.resetPID();
+  right_mtr_back.resetPID();
+
   left_mtr_back.setAPIDTarget(lTarget);
   right_mtr_back.setAPIDTarget(rTarget);
 
-  double lSpeed = speed, rSpeed = speed;
+  double speed = setSpeed, lSpeed = 0, rSpeed = 0;
 
   left_mtr_back.setSpeedModifier(&lSpeed);
   right_mtr_back.setSpeedModifier(&rSpeed);
+
 
   while ( (std::abs(lValue-lTarget) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rValue-rTarget) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
     concurrentOperations();
@@ -465,14 +482,12 @@ bool drive(double magnatude,double theta, double speed) {
     rValue = right_mtr_back.get_position();
 
     //drive correction
-    double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
-    //double vDiff = fabs(lValue-(wheelDegrees+lStart)) - fabs(rValue-(wheelDegrees+rStart));
+    double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
+
     lSpeed = speed + vDiff*callibrationSettings::TURN_CORRECTION;
     rSpeed = speed - vDiff*callibrationSettings::TURN_CORRECTION;
 
-
-
-    pros::delay(5);
+    pros::delay(2);
   }
 
   left_mtr_back.move(0);
@@ -481,6 +496,18 @@ bool drive(double magnatude,double theta, double speed) {
   right_mtr_front.move(0);
 
   return true;
+}
+
+bool drive(double magnatude, double speed) {
+  left_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+  return driveTrainPIDControlFunction(magnatude,0,speed);
+}
+
+bool turn(double magnatude, double speed) {
+  left_mtr_back.setKM(10 * callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(10 * callibrationSettings::DrivetrainKM);
+  return driveTrainPIDControlFunction(0,magnatude,speed);
 }
 
 bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
@@ -640,24 +667,22 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
 
 bool setAPIDPosition(GEAH::Motor motor, double degs, double speed) { //return true if successful, false if not
-
+  motor.resetPID();
   motor.setAPIDTarget(degs);
-
-  right_mtr_back.setAPIDTarget(rTarget);
 
   double value = motor.get_position();
 
   motor.setSpeedModifier(&speed);
 
 
-  while ( std::abs(value-lTarget) > callibrationSettings::MOTOR_POSITION_ERROR) {
+  while ( std::abs(value-degs) > callibrationSettings::MOTOR_POSITION_ERROR) {
     concurrentOperations();
 
     motor.runPid();
 
     value = motor.get_position();
 
-    pros::delay(5);
+    pros::delay(2);
   }
 
   motor = 0;
@@ -681,7 +706,7 @@ void runAutoPilot(int times) {
 
 
 void moveSquares(double numSquares, double speed) {
-  drive(0.6 * numSquares,0,speed);
+  drive(0.6 * numSquares,speed);
 }
 void moveSquares(double numSquares) {
   moveSquares(numSquares,100);
@@ -690,34 +715,19 @@ void moveSquares(double numSquares) {
 void bumpWall() {
   bool prevPidSetting = usePIDForDriveTrainAutonMovement;
   usePIDForDriveTrainAutonMovement = false;
-  drive(-0.12,0, 127);
+  drive(-0.12, 127);
   pros::delay(200);
-  drive(0.12,0,127);
+  drive(0.12,127);
   usePIDForDriveTrainAutonMovement = prevPidSetting;
 }
 
 
 void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
-
-//    setAPIDIsActivated("ramp_PID", true);
-//    setAPIDTargetAndSpeed("ramp_PID",  40 * 84/12, 255);
     left_intake.move(-255);
     right_intake.move(-255);
-//    setAPIDIsActivated("intake_lift_PID", true);
-//    pros::delay(250);
-//    setAPIDTargetAndSpeed("intake_lift_PID",  110 * 84/12, 255);
-//    pros::delay(150);
     moveSquares(squares);
-//    runAutoPilot(100);
     left_intake.move(0);
     right_intake.move(0);
-//    runAutoPilot(200);
-//    setAPIDTarget("intake_lift_PID", 0);
-//    runAutoPilot(100);
-//    setAPIDIsActivated("intake_lift_PID", false);
-///    setAPIDIsActivated("ramp_PID", false);
-//    setMotorPosition(intake_lift_mtr, 0, 255, MOVE_DEGREES);
-//    setMotorPosition(ramp_mtr, 0, 255, MOVE_DEGREES);
     std::cout << "extended ramp" << std::endl;
     pros::delay(10);
 }
@@ -727,11 +737,25 @@ void stack(int blockNum) { //Alec's stacking method
   lTarget = left_mtr_back.get_position();
   rTarget = right_mtr_back.get_position();
   if (blockNum > 4) {
-    left_intake.move(15 * blockNum-1);
-    right_intake.move(15 * blockNum-1);
+    left_intake.move(10 * blockNum-1);
+    right_intake.move(10 * blockNum-1);
   }
-  //setMotorPosition(ramp_mtr, 80 * 84/6, 500, MOVE_DEGREES);
-  if (setAPIDPosition(ramp_mtr,81 * 84/6,100)) {
+
+    double k = 1;
+    double targ = 84*84/6;
+    double pos = ramp_mtr.get_position();
+    while (pos < targ) {
+       pos = ramp_mtr.get_position();
+       if ((targ-pos) > .65 * targ) {
+         ramp_mtr.move_velocity(k * (targ-pos));
+       }else{
+         ramp_mtr.move_velocity(10 + (targ-pos)/15);
+       }
+
+    }
+    ramp_mtr.move(0);
+
+
     left_intake.move(0);
     right_intake.move(0);
     pros::delay(500);
@@ -740,11 +764,6 @@ void stack(int blockNum) { //Alec's stacking method
     autonLockWheelsIntake = false;
     left_intake.move(0);
     right_intake.move(0);
-    std::cout << "stack successful" << std::endl;
-  }else{
-    std::cout << "stack failed" << std::endl;
-  }
-
 }
 
 void resetAutonTargets() {
@@ -775,7 +794,7 @@ void autonomous() {
   	      moveSquares(-0.3);
   	    }
 
-  	    drive(0,-90 * side,100);
+  	    turn(-90 * side,100);
   	    bumpWall();
   	    left_intake.move(255);
   	    right_intake.move(255);
@@ -785,7 +804,7 @@ void autonomous() {
   	    left_intake.move(0);
   	    right_intake.move(0);
   	    moveSquares(-1.5);
-  	    drive(0,-90 * side,100);
+  	    turn(-90 * side,100);
   	    moveSquares(0.8);
   	    stack(5);
   }
@@ -820,8 +839,8 @@ void autonomous(int auton_sel,int mode) {
       right_intake.move(0);
       pros::delay(100);
  	  	moveSquares(-0.9);
- 	  	drive(0,-130 ,150);
- 	  	moveSquares(1.1);
+ 	  	turn(-130 ,150);
+ 	  	moveSquares(0.5);
  	  	stack(4);
 
 
@@ -839,7 +858,7 @@ void autonomous(int auton_sel,int mode) {
  	    left_intake.move(0);
  	    right_intake.move(0);
  	    moveSquares(-1.85);
- 	    drive(0,90,100);
+ 	    turn(90,100);
  	    moveSquares(1.21);
  	    stack(5);
 
@@ -858,8 +877,8 @@ void autonomous(int auton_sel,int mode) {
  	    left_intake.move(0);
  	    right_intake.move(0);
  	    moveSquares(-1.85);
- 	    drive(0,-90,100);
- 	    moveSquares(1.21);
+ 	    turn(-90,100);
+ 	    moveSquares(0.7);
  	    stack(4);
  	    break;
 
@@ -874,7 +893,7 @@ void autonomous(int auton_sel,int mode) {
         right_intake.move(0);
         pros::delay(10);
    	  	moveSquares(-0.9);
-   	  	drive(0,130,130);
+   	  	turn(130,130);
    	  	moveSquares(1.1);
    	  	stack(5);
  	    break;
@@ -883,15 +902,15 @@ void autonomous(int auton_sel,int mode) {
  	    extendRampAndMoveSquares(2.35);
 
  	  	pros::delay(5);
- 	  	drive(0,90 * SIDE_LEFT,255);
+ 	  	turn(90 * SIDE_LEFT,255);
  	  	moveSquares(1);
  	  	left_intake.move(0);
  	  	right_intake.move(0);
- 	  	drive(0,90 * SIDE_LEFT,100);
+ 	  	turn(90 * SIDE_LEFT,100);
  	  	left_intake.move(255);
  	  	right_intake.move(255);
  	  	moveSquares(2.3);
- 	  	drive(0,90 * SIDE_LEFT,255);
+ 	  	turn(90 * SIDE_LEFT,255);
 
  	  	moveSquares(1.7);
 
@@ -902,15 +921,15 @@ void autonomous(int auton_sel,int mode) {
  	    	extendRampAndMoveSquares(2.35);
 
  	  	pros::delay(5);
- 	  	drive(0,90 * SIDE_RIGHT,255);
+ 	  	turn(90 * SIDE_RIGHT,255);
  	  	moveSquares(1);
  	  	left_intake.move(0);
  	  	right_intake.move(0);
- 	  	drive(0,90 * SIDE_RIGHT,100);
+ 	    turn(90 * SIDE_RIGHT,100);
  	  	left_intake.move(255);
  	  	right_intake.move(255);
  	  	moveSquares(2.3);
- 	  	drive(0,90 * SIDE_RIGHT,255);
+ 	  	turn(90 * SIDE_RIGHT,255);
 
  	  	moveSquares(1.7);
 
@@ -928,7 +947,7 @@ void autonomous(int auton_sel,int mode) {
 
  		  	left_intake.move(0);
  		  	right_intake.move(0);
- 		  	drive(0,-45 ,150);
+ 		  	turn(-45,150);
  		  	moveSquares(1.1);
  		  	stack(8);
 

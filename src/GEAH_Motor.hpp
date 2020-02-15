@@ -35,6 +35,8 @@ namespace GEAH {
 
       void setPreCallibrationPos(double preCalPos);
 
+      void resetPID(); 
+
       double getPreCallibrationPos();
 
       void setSpeedModifier(double* newSpeedModifier);

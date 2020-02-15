@@ -33,19 +33,21 @@ void GEAH::Motor::runPid() {
   //increase kD if system is oscillating
   //increase kP if the system doesn't reach target position fast enough
 
-  double dt = 5;//time(0) - prevTime;
-  prevTime = time(0);
+  double dt = 2;//time(0) - prevTime;
+  //prevTime = time(0);
   double velocity = get_actual_velocity() * 360 / 60;
   double accel = (velocity - prevVelocity)/dt;
   double y = pidTarget-get_position();
 
   porportion = (*speedModifier) * kP * y;
-  derivative = (y-prevY)/dt;
-  integral += (y-prevY) * dt;
+  derivative = kD * (y-prevY)/dt;
+//derivative = kD * (velocity * 1/sqrt(y))/100;
+  integral += kI * ((y-prevY) * dt);
 
-  double PID = porportion + integral + derivative;
+  double PID = (porportion + integral + derivative);
 
-  move(kM * PID);
+
+  move_velocity(kM * PID);
 
    if (pidTuningInProgress) {
      std::cout << "actualV: " << velocity << " pos: " << get_position() << std::endl;
@@ -53,10 +55,11 @@ void GEAH::Motor::runPid() {
    }
 
    prevVelocity = velocity;
-
-
 }
 
+void GEAH::Motor::resetPID() {
+  integral = 0;
+}
 void GEAH::Motor::setAPIDConstants(double nkP, double nkI, double nkD) {
   GEAH::Motor::kP = nkP;
   GEAH::Motor::kI = nkI;
