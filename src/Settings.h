@@ -3,7 +3,7 @@
 
 static const double ERROR = -0.001;
 
-static const double version = 3.45;
+static const double version = 3.46;
 namespace ports{
   //drivetrain
   constexpr int LEFT_WHEEL_BACK_PORT = 7;
