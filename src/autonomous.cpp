@@ -457,6 +457,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   lTarget += degs + turnDegs;
   rTarget += degs - turnDegs;
 
+  double lStart = lValue, rStart = rValue;
   //reset the pids incase we've used them before
   left_mtr_back.resetPID();
   right_mtr_back.resetPID();
@@ -464,13 +465,15 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   left_mtr_back.setAPIDTarget(lTarget);
   right_mtr_back.setAPIDTarget(rTarget);
 
-  double speed = setSpeed, lSpeed = 0, rSpeed = 0;
+  double speed = 1, lSpeed = 0, rSpeed = 0;
 
   left_mtr_back.setSpeedModifier(&lSpeed);
   right_mtr_back.setSpeedModifier(&rSpeed);
 
 
-  while ( (std::abs(lValue-lTarget) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rValue-rTarget) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
+  while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
+    if (speed < setSpeed) speed+=2;
+
     concurrentOperations();
 
     left_mtr_back.runPid();
@@ -482,7 +485,8 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     rValue = right_mtr_back.get_position();
 
     //drive correction
-    double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
+    //double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
+    double vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
 
     lSpeed = speed + vDiff*callibrationSettings::TURN_CORRECTION;
     rSpeed = speed - vDiff*callibrationSettings::TURN_CORRECTION;
@@ -505,8 +509,8 @@ bool drive(double magnatude, double speed) {
 }
 
 bool turn(double magnatude, double speed) {
-  left_mtr_back.setKM(10 * callibrationSettings::DrivetrainKM);
-  right_mtr_back.setKM(10 * callibrationSettings::DrivetrainKM);
+  left_mtr_back.setKM(15 * callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(15 * callibrationSettings::DrivetrainKM);
   return driveTrainPIDControlFunction(0,magnatude,speed);
 }
 
@@ -739,17 +743,20 @@ void stack(int blockNum) { //Alec's stacking method
   if (blockNum > 4) {
     left_intake.move(10 * blockNum-1);
     right_intake.move(10 * blockNum-1);
+  }else{
+    left_intake.move(10);
+    right_intake.move(10);
   }
 
-    double k = 2;
-    double targ = 85*84/6;
+    double k = 2 * 10/blockNum;
+    double targ = 87*84/6 + blockNum-10;
     double pos = ramp_mtr.get_position();
     while (pos < targ) {
        pos = ramp_mtr.get_position();
        if ((targ-pos) > .65 * targ) {
          ramp_mtr.move_velocity(k * (targ-pos));
        }else{
-         ramp_mtr.move_velocity(10 + (targ-pos)/7);
+         ramp_mtr.move_velocity(10 + (targ-pos)/(blockNum));
        }
 
     }
@@ -818,154 +825,172 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
- 	    case(0)://forward-up
-          if (mode ==  1) {
-            extendRampAndMoveSquares(1.2);
-          }else{
-            moveSquares(1.2);
-          }
-          pros::delay(500);
-     	   moveSquares(-1.2);
- 	    break;
+    case(0)://forward-up
+     if (mode ==  1) {
+       extendRampAndMoveSquares(1.2);
+     }else{
+       moveSquares(1.2);
+     }
+     pros::delay(500);
+    moveSquares(-1.2);
+   break;
 
- 	    case(1): //blue left
-      extendRampAndMoveSquares(0.3);
+   case(1): //blue left
+   extendRampAndMoveSquares(0.3);
 
- 	  	left_intake.move(255);
- 	  	right_intake.move(255);
+   left_intake.move(255);
+   right_intake.move(255);
 
-      //pick up cubes
-      moveSquares(0.6,90);
-      moveSquares(0.6,90);
-      moveSquares(0.4,80);
+   //pick up cubes
+   moveSquares(1.6,40);
 
-      pros::delay(50);
-      left_intake.move(0);
-      right_intake.move(0);
-      pros::delay(100);
- 	  	moveSquares(-0.9);
- 	  	turn(-130 ,150);
- 	  	moveSquares(0.5);
- 	  	stack(4);
+   left_intake.move(0);
+   right_intake.move(0);
+
+   moveSquares(-0.9);
+   turn(-130 ,150);
+   moveSquares(0.5);
+   stack(4);
 
 
- 	    break;
+   break;
 
- 	    case(2): //blue right
+   case(2): //blue right
 
- 	  	extendRampAndMoveSquares(0.3);
- 	    left_intake.move(255);
- 	    right_intake.move(255);
-      moveSquares(1.1);
- 	    pros::delay(500);
- 	    moveSquares(0.6);
- 	    pros::delay(5);
- 	    left_intake.move(0);
- 	    right_intake.move(0);
- 	    moveSquares(-1.85);
- 	    turn(90,100);
- 	    moveSquares(1.21);
- 	    stack(5);
-
-
- 	    break;
+   extendRampAndMoveSquares(0.3);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(1.1);
+   pros::delay(500);
+   moveSquares(0.6);
+   pros::delay(5);
+   left_intake.move(0);
+   right_intake.move(0);
+   moveSquares(-1.85);
+   turn(90,100);
+   moveSquares(1.21);
+   stack(5);
 
 
- 	    case(3): //red left
-      extendRampAndMoveSquares(0.3);
- 	    left_intake.move(255);
- 	    right_intake.move(255);
-      moveSquares(1.1);
- 	    pros::delay(500);
- 	    moveSquares(0.6);
- 	    pros::delay(5);
- 	    left_intake.move(0);
- 	    right_intake.move(0);
- 	    moveSquares(-1.85);
- 	    turn(-90,100);
- 	    moveSquares(0.7);
- 	    stack(4);
- 	    break;
+   break;
 
- 	    case(4): //red right
- 	     extendRampAndMoveSquares(0.3);
 
-   	  	left_intake.move(255);
-   	  	right_intake.move(255);
-        moveSquares(1.6);
-        pros::delay(10);
-        left_intake.move(0);
-        right_intake.move(0);
-        pros::delay(10);
-   	  	moveSquares(-0.9);
-   	  	turn(130,130);
-   	  	moveSquares(1.1);
-   	  	stack(5);
- 	    break;
+   case(3): //red left
+   extendRampAndMoveSquares(0.3);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(1.1);
+   pros::delay(500);
+   moveSquares(0.6);
+   pros::delay(5);
+   left_intake.move(0);
+   right_intake.move(0);
+   moveSquares(-1.85);
+   turn(-90,100);
+   moveSquares(0.7);
+   stack(4);
+   break;
 
- 	    case(5): //blue left 8 stak
- 	    extendRampAndMoveSquares(2.35);
+   case(4): //red right
+    extendRampAndMoveSquares(0.3);
 
- 	  	pros::delay(5);
- 	  	turn(90 * SIDE_LEFT,255);
- 	  	moveSquares(1);
- 	  	left_intake.move(0);
- 	  	right_intake.move(0);
- 	  	turn(90 * SIDE_LEFT,100);
- 	  	left_intake.move(255);
- 	  	right_intake.move(255);
- 	  	moveSquares(2.3);
- 	  	turn(90 * SIDE_LEFT,255);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(1.6);
+   pros::delay(10);
+   left_intake.move(0);
+   right_intake.move(0);
+   pros::delay(10);
+   moveSquares(-0.9);
+   turn(130,130);
+   moveSquares(1.1);
+   stack(5);
+   break;
 
- 	  	moveSquares(1.7);
+   case(5): //blue left 8 stak
+   extendRampAndMoveSquares(2.35);
 
- 	  	stack(8);
- 	    break;
+   pros::delay(5);
+   turn(90 * SIDE_LEFT,255);
+   moveSquares(1);
+   left_intake.move(0);
+   right_intake.move(0);
+   turn(90 * SIDE_LEFT,100);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(2.3);
+   turn(90 * SIDE_LEFT,255);
 
- 	    case(6): //red right 8 stak
- 	    	extendRampAndMoveSquares(2.35);
+   moveSquares(1.7);
 
- 	  	pros::delay(5);
- 	  	turn(90 * SIDE_RIGHT,255);
- 	  	moveSquares(1);
- 	  	left_intake.move(0);
- 	  	right_intake.move(0);
- 	    turn(90 * SIDE_RIGHT,100);
- 	  	left_intake.move(255);
- 	  	right_intake.move(255);
- 	  	moveSquares(2.3);
- 	  	turn(90 * SIDE_RIGHT,255);
+   stack(8);
+   break;
 
- 	  	moveSquares(1.7);
+   case(6): //red right 8 stak
+     extendRampAndMoveSquares(2.35);
 
- 	  	stack(8);
- 	    break;
+   pros::delay(5);
+   turn(90 * SIDE_RIGHT,255);
+   moveSquares(1);
+   left_intake.move(0);
+   right_intake.move(0);
+   turn(90 * SIDE_RIGHT,100);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(2.3);
+   turn(90 * SIDE_RIGHT,255);
 
- 	    case(7): //stack
- 	      stack(10);
- 	      break;
+   moveSquares(1.7);
+
+   stack(8);
+   break;
+
+   case(7): //stack
+     stack(10);
+     break;
 
 
 
- 	    case(8): //skills
- 	    	extendRampAndMoveSquares(4.5);
+   case(8): //skills
+   extendRampAndMoveSquares(0.3);
 
- 		  	left_intake.move(0);
- 		  	right_intake.move(0);
- 		  	turn(-45,150);
- 		  	moveSquares(1.1);
- 		  	stack(8);
+   left_intake.move(255);
+   right_intake.move(255);
 
- 	    break;
+   //pick up cubes
+   moveSquares(0.6,90);
+   moveSquares(0.6,90);
+   moveSquares(0.4,80);
 
- 	    case(9): //calibration
+   moveSquares(1);
+   moveSquares(0.6,90);
+   moveSquares(0.6,90);
+   moveSquares(0.4,80);
 
- 	    break;
-
- 	    case(10): //none
 
 
- 	    break;
+   turn(-45, 155);
+
+   pros::delay(50);
+   left_intake.move(50);
+   right_intake.move(50);
+
+   pros::delay(100);
+   moveSquares(0.5);
+   left_intake.move(0);
+   right_intake.move(0);
+   stack(8);
+
+   break;
+
+   case(9): //calibration
+
+   break;
+
+   case(10): //none
+
+
+   break;
  	  }
   setDriveTrainPIDIsActivated(false);
 
