@@ -9,18 +9,7 @@ namespace GEAH {
     private:
        std::string name = "unNamed";
 
-    //for APIDs
-       double one = 1; //this is the number one. (For setting the initial value of speedModifier)
-       float kP, kI, kD; //the constants for the pid
-       float kM;
-       double pidTarget;
-       double prevVelocity;
-       double prevY;
-       long prevTime;
-       double* speedModifier;
-       double porportion, integral, derivative;
-       double counter;
-    //end APID vars
+
 
        double preCallibrationPos = 0; //for autonCallibration
     public:
@@ -35,16 +24,12 @@ namespace GEAH {
 
       void setPreCallibrationPos(double preCalPos);
 
-      void resetPID();
 
       double getPreCallibrationPos();
-      
-      void setSpeedModifier(double* newSpeedModifier);
-      void setAPIDTarget(double targ);
-      void setAPIDConstants(double nkP, double nkI, double nkD);
-      void setKM(float kM);
 
-      void runPid();
+  
+
+
 
       std::string getName();
   };
