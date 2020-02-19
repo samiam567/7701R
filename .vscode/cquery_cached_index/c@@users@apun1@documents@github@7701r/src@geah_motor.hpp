@@ -35,10 +35,10 @@ namespace GEAH {
 
       void setPreCallibrationPos(double preCalPos);
 
-      void resetPID(); 
+      void resetPID();
 
       double getPreCallibrationPos();
-
+      
       void setSpeedModifier(double* newSpeedModifier);
       void setAPIDTarget(double targ);
       void setAPIDConstants(double nkP, double nkI, double nkD);
