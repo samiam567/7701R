@@ -2,7 +2,7 @@
 #define GENERAL_FUNCTIONS_H
 #include "main.h"
 #include "GEAH_Motor.hpp"
-#include "APID.hpp"
+
 //position/movement types
 constexpr int MOVE_METERS = 0;
 constexpr int MOVE_ROTATIONS = 1;

@@ -435,7 +435,7 @@ bool turn(double theta, int speed) { //theta is in degrees
 
 
 
-bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed, double kM) {
+bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed) {
   double degs = 360 * magnatude / ( 2 * callibrationSettings::wheelRadius* M_PI);
 
   if (degs > 0) {
@@ -457,46 +457,18 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   lTarget += degs + turnDegs;
   rTarget += degs - turnDegs;
 
-  double lStart = lValue, rStart = rValue, diff = 0;
-
-  GEAH::APID lDrivePID, rDrivePID, turnPID;
-
-  const float drivePorportion = 0.3f;
-  const float driveIntegral = 0.02f;
-  const float driveDerivative = 0.01f;
-
+  double lStart = lValue, rStart = rValue;
   //reset the pids incase we've used them before
-  lDrivePID.resetPID();
-  rDrivePID.resetPID();
-  turnPID.resetPID();
+  left_mtr_back.resetPID();
+  right_mtr_back.resetPID();
 
-  //set the PID values
-  lDrivePID.setAPIDConstants(drivePorportion, driveIntegral, driveDerivative);
-  rDrivePID.setAPIDConstants(drivePorportion, driveIntegral, driveDerivative);
-  turnPID.setAPIDConstants(callibrationSettings::TURN_CORRECTION, 0.00001, 0.001);
-
-
-  lDrivePID.setKM(kM);
-  rDrivePID.setKM(kM);
-  turnPID.setKM(kM);
-
-  lDrivePID.setAPIDTarget(lTarget);
-  rDrivePID.setAPIDTarget(rTarget);
-  turnPID.setAPIDTarget(0);
+  left_mtr_back.setAPIDTarget(lTarget);
+  right_mtr_back.setAPIDTarget(rTarget);
 
   double speed = 1, lSpeed = 0, rSpeed = 0;
 
-  lDrivePID.setSpeedModifier(&lSpeed);
-  rDrivePID.setSpeedModifier(&rSpeed);
-
-  lDrivePID.setInputPointer(&lValue);
-  rDrivePID.setInputPointer(&rValue);
-  turnPID.setInputPointer(&diff);
-
-  double lDrive, rDrive, turnDrive;
-  lDrivePID.setOutputPointer(&lDrive);
-  rDrivePID.setOutputPointer(&rDrive);
-  turnPID.setOutputPointer(&turnDrive);
+  left_mtr_back.setSpeedModifier(&lSpeed);
+  right_mtr_back.setSpeedModifier(&rSpeed);
 
   int cannotMoveCounter = 0;
   while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
@@ -504,12 +476,8 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 
     concurrentOperations();
 
-    lDrivePID.runPid(2);
-    rDrivePID.runPid(2);
-    turnPID.runPid(2);
-
-    left_mtr_back.move_velocity(lDrive + turnDrive);
-    right_mtr_back.move_velocity(rDrive - turnDrive);
+    left_mtr_back.runPid();
+    right_mtr_back.runPid();
     left_mtr_front.move_voltage(left_mtr_back.get_voltage());
     right_mtr_front.move_voltage(left_mtr_back.get_voltage());
 
@@ -518,10 +486,10 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 
     //drive correction
     //double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
-    diff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
+    double vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
 
-  //  lSpeed = speed + vDiff*callibrationSettings::TURN_CORRECTION;
-  //  rSpeed = speed - vDiff*callibrationSettings::TURN_CORRECTION;
+    lSpeed = speed + vDiff*callibrationSettings::TURN_CORRECTION;
+    rSpeed = speed - vDiff*callibrationSettings::TURN_CORRECTION;
 
     pros::delay(2);
 
@@ -550,11 +518,15 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 }
 
 bool drive(double magnatude, double speed) {
-  return driveTrainPIDControlFunction(magnatude,0,speed, callibrationSettings::DrivetrainKM);
+  left_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+  return driveTrainPIDControlFunction(magnatude,0,speed);
 }
 
 bool turn(double magnatude, double speed) {
-  return driveTrainPIDControlFunction(0,magnatude,100 * speed,callibrationSettings::DrivetrainKM);
+  left_mtr_back.setKM(1 * callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(1 * callibrationSettings::DrivetrainKM);
+  return driveTrainPIDControlFunction(0,magnatude,100 * speed);
 }
 
 bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
@@ -633,9 +605,9 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
     return true;
 }
 
-/*
+
 bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { //return true if successful, false if not
-    //for type:
+  //for type:
   //0 = rotations
   //1 = meters
   //2 = degrees
@@ -711,28 +683,21 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
   return true; // movement was successful
 }
-*/
+
 
 bool setAPIDPosition(GEAH::Motor motor, double degs, double speed) { //return true if successful, false if not
-  GEAH::APID mtrPID;
+  motor.resetPID();
+  motor.setAPIDTarget(degs);
 
-  mtrPID.resetPID();
-  mtrPID.setAPIDTarget(degs);
+  double value = motor.get_position();
 
-  double value = motor.get_position(),output = 0;
-
-  mtrPID.setSpeedModifier(&speed);
-
-  mtrPID.setInputPointer(&value);
-  mtrPID.setOutputPointer(&output);
+  motor.setSpeedModifier(&speed);
 
   int cannotMoveCounter = 0;
   while ( std::abs(value-degs) > callibrationSettings::MOTOR_POSITION_ERROR) {
     concurrentOperations();
 
-    mtrPID.runPid(2);
-
-    motor.move_velocity(output);
+    motor.runPid();
 
     value = motor.get_position();
 

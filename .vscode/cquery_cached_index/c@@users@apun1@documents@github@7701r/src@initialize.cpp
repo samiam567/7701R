@@ -251,6 +251,10 @@ void initialize() {
 	pros::lcd::set_text(6, a_s_str0);
 
 
+   left_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+   right_mtr_back.setKM(callibrationSettings::DrivetrainKM);
+   left_mtr_front.setKM(callibrationSettings::DrivetrainKM);
+   right_mtr_front.setKM(callibrationSettings::DrivetrainKM);
 
 	pros::lcd::register_btn1_cb(on_center_button);
 	pros::lcd::register_btn0_cb(on_left_button);
