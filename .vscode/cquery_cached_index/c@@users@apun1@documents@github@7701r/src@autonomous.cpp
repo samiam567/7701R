@@ -470,6 +470,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   left_mtr_back.setSpeedModifier(&lSpeed);
   right_mtr_back.setSpeedModifier(&rSpeed);
 
+  double vDiff, prevVDiff = 0;
 
   while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
     if (speed < setSpeed) speed+=2;
@@ -484,12 +485,8 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     lValue = left_mtr_back.get_position();
     rValue = right_mtr_back.get_position();
 
-    //drive correction
-    //double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
-    double vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
+    
 
-    lSpeed = speed + vDiff*callibrationSettings::TURN_CORRECTION;
-    rSpeed = speed - vDiff*callibrationSettings::TURN_CORRECTION;
 
     pros::delay(2);
   }
@@ -509,9 +506,9 @@ bool drive(double magnatude, double speed) {
 }
 
 bool turn(double magnatude, double speed) {
-  left_mtr_back.setKM(15 * callibrationSettings::DrivetrainKM);
-  right_mtr_back.setKM(15 * callibrationSettings::DrivetrainKM);
-  return driveTrainPIDControlFunction(0,magnatude,speed);
+  left_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
+  return driveTrainPIDControlFunction(0,magnatude,5 * speed);
 }
 
 bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
@@ -847,7 +844,7 @@ void autonomous(int auton_sel,int mode) {
    left_intake.move(0);
    right_intake.move(0);
 
-   moveSquares(-0.9);
+   moveSquares(-1.1);
    turn(-130 ,150);
    moveSquares(0.5);
    stack(4);
@@ -903,48 +900,17 @@ void autonomous(int auton_sel,int mode) {
    left_intake.move(0);
    right_intake.move(0);
 
-   moveSquares(-0.9);
+   moveSquares(-1.1);
    turn(130 ,150);
    moveSquares(0.5);
    stack(4);
    break;
 
    case(5): //blue left 8 stak
-   extendRampAndMoveSquares(2.35);
-
-   pros::delay(5);
-   turn(90 * SIDE_LEFT,255);
-   moveSquares(1);
-   left_intake.move(0);
-   right_intake.move(0);
-   turn(90 * SIDE_LEFT,100);
-   left_intake.move(255);
-   right_intake.move(255);
-   moveSquares(2.3);
-   turn(90 * SIDE_LEFT,255);
-
-   moveSquares(1.7);
-
-   stack(8);
    break;
 
    case(6): //red right 8 stak
-     extendRampAndMoveSquares(2.35);
 
-   pros::delay(5);
-   turn(90 * SIDE_RIGHT,255);
-   moveSquares(1);
-   left_intake.move(0);
-   right_intake.move(0);
-   turn(90 * SIDE_RIGHT,100);
-   left_intake.move(255);
-   right_intake.move(255);
-   moveSquares(2.3);
-   turn(90 * SIDE_RIGHT,255);
-
-   moveSquares(1.7);
-
-   stack(8);
    break;
 
    case(7): //stack
@@ -963,8 +929,8 @@ void autonomous(int auton_sel,int mode) {
    moveSquares(1.6,40);
 
    moveSquares(1);
-   
-   moveSquares(1.6,40);
+
+   moveSquares(2.1,40);
 
    turn(-45, 155);
 
