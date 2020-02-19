@@ -471,7 +471,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   right_mtr_back.setSpeedModifier(&rSpeed);
 
   double vDiff, prevVDiff = 0;
-
+  int cannotMoveCounter = 0;
   while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
     if (speed < setSpeed) speed+=2;
 
@@ -485,7 +485,28 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     lValue = left_mtr_back.get_position();
     rValue = right_mtr_back.get_position();
 
-    
+    //drive correction
+    //double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
+    vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
+
+    lSpeed = speed + (vDiff*10 + (vDiff-prevVDiff)/2);
+    rSpeed = speed - (vDiff*10 + (vDiff-prevVDiff)/2);
+
+    prevVDiff = vDiff;
+
+    if ((std::abs(left_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(left_mtr_back.get_target_velocity()))) && (std::abs(right_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(right_mtr_back.get_target_velocity())))  ) {
+      cannotMoveCounter++;
+    }else{
+      cannotMoveCounter *= 0.9;
+    }
+
+    if (cannotMoveCounter > 100) {
+      consoleLogN("drivetrain cannot move. terminating motion");
+      std::cout << "drivetrain cannot move. Terminating motion..." << std::endl;
+      lValue = lTarget;
+      rValue = rTarget;
+      return false;
+    }
 
 
     pros::delay(2);
