@@ -1,3 +1,4 @@
+
 #include "generalFunctions.h"
 #include "Settings.h"
 
@@ -51,8 +52,7 @@ class realTimePositionController {
     void initialize() {
       pros::motor_pid_full_s_t pid = pros::Motor::convert_pid_full(0,porportion, integral, derivative,1,1,callibrationSettings::MOTOR_POSITION_ERROR/2,10);
       (*motorToControl).set_pos_pid_full(pid);
-      (*motorToControl).setAPIDConstants(porportion, integral, derivative);
-      (*motorToControl).setSpeedModifier(&speedModifier);
+
     }
 
     GEAH::Motor* getMotorPointer() {
@@ -65,7 +65,7 @@ class realTimePositionController {
     }
     void run() {
       if (isActivated) {
-        if (targetPosition != ERROR) (*motorToControl).runPid();
+        if (targetPosition != ERROR) (*motorToControl).move_relative(targetPosition,speedModifier);
       }
   }
   void setSpeedModifier(double speedModifier1) {
@@ -89,7 +89,6 @@ class realTimePositionController {
   }
   void setTargetPosition(double newPos) {
     targetPosition = newPos;
-    (*motorToControl).setAPIDTarget(newPos);
   }
 
   void setIsActivated(bool isActive1) {
