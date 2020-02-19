@@ -109,8 +109,8 @@ void runOpControl() {
     int left, right, straif, s_correction;
 
     if(drive == 0) { //arcade drive
-      int power = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_RIGHT_Y);
-      int turn = master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
+      int power = master.get_analog(ANALOG_LEFT_Y);
+      int turn = master.get_analog(ANALOG_LEFT_X);
       left = power + turn;
       right = power - turn;
       s_correction = 0; //(master.get_analog(ANALOG_RIGHT_Y));
