@@ -470,7 +470,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   left_mtr_back.setSpeedModifier(&lSpeed);
   right_mtr_back.setSpeedModifier(&rSpeed);
 
-  int cannotMoveCounter = 0;
+
   while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
     if (speed < setSpeed) speed+=2;
 
@@ -492,21 +492,6 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     rSpeed = speed - vDiff*callibrationSettings::TURN_CORRECTION;
 
     pros::delay(2);
-
-    if ((std::abs(left_mtr_back.get_actual_velocity()) < 0.1 * ((double) std::abs(left_mtr_back.get_target_velocity()))) && (std::abs(right_mtr_back.get_actual_velocity()) < 0.1 * ((double) std::abs(right_mtr_back.get_target_velocity())))  ) {
-      cannotMoveCounter++;
-    }else{
-      cannotMoveCounter = 0;
-    }
-
-    if (cannotMoveCounter > 200) {
-      consoleLogN("drivetrain cannot move. terminating motion");
-      std::cout << "drivetrain cannot move. Terminating motion..." << std::endl;
-      lValue = lTarget;
-      rValue = rTarget;
-      return false;
-    }
-
   }
 
   left_mtr_back.move(0);
@@ -524,9 +509,9 @@ bool drive(double magnatude, double speed) {
 }
 
 bool turn(double magnatude, double speed) {
-  left_mtr_back.setKM(1 * callibrationSettings::DrivetrainKM);
-  right_mtr_back.setKM(1 * callibrationSettings::DrivetrainKM);
-  return driveTrainPIDControlFunction(0,magnatude,100 * speed);
+  left_mtr_back.setKM(15 * callibrationSettings::DrivetrainKM);
+  right_mtr_back.setKM(15 * callibrationSettings::DrivetrainKM);
+  return driveTrainPIDControlFunction(0,magnatude,speed);
 }
 
 bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
@@ -693,7 +678,7 @@ bool setAPIDPosition(GEAH::Motor motor, double degs, double speed) { //return tr
 
   motor.setSpeedModifier(&speed);
 
-  int cannotMoveCounter = 0;
+
   while ( std::abs(value-degs) > callibrationSettings::MOTOR_POSITION_ERROR) {
     concurrentOperations();
 
@@ -702,23 +687,9 @@ bool setAPIDPosition(GEAH::Motor motor, double degs, double speed) { //return tr
     value = motor.get_position();
 
     pros::delay(2);
-
-    if ((std::abs(motor.get_actual_velocity()) < 0.1 * ((double) std::abs(motor.get_target_velocity()))) ) {
-      cannotMoveCounter++;
-    }else{
-      cannotMoveCounter = 0;
-    }
-
-    if (cannotMoveCounter > 100) {
-      consoleLogN("drivetrain cannot move. terminating motion");
-      std::cout << "drivetrain cannot move. Terminating motion..." << std::endl;
-      return false;
-    }
-
   }
 
   motor = 0;
-
 
   return true; // movement was successful
 }
@@ -821,9 +792,7 @@ void autonomous() {
   right_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
 }
 
-void delay(int time) {
-  pros::delay(time);
-}
+
 
   void grabAndStackAuton(int side, int mode) {
     if (mode == 1) {
@@ -856,298 +825,170 @@ void autonomous(int auton_sel,int mode) {
   extern bool useFrontSensorForDistance;
 
   switch(auton_sel) {
-	    case(0)://forward-up
-	     if (mode ==  1) {
-	       extendRampAndMoveSquares(1.2);
-	     }else{
-	       moveSquares(1.2);
-	     }
-	     delay(500);
-	    moveSquares(-1.2);
-	   break;
-
-	   case(1): //blue left
-	   extendRampAndMoveSquares(0.3);
-
-	   left_intake.move(255);
-	   right_intake.move(255);
-
-	   //pick up cubes
-	   moveSquares(1.6,40);
-
-	   left_intake.move(0);
-	   right_intake.move(0);
-
-	   moveSquares(-1.25,125);
-	   turn(-130,150);
-
-	   left_intake.move(125);
-	   right_intake.move(125);
-	   moveSquares(0.66,125);
-	   left_intake.move(0);
-	   right_intake.move(0);
-
-	   stack(4);
-
-
-	   break;
-
-	   case(2): //blue right
-
-	   extendRampAndMoveSquares(0.3);
-	   left_intake.move(255);
-	   right_intake.move(255);
-	   moveSquares(1.1);
-	   delay(500);
-	   moveSquares(0.6);
-	   delay(5);
-	   left_intake.move(0);
-	   right_intake.move(0);
-	   moveSquares(-1.85);
-	   turn(90,100);
-	   moveSquares(1.21);
-	   stack(5);
+    case(0)://forward-up
+     if (mode ==  1) {
+       extendRampAndMoveSquares(1.2);
+     }else{
+       moveSquares(1.2);
+     }
+     pros::delay(500);
+    moveSquares(-1.2);
+   break;
+
+   case(1): //blue left
+   extendRampAndMoveSquares(0.3);
+
+   left_intake.move(255);
+   right_intake.move(255);
+
+   //pick up cubes
+   moveSquares(1.6,40);
+
+   left_intake.move(0);
+   right_intake.move(0);
+
+   moveSquares(-0.9);
+   turn(-130 ,150);
+   moveSquares(0.5);
+   stack(4);
+
+
+   break;
+
+   case(2): //blue right
+
+   extendRampAndMoveSquares(0.3);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(1.1);
+   pros::delay(500);
+   moveSquares(0.6);
+   pros::delay(5);
+   left_intake.move(0);
+   right_intake.move(0);
+   moveSquares(-1.85);
+   turn(90,100);
+   moveSquares(1.21);
+   stack(5);
+
+
+   break;
+
+
+   case(3): //red left
+   extendRampAndMoveSquares(0.3);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(1.1);
+   pros::delay(500);
+   moveSquares(0.6);
+   pros::delay(5);
+   left_intake.move(0);
+   right_intake.move(0);
+   moveSquares(-1.85);
+   turn(-90,100);
+   moveSquares(0.7);
+   stack(4);
+   break;
 
+   case(4): //red right
+   extendRampAndMoveSquares(0.3);
 
-	   break;
+   left_intake.move(255);
+   right_intake.move(255);
 
+   //pick up cubes
+   moveSquares(1.6,40);
 
-	   case(3): //red left
-	   extendRampAndMoveSquares(0.3);
-	   left_intake.move(255);
-	   right_intake.move(255);
-	   moveSquares(1.1);
-	   delay(500);
-	   moveSquares(0.6);
-	   delay(5);
-	   left_intake.move(0);
-	   right_intake.move(0);
-	   moveSquares(-1.85);
-	   turn(-90,100);
-	   moveSquares(0.7);
-	   stack(4);
-	   break;
+   left_intake.move(0);
+   right_intake.move(0);
 
-	   case(4): //red right
-	   extendRampAndMoveSquares(0.3);
+   moveSquares(-0.9);
+   turn(130 ,150);
+   moveSquares(0.5);
+   stack(4);
+   break;
 
-	   left_intake.move(255);
-	   right_intake.move(255);
+   case(5): //blue left 8 stak
+   extendRampAndMoveSquares(2.35);
 
-	   //pick up cubes
-	   moveSquares(1.6,40);
+   pros::delay(5);
+   turn(90 * SIDE_LEFT,255);
+   moveSquares(1);
+   left_intake.move(0);
+   right_intake.move(0);
+   turn(90 * SIDE_LEFT,100);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(2.3);
+   turn(90 * SIDE_LEFT,255);
 
-	   left_intake.move(0);
-	   right_intake.move(0);
+   moveSquares(1.7);
 
-	   moveSquares(-1.25,125);
-	   turn(130,150);
+   stack(8);
+   break;
 
-	   left_intake.move(125);
-	   right_intake.move(125);
-	   moveSquares(0.66,125);
-	   left_intake.move(0);
-	   right_intake.move(0);
+   case(6): //red right 8 stak
+     extendRampAndMoveSquares(2.35);
 
-	   stack(4);
-	   break;
+   pros::delay(5);
+   turn(90 * SIDE_RIGHT,255);
+   moveSquares(1);
+   left_intake.move(0);
+   right_intake.move(0);
+   turn(90 * SIDE_RIGHT,100);
+   left_intake.move(255);
+   right_intake.move(255);
+   moveSquares(2.3);
+   turn(90 * SIDE_RIGHT,255);
 
-	   case(5): //blue left 8 stak
-	   extendRampAndMoveSquares(2.35);
+   moveSquares(1.7);
 
-	   delay(5);
-	   turn(90 * SIDE_LEFT,255);
-	   moveSquares(1);
-	   left_intake.move(0);
-	   right_intake.move(0);
-	   turn(90 * SIDE_LEFT,100);
-	   left_intake.move(255);
-	   right_intake.move(255);
-	   moveSquares(2.3);
-	   turn(90 * SIDE_LEFT,255);
+   stack(8);
+   break;
 
-	   moveSquares(1.7);
+   case(7): //stack
+     stack(10);
+     break;
 
-	   stack(8);
-	   break;
 
-	   case(6): //red right 8 stak
-	     extendRampAndMoveSquares(2.35);
 
-	   delay(5);
-	   turn(90 * SIDE_RIGHT,255);
-	   moveSquares(1);
-	   left_intake.move(0);
-	   right_intake.move(0);
-	   turn(90 * SIDE_RIGHT,100);
-	   left_intake.move(255);
-	   right_intake.move(255);
-	   moveSquares(2.3);
-	   turn(90 * SIDE_RIGHT,255);
+   case(8): //skills
+   extendRampAndMoveSquares(0.3);
 
-	   moveSquares(1.7);
+   left_intake.move(255);
+   right_intake.move(255);
 
-	   stack(8);
-	   break;
+   //pick up cubes
+   moveSquares(1.6,40);
 
-	   case(7): //stack
-	     stack(10);
-	     break;
+   moveSquares(1);
+   
+   moveSquares(1.6,40);
 
+   turn(-45, 155);
 
+   pros::delay(50);
+   left_intake.move(50);
+   right_intake.move(50);
 
-	   case(8): //skills
-	   extendRampAndMoveSquares(0.3);
+   pros::delay(100);
+   moveSquares(0.5);
+   left_intake.move(0);
+   right_intake.move(0);
+   stack(8);
 
-	   left_intake.move(255);
-	   right_intake.move(255);
+   break;
 
-	   //pick up cubes
-	   moveSquares(1.6,40);
+   case(9): //calibration
 
-	   moveSquares(1);
+   break;
 
-	   moveSquares(1.7,40);
+   case(10): //none
 
-	   turn(-45, 155);
 
-	   delay(50);
-	   left_intake.move(50);
-	   right_intake.move(50);
-
-	   delay(100);
-	   moveSquares(1);
-	   left_intake.move(0);
-	   right_intake.move(0);
-	   stack(8);
-	   //8 stack stacked
-
-	   turn(135,155);
-
-	   moveSquares(1.2);
-
-	   left_intake.move(155);
-	   right_intake.move(155);
-
-	   moveSquares(0.4);
-
-	   left_intake.move(0);
-	   right_intake.move(0);
-
-	   moveSquares(-0.2);
-
-	   setAPIDPosition(ramp_mtr,60*84/12,155);
-	   setAPIDPosition(intake_lift_mtr,90 * 84/12,155);
-
-
-       left_intake.move(-125);
-       right_intake.move(-125);
-
-       delay(500);
-
-       moveSquares(-0.5);
-
-       left_intake.move(0);
-       right_intake.move(0);
-
-       setAPIDPosition(intake_lift_mtr,0,155);
-       setAPIDPosition(ramp_mtr,0,155);
-       //tower gotten
-
-       moveSquares(-0.36);
-
-       turn(90,155);
-
-       moveSquares(1);
-
-       left_intake.move(255);
-       right_intake.move(255);
-       moveSquares(0.5);
-       left_intake.move(0);
-       right_intake.move(0);
-
-       moveSquares(-0.2);
-
-       //lift arms
-	     setAPIDPosition(ramp_mtr,60*84/12,155);
-       setAPIDPosition(intake_lift_mtr,90*84/12,155);
-
-       left_intake.move(-100);
-       right_intake.move(-100);
-
-       moveSquares(-0.5);
-
-       left_intake.move(0);
-       right_intake.move(0);
-
-       setAPIDPosition(intake_lift_mtr,0,155);
-       setAPIDPosition(ramp_mtr,0,155);
-       //tower gotten
-
-       moveSquares(-1);
-
-       turn(-90,155);
-
-       moveSquares(0.6);
-
-       turn(90,155);
-
-
-       left_intake.move(200);
-       right_intake.move(200);
-       moveSquares(4,40);
-       left_intake.move(50);
-       right_intake.move(50);
-
-       moveSquares(0.5);
-
-       turn(-90,155);
-
-       moveSquares(3.2);
-
-       stack(7);
-       //stack
-
-       moveSquares(-0.5);
-
-       turn(-90,155);
-
-       left_intake.move(200);
-       right_intake.move(200);
-       moveSquares(0.35);
-       left_intake.move(0);
-       right_intake.move(0);
-       turn(-90,155);
-
-       moveSquares(0.6);
-
-       moveSquares(-0.2);
-
-       //lift arms
-	     setAPIDPosition(ramp_mtr,60*84/12,155);
-       setAPIDPosition(intake_lift_mtr,90*84/12,155);
-
-       left_intake.move(-100);
-       right_intake.move(-100);
-
-       moveSquares(-0.5);
-
-       left_intake.move(0);
-       right_intake.move(0);
-       //tower gotten
-
-
-	   break;
-
-	   case(9): //calibration
-
-	   break;
-
-	   case(10): //none
-
-
-	   break;
-	 }
+   break;
+ 	  }
   setDriveTrainPIDIsActivated(false);
 
   std::cout << "-END OF AUTON:  " << getAutonName(auton_sel) << "-\n";
