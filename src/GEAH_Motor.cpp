@@ -26,7 +26,7 @@ GEAH::Motor::Motor(std::string Name, const std::uint8_t port, const pros::motor_
 
 void GEAH::Motor::runPid() {
 
-  bool pidTuningInProgress = true;
+  bool pidTuningInProgress = false;
   // HOW TO TUNE:
   //Adjust kM in settings until acccel = PID
   //increase kI if oscilations are lopsided
@@ -35,14 +35,13 @@ void GEAH::Motor::runPid() {
 
   double dt = 2;//time(0) - prevTime;
   //prevTime = time(0);
-  double velocity = get_actual_velocity() * 360 / 60;
-  double accel = (velocity - prevVelocity)/dt;
+
   double y = pidTarget-get_position();
 
   porportion = (*speedModifier) * kP * y;
-  derivative = kD * (y-prevY)/dt;
-//derivative = kD * (velocity * 1/sqrt(y))/100;
   integral += kI * ((y-prevY) * dt);
+  derivative = kD * (y-prevY)/dt;
+
 
   double PID = (porportion + integral + derivative);
 
@@ -50,11 +49,14 @@ void GEAH::Motor::runPid() {
   move_velocity(kM * PID);
 
    if (pidTuningInProgress) {
+     double velocity = get_actual_velocity() * 360 / 60;
+     double accel = (velocity - prevVelocity)/dt;
      std::cout << "actualV: " << velocity << " pos: " << get_position() << std::endl;
      std::cout << " counter: " << counter << " dt: " << dt << " time: " << prevTime << " accel: " << accel << " y: " << y << " porportion: " << porportion << " integral: " << integral << " derivative: " << derivative << " PID: " << PID << " moveVoltage: " << kM * PID << std::endl;
+     prevVelocity = velocity;
    }
 
-   prevVelocity = velocity;
+
 }
 
 void GEAH::Motor::resetPID() {

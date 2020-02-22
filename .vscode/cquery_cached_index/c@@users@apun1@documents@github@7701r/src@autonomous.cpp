@@ -473,7 +473,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   double vDiff, prevVDiff = 0;
   int cannotMoveCounter = 0;
   while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
-    if (speed < setSpeed) speed+=2;
+    if (speed < setSpeed) speed+=1.8;
 
     concurrentOperations();
 
@@ -732,7 +732,7 @@ void moveSquares(double numSquares, double speed) {
   drive(0.6 * numSquares,speed);
 }
 void moveSquares(double numSquares) {
-  moveSquares(numSquares,100);
+  moveSquares(numSquares,90);
 }
 
 void bumpWall() {
@@ -748,7 +748,7 @@ void bumpWall() {
 void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
     left_intake.move(-255);
     right_intake.move(-255);
-    moveSquares(squares);
+    moveSquares(squares,93);
     left_intake.move(0);
     right_intake.move(0);
     std::cout << "extended ramp" << std::endl;
@@ -877,18 +877,20 @@ void autonomous(int auton_sel,int mode) {
    case(2): //blue right
 
    extendRampAndMoveSquares(0.3);
+
    left_intake.move(255);
    right_intake.move(255);
-   moveSquares(1.1);
-   pros::delay(500);
-   moveSquares(0.6);
-   pros::delay(5);
+
+   //pick up cubes
+   moveSquares(1.6,40);
+
    left_intake.move(0);
    right_intake.move(0);
-   moveSquares(-1.85);
-   turn(90,100);
-   moveSquares(1.21);
-   stack(5);
+
+   moveSquares(-1.1);
+   turn(130 ,150);
+   moveSquares(0.5);
+   stack(4);
 
 
    break;
@@ -912,19 +914,17 @@ void autonomous(int auton_sel,int mode) {
 
    case(4): //red right
    extendRampAndMoveSquares(0.3);
-
    left_intake.move(255);
    right_intake.move(255);
-
-   //pick up cubes
-   moveSquares(1.6,40);
-
+   moveSquares(1.1);
+   pros::delay(500);
+   moveSquares(0.6);
+   pros::delay(5);
    left_intake.move(0);
    right_intake.move(0);
-
-   moveSquares(-1.1);
-   turn(130 ,150);
-   moveSquares(0.5);
+   moveSquares(-1.85);
+   turn(90,100);
+   moveSquares(0.7);
    stack(4);
    break;
 
@@ -952,9 +952,9 @@ void autonomous(int auton_sel,int mode) {
 
    moveSquares(1);
 
-   moveSquares(2.1,40);
+   moveSquares(2.2,40);
 
-   turn(-45, 155);
+   turn(-40, 155);
 
    pros::delay(50);
    left_intake.move(50);
