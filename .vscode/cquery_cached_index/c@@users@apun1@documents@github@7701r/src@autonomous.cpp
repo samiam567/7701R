@@ -26,6 +26,11 @@
   extern GEAH::Motor left_intake;
   extern GEAH::Motor right_intake;
 
+  extern pros::Imu imu;
+
+double getRobotRotation() {
+
+}
 
 bool autonLockWheelsIntake = false;
 
@@ -943,7 +948,7 @@ void autonomous(int auton_sel,int mode) {
 
    case(8): //skills
    extendRampAndMoveSquares(0.3);
-
+   pros::delay(700);
    left_intake.move(255);
    right_intake.move(255);
 
