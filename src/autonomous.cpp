@@ -29,7 +29,7 @@
   extern pros::Imu imu;
 
 double getRobotRotation() {
-
+  return imu.get_rotation();
 }
 
 bool autonLockWheelsIntake = false;

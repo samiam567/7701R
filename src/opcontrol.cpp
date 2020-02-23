@@ -102,7 +102,7 @@ void runOpControl() {
 
     drive = driver.drive_type;
 
-
+    consoleLogN(getRobotRotation());
 
 		LEDs(false);
 

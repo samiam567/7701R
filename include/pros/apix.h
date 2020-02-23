@@ -12,7 +12,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
- * Copyright (c) 2017-2018, Purdue University ACM SIGBots.
+ * Copyright (c) 2017-2020, Purdue University ACM SIGBots.
  * All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -28,10 +28,12 @@
 #pragma GCC diagnostic ignored "-Wall"
 #include "display/lvgl.h"
 #pragma GCC diagnostic pop
+#include "pros/serial.h"
 
 #ifdef __cplusplus
+#include "pros/serial.hpp"
+namespace pros::c {
 extern "C" {
-using namespace pros;
 #endif
 
 /******************************************************************************/
@@ -52,6 +54,26 @@ typedef void* sem_t;
  * details.
  */
 bool task_abort_delay(task_t task);
+
+/**
+ * Notify a task when a target task is being deleted.
+ *
+ * This function will configure the PROS kernel to call
+ * task_notify_ext(task_to_notify, value, action, NULL) when target_task is
+ * deleted.
+ *
+ *
+ * \param target_task
+ *				The task being watched for deletion
+ * \param task_to_notify
+ *        The task to notify when target_task is deleted
+ * \param value
+ *				The value to supply to task_notify_ext
+ * \param notify_action
+ * 				The action to supply to task_notify_ext
+ */
+void task_notify_when_deleting(task_t target_task, task_t task_to_notify, uint32_t value,
+                               notify_action_e_t notify_action);
 
 /**
  * Creates a recursive mutex which can be locked recursively by the owner.
@@ -347,6 +369,7 @@ void queue_reset(queue_t queue);
 typedef enum v5_device_e {
 	E_DEVICE_NONE = 0,
 	E_DEVICE_MOTOR = 2,
+	E_DEVICE_IMU = 6,
 	E_DEVICE_RADIO = 8,
 	E_DEVICE_VISION = 11,
 	E_DEVICE_ADI = 12,
@@ -362,7 +385,7 @@ typedef enum v5_device_e {
  *
  * This function uses the following values of errno when an error state is
  * reached:
- * EINVAL - The given value is not within the range of V5 ports (1-21), or a
+ * ENXIO - The given value is not within the range of V5 ports (1-21), or a
  * a different device than specified is plugged in.
  * EADDRINUSE - The port is already registered to another device.
  *
@@ -382,7 +405,7 @@ int registry_bind_port(uint8_t port, v5_device_e_t device_type);
  *
  * This function uses the following values of errno when an error state is
  * reached:
- * EINVAL - The given value is not within the range of V5 ports (1-21).
+ * ENXIO - The given value is not within the range of V5 ports (1-21).
  *
  * \param port
  *        The port number to deregister
@@ -512,6 +535,15 @@ int32_t fdctl(int file, const uint32_t action, void* const extra_arg);
 #define DEVCTL_FIONREAD 16
 
 /**
+ * Action macro to check if there is space available in the Generic Serial
+ * Device's output buffer
+ *
+ * The extra argument is not used with this action, provide any value (e.g.
+ * NULL) instead
+ */
+#define DEVCTL_FIONWRITE 18
+
+/**
  * Action macro to set the Generic Serial Device's baudrate.
  *
  * The extra argument is the baudrate.
@@ -519,6 +551,7 @@ int32_t fdctl(int file, const uint32_t action, void* const extra_arg);
 #define DEVCTL_SET_BAUDRATE 17
 
 #ifdef __cplusplus
+}
 }
 #endif
 

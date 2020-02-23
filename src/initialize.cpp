@@ -19,6 +19,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER), partner(pros::E_CONTROLLER_P
  GEAH::Motor left_intake("left_intake",ports::INTAKE_LEFT_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
  GEAH::Motor right_intake("right_intake",ports::INTAKE_RIGHT_MTR_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
 
+ pros::Imu imu(ports::IMU_PORT);
 
 
 std::vector<GEAH::Motor> Motors = {left_mtr_back,right_mtr_back,left_mtr_front,right_mtr_front,ramp_mtr,intake_lift_mtr,left_intake,right_intake};

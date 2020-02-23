@@ -1,4 +1,4 @@
-/**
+/*
  * @author Ryan Benasutti, WPI
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -34,9 +34,19 @@ class ADIGyro : public ContinuousRotarySensor {
   double get() const override;
 
   /**
+   * Get the current sensor value remapped into the target range ([1800, -1800] by default).
+   *
+   * @param iupperBound the upper bound of the range.
+   * @param ilowerBound the lower bound of the range.
+   * @return the remapped sensor value.
+   */
+  double getRemapped(double iupperBound = 1800, double ilowerBound = -1800) const
+    __attribute__((optimize(3)));
+
+  /**
    * Reset the sensor to zero.
    *
-   * @return 1 on success, PROS_ERR on fail
+   * @return `1` on success, `PROS_ERR` on fail
    */
   std::int32_t reset() override;
 
@@ -49,6 +59,6 @@ class ADIGyro : public ContinuousRotarySensor {
   double controllerGet() override;
 
   protected:
-  pros::ADIGyro gyro;
+  pros::c::adi_gyro_t gyro;
 };
 } // namespace okapi

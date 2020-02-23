@@ -1,4 +1,4 @@
-/**
+/*
  * @author Ryan Benasutti, WPI
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -18,24 +18,29 @@ class AbstractMotor : public ControllerOutput<double> {
    * Indicates the 'brake mode' of a motor.
    */
   enum class brakeMode {
-    coast = 0, // Motor coasts when stopped, traditional behavior
-    brake = 1, // Motor brakes when stopped
-    hold = 2,  // Motor actively holds position when stopped
+    coast = 0, ///< Motor coasts when stopped, traditional behavior
+    brake = 1, ///< Motor brakes when stopped
+    hold = 2,  ///< Motor actively holds position when stopped
     invalid = INT32_MAX
   };
 
   /**
    * Indicates the units used by the motor encoders.
    */
-  enum class encoderUnits { degrees = 0, rotations = 1, counts = 2, invalid = INT32_MAX };
+  enum class encoderUnits {
+    degrees = 0,        ///< degrees
+    rotations = 1,      ///< rotations
+    counts = 2,         ///< counts
+    invalid = INT32_MAX ///< invalid
+  };
 
   /**
    * Indicates the internal gear ratio of a motor.
    */
   enum class gearset {
-    red = 100,   // 36:1, 100 RPM, Red gear set
-    green = 200, // 18:1, 200 RPM, Green gear set
-    blue = 600,  // 6:1,  600 RPM, Blue gear set
+    red = 100,   ///< 36:1, 100 RPM, Red gear set
+    green = 200, ///< 18:1, 200 RPM, Green gear set
+    blue = 600,  ///< 6:1,  600 RPM, Blue gear set
     invalid = INT32_MAX
   };
 
@@ -46,11 +51,11 @@ class AbstractMotor : public ControllerOutput<double> {
     /**
      * A simple structure representing the full ratio between motor and wheel.
      *
-     * The ratio is motor rotation : wheel rotation. So for example, if one motor rotation
-     * corresponds to two wheel rotations, the ratio is 1.0/2.0.
+     * The ratio is `motor rotation : wheel rotation`, e.x., if one motor rotation
+     * corresponds to two wheel rotations, the ratio is `1.0/2.0`.
      *
-     * @param igearset the motor's gearset
-     * @param iratio the ratio of motor rotation to wheel rotation
+     * @param igearset The gearset in the motor.
+     * @param iratio The ratio of motor rotation to wheel rotation.
      */
     GearsetRatioPair(const gearset igearset, const double iratio = 1)
       : internalGearset(igearset), ratio(iratio) {
@@ -58,8 +63,8 @@ class AbstractMotor : public ControllerOutput<double> {
 
     ~GearsetRatioPair() = default;
 
-    const gearset internalGearset;
-    const double ratio = 1;
+    gearset internalGearset;
+    double ratio = 1;
   };
 
   virtual ~AbstractMotor();
@@ -86,7 +91,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @param ivelocity The maximum allowable velocity for the movement in RPM
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t moveAbsolute(double iposition, std::int32_t ivelocity) const = 0;
+  virtual std::int32_t moveAbsolute(double iposition, std::int32_t ivelocity) = 0;
 
   /**
    * Sets the relative target position for the motor to move to.
@@ -105,7 +110,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @param ivelocity The maximum allowable velocity for the movement in RPM
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t moveRelative(double iposition, std::int32_t ivelocity) const = 0;
+  virtual std::int32_t moveRelative(double iposition, std::int32_t ivelocity) = 0;
 
   /**
    * Sets the velocity for the motor.
@@ -123,7 +128,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * gearset
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t moveVelocity(std::int16_t ivelocity) const = 0;
+  virtual std::int32_t moveVelocity(std::int16_t ivelocity) = 0;
 
   /**
    * Sets the voltage for the motor from -12000 to 12000.
@@ -134,7 +139,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @param ivoltage The new voltage value from -12000 to 12000
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t moveVoltage(std::int16_t ivoltage) const = 0;
+  virtual std::int32_t moveVoltage(std::int16_t ivoltage) = 0;
 
   /**
    * Changes the output velocity for a profiled movement (moveAbsolute or moveRelative). This will
@@ -147,7 +152,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * gearset
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t modifyProfiledVelocity(std::int32_t ivelocity) const = 0;
+  virtual std::int32_t modifyProfiledVelocity(std::int32_t ivelocity) = 0;
 
   /******************************************************************************/
   /**                        Motor telemetry functions                         **/
@@ -164,7 +169,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return The target position in its encoder units or PROS_ERR_F if the operation failed,
    * setting errno.
    */
-  virtual double getTargetPosition() const = 0;
+  virtual double getTargetPosition() = 0;
 
   /**
    * Gets the absolute position of the motor in its encoder units.
@@ -175,7 +180,19 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return The motor's absolute position in its encoder units or PROS_ERR_F if the operation
    * failed, setting errno.
    */
-  virtual double getPosition() const = 0;
+  virtual double getPosition() = 0;
+
+  /**
+   * Gets the positional error (target position minus actual position) of the motor in its encoder
+   * units.
+   *
+   * This function uses the following values of errno when an error state is reached:
+   * EACCES - Another resource is currently trying to access the port.
+   *
+   * @return The motor's positional error in its encoder units or PROS_ERR_F if the operation
+   * failed, setting errno.
+   */
+  double getPositionError();
 
   /**
    * Sets the "absolute" zero position of the motor to its current position.
@@ -185,7 +202,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t tarePosition() const = 0;
+  virtual std::int32_t tarePosition() = 0;
 
   /**
    * Gets the velocity commanded to the motor by the user.
@@ -196,7 +213,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return The commanded motor velocity from +-100, +-200, or +-600, or PROS_ERR if the operation
    * failed, setting errno.
    */
-  virtual std::int32_t getTargetVelocity() const = 0;
+  virtual std::int32_t getTargetVelocity() = 0;
 
   /**
    * Gets the actual velocity of the motor.
@@ -207,7 +224,19 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return The motor's actual velocity in RPM or PROS_ERR_F if the operation failed, setting
    * errno.
    */
-  virtual double getActualVelocity() const = 0;
+  virtual double getActualVelocity() = 0;
+
+  /**
+   * Gets the difference between the target velocity of the motor and the actual velocity of the
+   * motor.
+   *
+   * This function uses the following values of errno when an error state is reached:
+   * EACCES - Another resource is currently trying to access the port.
+   *
+   * @return The motor's velocity error in RPM or PROS_ERR_F if the operation failed, setting
+   * errno.
+   */
+  double getVelocityError();
 
   /**
    * Gets the current drawn by the motor in mA.
@@ -218,7 +247,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The motor's current in mA or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t getCurrentDraw() const = 0;
+  virtual std::int32_t getCurrentDraw() = 0;
 
   /**
    * Gets the direction of movement for the motor.
@@ -230,7 +259,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return 1 for moving in the positive direction, -1 for moving in the negative direction, and
    * PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t getDirection() const = 0;
+  virtual std::int32_t getDirection() = 0;
 
   /**
    * Gets the efficiency of the motor in percent.
@@ -245,7 +274,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The motor's efficiency in percent or PROS_ERR_F if the operation failed, setting errno.
    */
-  virtual double getEfficiency() const = 0;
+  virtual double getEfficiency() = 0;
 
   /**
    * Checks if the motor is drawing over its current limit.
@@ -257,7 +286,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return 1 if the motor's current limit is being exceeded and 0 if the current limit is not
    * exceeded, or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t isOverCurrent() const = 0;
+  virtual std::int32_t isOverCurrent() = 0;
 
   /**
    * Checks if the motor's temperature is above its limit.
@@ -269,7 +298,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return 1 if the temperature limit is exceeded and 0 if the the temperature is below the limit,
    * or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t isOverTemp() const = 0;
+  virtual std::int32_t isOverTemp() = 0;
 
   /**
    * Checks if the motor is stopped.
@@ -280,7 +309,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return 1 if the motor is not moving, 0 if the motor is moving, or PROS_ERR if the operation
    * failed, setting errno
    */
-  virtual std::int32_t isStopped() const = 0;
+  virtual std::int32_t isStopped() = 0;
 
   /**
    * Checks if the motor is at its zero position.
@@ -291,7 +320,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return 1 if the motor is at zero absolute position, 0 if the motor has moved from its absolute
    * zero, or PROS_ERR if the operation failed, setting errno
    */
-  virtual std::int32_t getZeroPositionFlag() const = 0;
+  virtual std::int32_t getZeroPositionFlag() = 0;
 
   /**
    * Gets the faults experienced by the motor. Compare this bitfield to the bitmasks in
@@ -304,7 +333,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return A currently unknown bitfield containing the motor's faults. 0b00000100 = Current Limit
    * Hit
    */
-  virtual uint32_t getFaults() const = 0;
+  virtual uint32_t getFaults() = 0;
 
   /**
    * Gets the flags set by the motor's operation. Compare this bitfield to the bitmasks in
@@ -317,7 +346,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return A currently unknown bitfield containing the motor's flags. These seem to be unrelated
    * to the individual get_specific_flag functions
    */
-  virtual uint32_t getFlags() const = 0;
+  virtual uint32_t getFlags() = 0;
 
   /**
    * Gets the raw encoder count of the motor at a given timestamp.
@@ -331,7 +360,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The raw encoder count at the given timestamp or PROS_ERR if the operation failed.
    */
-  virtual std::int32_t getRawPosition(std::uint32_t *timestamp) const = 0;
+  virtual std::int32_t getRawPosition(std::uint32_t *timestamp) = 0;
 
   /**
    * Gets the power drawn by the motor in Watts.
@@ -342,7 +371,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The motor's power draw in Watts or PROS_ERR_F if the operation failed, setting errno.
    */
-  virtual double getPower() const = 0;
+  virtual double getPower() = 0;
 
   /**
    * Gets the temperature of the motor in degrees Celsius.
@@ -354,7 +383,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return The motor's temperature in degrees Celsius or PROS_ERR_F if the operation failed,
    * setting errno.
    */
-  virtual double getTemperature() const = 0;
+  virtual double getTemperature() = 0;
 
   /**
    * Gets the torque generated by the motor in Newton Metres (Nm).
@@ -365,7 +394,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The motor's torque in NM or PROS_ERR_F if the operation failed, setting errno.
    */
-  virtual double getTorque() const = 0;
+  virtual double getTorque() = 0;
 
   /**
    * Gets the voltage delivered to the motor in millivolts.
@@ -376,7 +405,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The motor's voltage in V or PROS_ERR_F if the operation failed, setting errno.
    */
-  virtual std::int32_t getVoltage() const = 0;
+  virtual std::int32_t getVoltage() = 0;
 
   /******************************************************************************/
   /**                      Motor configuration functions                       **/
@@ -404,7 +433,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return One of brakeMode, according to what was set for the motor, or brakeMode::invalid if the
    * operation failed, setting errno.
    */
-  virtual brakeMode getBrakeMode() const = 0;
+  virtual brakeMode getBrakeMode() = 0;
 
   /**
    * Sets the current limit for the motor in mA.
@@ -415,7 +444,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @param ilimit The new current limit in mA
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t setCurrentLimit(std::int32_t ilimit) const = 0;
+  virtual std::int32_t setCurrentLimit(std::int32_t ilimit) = 0;
 
   /**
    * Gets the current limit for the motor in mA.
@@ -427,7 +456,7 @@ class AbstractMotor : public ControllerOutput<double> {
    *
    * @return The motor's current limit in mA or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t getCurrentLimit() const = 0;
+  virtual std::int32_t getCurrentLimit() = 0;
 
   /**
    * Sets one of encoderUnits for the motor encoder.
@@ -449,7 +478,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return One of encoderUnits according to what is set for the motor or encoderUnits::invalid if
    * the operation failed.
    */
-  virtual encoderUnits getEncoderUnits() const = 0;
+  virtual encoderUnits getEncoderUnits() = 0;
 
   /**
    * Sets one of gearset for the motor.
@@ -471,7 +500,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @return One of gearset according to what is set for the motor, or gearset::invalid if the
    * operation failed.
    */
-  virtual gearset getGearing() const = 0;
+  virtual gearset getGearing() = 0;
 
   /**
    * Sets the reverse flag for the motor.
@@ -484,7 +513,7 @@ class AbstractMotor : public ControllerOutput<double> {
    * @param ireverse True reverses the motor, false is default
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t setReversed(bool ireverse) const = 0;
+  virtual std::int32_t setReversed(bool ireverse) = 0;
 
   /**
    * Sets the voltage limit for the motor in Volts.
@@ -495,80 +524,14 @@ class AbstractMotor : public ControllerOutput<double> {
    * @param ilimit The new voltage limit in Volts
    * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
    */
-  virtual std::int32_t setVoltageLimit(std::int32_t ilimit) const = 0;
-
-  /**
-   * Sets new PID constants.
-   *
-   * @param ikF the feed-forward constant
-   * @param ikP the proportional constant
-   * @param ikI the integral constant
-   * @param ikD the derivative constant
-   * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
-   */
-  virtual std::int32_t setPosPID(double ikF, double ikP, double ikI, double ikD) const = 0;
-
-  /**
-   * Sets new PID constants.
-   *
-   * @param ikF the feed-forward constant
-   * @param ikP the proportional constant
-   * @param ikI the integral constant
-   * @param ikD the derivative constant
-   * @param ifilter a constant used for filtering the profile acceleration
-   * @param ilimit the integral limit
-   * @param ithreshold the threshold for determining if a position movement has reached its goal
-   * @param iloopSpeed the rate at which the PID computation is run (in ms)
-   * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
-   */
-  virtual std::int32_t setPosPIDFull(double ikF,
-                                     double ikP,
-                                     double ikI,
-                                     double ikD,
-                                     double ifilter,
-                                     double ilimit,
-                                     double ithreshold,
-                                     double iloopSpeed) const = 0;
-
-  /**
-   * Sets new PID constants.
-   *
-   * @param ikF the feed-forward constant
-   * @param ikP the proportional constant
-   * @param ikI the integral constant
-   * @param ikD the derivative constant
-   * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
-   */
-  virtual std::int32_t setVelPID(double ikF, double ikP, double ikI, double ikD) const = 0;
-
-  /**
-   * Sets new PID constants.
-   *
-   * @param ikF the feed-forward constant
-   * @param ikP the proportional constant
-   * @param ikI the integral constant
-   * @param ikD the derivative constant
-   * @param ifilter a constant used for filtering the profile acceleration
-   * @param ilimit the integral limit
-   * @param ithreshold the threshold for determining if a position movement has reached its goal
-   * @param iloopSpeed the rate at which the PID computation is run (in ms)
-   * @return 1 if the operation was successful or PROS_ERR if the operation failed, setting errno.
-   */
-  virtual std::int32_t setVelPIDFull(double ikF,
-                                     double ikP,
-                                     double ikI,
-                                     double ikD,
-                                     double ifilter,
-                                     double ilimit,
-                                     double ithreshold,
-                                     double iloopSpeed) const = 0;
+  virtual std::int32_t setVoltageLimit(std::int32_t ilimit) = 0;
 
   /**
    * Returns the encoder associated with this motor.
    *
    * @return the encoder for this motor
    */
-  virtual std::shared_ptr<ContinuousRotarySensor> getEncoder() const = 0;
+  virtual std::shared_ptr<ContinuousRotarySensor> getEncoder() = 0;
 };
 
 AbstractMotor::GearsetRatioPair operator*(AbstractMotor::gearset gearset, double ratio);
