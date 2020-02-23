@@ -10,7 +10,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
- * Copyright (c) 2017-2018, Purdue University ACM SIGBots.
+ * Copyright (c) 2017-2020, Purdue University ACM SIGBots.
  * All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -21,6 +21,7 @@
 #ifndef _PROS_RTOS_H_
 #define _PROS_RTOS_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -277,6 +278,14 @@ char* task_get_name(task_t task);
  * \return A task handle with a matching name, or NULL if none were found.
  */
 task_t task_get_by_name(const char* name);
+
+/**
+ * Get the currently running task handle. This could be useful if a task
+ * wants to tell another task about itself.
+ *
+ * \return The currently running task handle.
+ */
+task_t task_get_current();
 
 /**
  * Sends a simple notification to task and increments the notification counter.

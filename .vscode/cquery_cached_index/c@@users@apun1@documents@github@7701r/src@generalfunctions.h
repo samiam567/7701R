@@ -27,6 +27,7 @@ int getDrive();
 
 int getAuton(); //(in initialize.cpp)
 
+double getRobotRotation();
 
 void vibrateController(const char*rumble_pattern); //(in opcontroll.cpp)
 

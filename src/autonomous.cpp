@@ -34,7 +34,7 @@ double getRobotRotation() {
 
 bool autonLockWheelsIntake = false;
 
-double lTarget = ERROR, rTarget = ERROR;
+double lTarget = ERROR, rTarget = ERROR, angleTarget = 0;
 int aTLoops = 0;
 bool checkForStop() {
   return false;
@@ -452,7 +452,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   double turnDegs = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
   turnDegs *= .75; //this number was derived form the callibrator and is likely different for each robot
 
-  if (turnDegs > 0) {
+  if (std::abs(turnDegs) > 0) {
     consoleLog("driving ");
     consoleLog(turnDegs);
     consoleLogN(" degrees.");
@@ -492,10 +492,11 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 
     //drive correction
     //double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
-    vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
+    //vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
+    vDiff = angleTarget - getRobotRotation();
 
-    lSpeed = speed + (vDiff*100 + (vDiff-prevVDiff)/2);
-    rSpeed = speed - (vDiff*100 + (vDiff-prevVDiff)/2);
+    lSpeed = setSpeed + (vDiff + (vDiff-prevVDiff));
+    rSpeed = setSpeed - (vDiff + (vDiff-prevVDiff));
 
     prevVDiff = vDiff;
 
@@ -532,6 +533,7 @@ bool drive(double magnatude, double speed) {
 }
 
 bool turn(double magnatude, double speed) {
+  angleTarget += magnatude;
   left_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
   right_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
 
@@ -560,7 +562,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
       wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
     }
 
-    if (magnatude < 0) speed = -fabs(speed);
+    if (magnatude < 0) speed = -std::abs(speed);
 
     magnatude = fabs(magnatude);
 
@@ -800,6 +802,7 @@ void stack(int blockNum) { //Alec's stacking method
 void resetAutonTargets() {
   lTarget = left_mtr_back.get_position();
   rTarget = right_mtr_back.get_position();
+  angleTarget = getRobotRotation();
 }
 
 void autonomous(int auton_sel);
