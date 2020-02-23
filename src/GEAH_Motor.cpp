@@ -24,7 +24,7 @@ GEAH::Motor::Motor(std::string Name, const std::uint8_t port, const pros::motor_
   counter = 0;
 }
 
-void GEAH::Motor::runPid() {
+double GEAH::Motor::runPid(double dt) {
 
   bool pidTuningInProgress = false;
   // HOW TO TUNE:
@@ -33,8 +33,6 @@ void GEAH::Motor::runPid() {
   //increase kD if system is oscillating
   //increase kP if the system doesn't reach target position fast enough
 
-  double dt = 2;//time(0) - prevTime;
-  //prevTime = time(0);
 
   double y = pidTarget-get_position();
 
@@ -43,10 +41,8 @@ void GEAH::Motor::runPid() {
   derivative = kD * (y-prevY)/dt;
 
 
-  double PID = (porportion + integral + derivative);
+  double PID = kM * (porportion + integral + derivative);
 
-
-  move_velocity(kM * PID);
 
    if (pidTuningInProgress) {
      double velocity = get_actual_velocity() * 360 / 60;
@@ -56,7 +52,7 @@ void GEAH::Motor::runPid() {
      prevVelocity = velocity;
    }
 
-
+  return PID;
 }
 
 void GEAH::Motor::resetPID() {

@@ -65,7 +65,7 @@ class realTimePositionController {
     }
     void run() {
       if (isActivated) {
-        if (targetPosition != ERROR) (*motorToControl).runPid();
+        if (targetPosition != ERROR) (*motorToControl).runPid(10);
       }
   }
   void setSpeedModifier(double speedModifier1) {

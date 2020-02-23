@@ -77,7 +77,7 @@ bool driveStraight(double magnatude, double speed, int type) {
 			wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
 		}
 
-	   speed = fabs(speed);
+	   speed = std::abs(speed);
 
      if (magnatude < 0) speed = -speed; //drive backwards if ordered to move negative distance
 
@@ -131,15 +131,15 @@ pros::delay(10);
 
 std::cout << "begin auton loop" << std::endl;
 pros::delay(10);
-      while ( (fabs( lValue - (wheelDegrees+lStart)) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( rValue - (wheelDegrees+rStart)) >= callibrationSettings::MOTOR_POSITION_ERROR)){
+      while ( (std::abs( lValue - (wheelDegrees+lStart)) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( std::abs( rValue - (wheelDegrees+rStart)) >= callibrationSettings::MOTOR_POSITION_ERROR)){
       //  if (driveSpeed < speed) driveSpeed += speed/3;
 
         lValue = left_mtr_back.get_position();
         rValue = right_mtr_back.get_position();
 
 
-        double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
-        //double vDiff = fabs(lValue-(wheelDegrees+lStart)) - fabs(rValue-(wheelDegrees+rStart));
+        double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
+        //double vDiff = std::abs(lValue-(wheelDegrees+lStart)) - std::abs(rValue-(wheelDegrees+rStart));
 
         if (speed >= 0) {
           lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
@@ -161,7 +161,7 @@ pros::delay(10);
         checkForStop();
         concurrentOperations();
 
-        if (counter > fabs(10 + 10*(wheelDegrees/M_PI)/speed) ) {
+        if (counter > std::abs(10 + 10*(wheelDegrees/M_PI)/speed) ) {
           consoleLogN("-ERROR- Movement taking too long. Terminating...");
           std::cout << "-ERROR- DriveStraight of magn: " << wheelDegrees << "degs and speed: " << speed << " taking too long. (counter = " << counter << ") \n" << "terminating turn... \n";
           break;
@@ -169,7 +169,7 @@ pros::delay(10);
 
 
 
-        if (fabs(left_mtr_back.get_actual_velocity()) < 0.05 * driveSpeed ) {
+        if (std::abs(left_mtr_back.get_actual_velocity()) < 0.05 * driveSpeed ) {
             motorCannotMoveCounter++;
             driveSpeed *= 1.05;
         }else{
@@ -227,7 +227,7 @@ pros::delay(10);
 
     }else{
 
-    float degs = fabs(360*wheelRotations);
+    float degs = std::abs(360*wheelRotations);
 
     int motorCannotMoveCounter = 0;
 
@@ -237,10 +237,10 @@ pros::delay(10);
       checkForStop(); //this method should be continuously called the entire duration of the program
       concurrentOperations();
 
-      lValue = fabs(left_mtr_back.get_position()-lStart);
-      rValue = fabs(right_mtr_back.get_position()-rStart);
+      lValue = std::abs(left_mtr_back.get_position()-lStart);
+      rValue = std::abs(right_mtr_back.get_position()-rStart);
 
-      if (fabs(left_mtr_back.get_actual_velocity()) <= 0.1) motorCannotMoveCounter++;
+      if (std::abs(left_mtr_back.get_actual_velocity()) <= 0.1) motorCannotMoveCounter++;
 
       if (motorCannotMoveCounter > 700) {
         consoleLogN("Error:: motor cannot move");
@@ -248,7 +248,7 @@ pros::delay(10);
         return false; //motor movement was in some way inhibited
       }
 
-      if ( fabs(lValue - rValue) < give) { //the sides are equal and no correction needs to be made
+      if ( std::abs(lValue - rValue) < give) { //the sides are equal and no correction needs to be made
 
         left_mtr_back = speed;
         left_mtr_front = speed;
@@ -353,7 +353,7 @@ bool turn(double theta, int speed) { //theta is in degrees
       setLeftDriveTrainTarget(lMulti*wheelDegrees + lStart, lSpeed);
       setRightDriveTrainTarget(rMulti*wheelDegrees + rStart,rSpeed);
 
-      while ( ( fabs( fabs(lValue-lStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( fabs( fabs(rValue-rStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR)){
+      while ( ( std::abs( std::abs(lValue-lStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR) || ( std::abs( std::abs(rValue-rStart) - wheelDegrees) >= callibrationSettings::MOTOR_POSITION_ERROR)){
         //if (driveSpeed < speed) driveSpeed += speed/3; //gradually increase the speed of the motors
 
         lValue = left_mtr_back.get_position();
@@ -364,8 +364,8 @@ bool turn(double theta, int speed) { //theta is in degrees
           motorCannotMoveCounter++;
         }
 
-        double vDiff = fabs(left_mtr_back.get_actual_velocity()) - fabs(right_mtr_back.get_actual_velocity());
-        //double vDiff = fabs(fabs( fabs(lValue-lStart) - wheelDegrees) - fabs( fabs(rValue-rStart) - wheelDegrees));
+        double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
+        //double vDiff = std::abs(std::abs( std::abs(lValue-lStart) - wheelDegrees) - std::abs( std::abs(rValue-rStart) - wheelDegrees));
 
         if (lSpeed >= 0) {
           lSpeed = driveSpeed + vDiff*callibrationSettings::TURN_CORRECTION;
@@ -390,9 +390,9 @@ bool turn(double theta, int speed) { //theta is in degrees
         checkForStop();
         concurrentOperations();
 
-        if (counter > fabs(20 + 50*(theta/M_PI)/driveSpeed) ) {
+        if (counter > std::abs(20 + 50*(theta/M_PI)/driveSpeed) ) {
           consoleLogN("-ERROR- Turn taking too long. Terminating...");
-          std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << fabs(20 + 300*(theta/M_PI)/speed) << ") \n" << "terminating turn... \n";\
+          std::cout << "-ERROR- Turn of magn: " << theta << " degs and speed: " << speed << " taking too long. (counter = " << counter << ">" << std::abs(20 + 300*(theta/M_PI)/speed) << ") \n" << "terminating turn... \n";\
           break;
         }
 
@@ -482,8 +482,8 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 
     concurrentOperations();
 
-    left_mtr_back.runPid();
-    right_mtr_back.runPid();
+    left_mtr_back.move_velocity(left_mtr_back.runPid(2));
+    right_mtr_back.move_velocity(right_mtr_back.runPid(2));
     left_mtr_front.move_voltage(left_mtr_back.get_voltage());
     right_mtr_front.move_voltage(left_mtr_back.get_voltage());
 
@@ -564,7 +564,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
 
     if (magnatude < 0) speed = -std::abs(speed);
 
-    magnatude = fabs(magnatude);
+    magnatude = std::abs(magnatude);
 
 
     double value,start;
@@ -574,7 +574,7 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
     start = motor.get_position();
 
 
-    float degs = fabs(360*wheelRotations);
+    float degs = std::abs(360*wheelRotations);
 
     int motorCannotMoveCounter = 0;
 
@@ -582,11 +582,11 @@ bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
         checkForStop(); //this method should be continuously called the entire duration of the program
         concurrentOperations();
 
-        value = fabs(motor.get_position()-start);
+        value = std::abs(motor.get_position()-start);
 
         motor.move(speed);
 
-        if (fabs(motor.get_actual_velocity()) < 0.05 * speed ) {
+        if (std::abs(motor.get_actual_velocity()) < 0.05 * speed ) {
           motorCannotMoveCounter++;
         }else{
             motorCannotMoveCounter/=2;
@@ -631,16 +631,16 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
 
   if (type == MOVE_ROTATIONS) {
     wheelRotations = magnatude;
-    degs = fabs(360*wheelRotations);
+    degs = std::abs(360*wheelRotations);
   }else if (type == MOVE_METERS) {
     wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
-    degs = fabs(360*wheelRotations);
+    degs = std::abs(360*wheelRotations);
   }else if (type == MOVE_DEGREES) {
     degs = magnatude;
   }else{
     //default to distance
     wheelRotations = magnatude / ( 2 * callibrationSettings::wheelRadius * M_PI);
-    degs = fabs(360*wheelRotations);
+    degs = std::abs(360*wheelRotations);
   }
 
   double value,start;
@@ -653,27 +653,27 @@ bool setMotorPosition(GEAH::Motor motor, float position, int speed, int type) { 
   motor.set_brake_mode(MOTOR_BRAKE_HOLD);
 
   if (motor.get_position() < degs) {
-    speed = fabs(speed);
+    speed = std::abs(speed);
   }else {
-    speed = -fabs(speed);
+    speed = -std::abs(speed);
   }
 
   float min_V = 0.5f; //the minimum voltage the motor will use
 
   motor.setAPIDTarget(value);
 
-  while ( fabs(value) < fabs(degs-start)) {
+  while ( std::abs(value) < std::abs(degs-start)) {
       checkForStop(); //this method should be continuously called the entire duration of the program
       concurrentOperations();
 
-      value = fabs(motor.get_position()-start);
+      value = std::abs(motor.get_position()-start);
 
-      motor.move_velocity(min_V*speed/fabs(speed) + 10*fabs(value - (degs-start))*speed/fabs(127)/180);
+      motor.move_velocity(min_V*speed/std::abs(speed) + 10*std::abs(value - (degs-start))*speed/std::abs(127)/180);
 
-      if (fabs(motor.get_actual_velocity()) <= 0.03) {
+      if (std::abs(motor.get_actual_velocity()) <= 0.03) {
         min_V+= 0.005; //if the motor is stuck then up the voltage
 
-        if (fabs(min_V*speed/fabs(speed) + fabs(value - (degs-start))*speed/fabs(127)/180) > 220) {
+        if (std::abs(min_V*speed/std::abs(speed) + std::abs(value - (degs-start))*speed/std::abs(127)/180) > 220) {
           consoleLogN("Error:: motor cannot move");
           consoleLogN("Movement of Motor Terminated");
           motor.move(0);
@@ -708,7 +708,7 @@ bool setAPIDPosition(GEAH::Motor motor, double degs, double speed) { //return tr
   while ( std::abs(value-degs) > callibrationSettings::MOTOR_POSITION_ERROR) {
     concurrentOperations();
 
-    motor.runPid();
+    motor.move_velocity(motor.runPid(2));
 
     value = motor.get_position();
 
@@ -793,7 +793,7 @@ void stack(int blockNum) { //Alec's stacking method
     right_intake.move(0);
     pros::delay(500);
     autonLockWheelsIntake = true;
-    moveSquares(-0.7);
+    moveSquares(-0.55);
     autonLockWheelsIntake = false;
     left_intake.move(0);
     right_intake.move(0);

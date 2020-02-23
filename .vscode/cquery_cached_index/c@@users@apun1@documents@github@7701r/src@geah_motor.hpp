@@ -35,7 +35,7 @@ namespace GEAH {
 
       void setPreCallibrationPos(double preCalPos);
 
-      void resetPID(); 
+      void resetPID();
 
       double getPreCallibrationPos();
 
@@ -44,7 +44,7 @@ namespace GEAH {
       void setAPIDConstants(double nkP, double nkI, double nkD);
       void setKM(float kM);
 
-      void runPid();
+      double runPid(double dt);
 
       std::string getName();
   };
