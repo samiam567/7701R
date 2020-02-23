@@ -60,7 +60,7 @@ GEAH::controllerButton getButtonObject(std::string name) {
 
 //drivers
 namespace GEAH {
-driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0Y"),getButtonObject("c0A"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0Y"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0X"),getButtonObject("c0B"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0X"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("c0B"),getButtonObject("sc0B")};
 driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 
@@ -263,7 +263,7 @@ void initialize() {
 
 
 
-
+  intake_lift_mtr.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
 	 //LED ports
 	 pros::c::adi_port_set_config(ports::LED_1,pros::E_ADI_DIGITAL_OUT);
@@ -299,6 +299,22 @@ void initialize() {
 
   intake_lift_mtr.set_brake_mode(MOTOR_BRAKE_BRAKE);
   ramp_mtr.set_brake_mode(MOTOR_BRAKE_HOLD);
+
+  //wait for the imu to callibrate
+  consoleLogN("please wait for IMU to callibrate...");
+  left_mtr_back.set_brake_mode(MOTOR_BRAKE_HOLD);
+  right_mtr_back.set_brake_mode(MOTOR_BRAKE_HOLD);
+  left_mtr_front.set_brake_mode(MOTOR_BRAKE_HOLD);
+  right_mtr_front.set_brake_mode(MOTOR_BRAKE_HOLD);
+  while(imu.get_status() == EAGAIN) {
+     pros::delay(10);
+  }
+  consoleLogN("IMU callibrated");
+  left_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
+  right_mtr_back.set_brake_mode(MOTOR_BRAKE_COAST);
+  left_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
+  right_mtr_front.set_brake_mode(MOTOR_BRAKE_COAST);
+
   std::cout << "Successfully initialized.\n";
 
   if (autonNames.at(auton_select) == "callibration") {
@@ -306,6 +322,8 @@ void initialize() {
     runCallibration();
   }
 }
+
+
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or

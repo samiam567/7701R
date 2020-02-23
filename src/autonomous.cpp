@@ -34,7 +34,7 @@ double getRobotRotation() {
 
 bool autonLockWheelsIntake = false;
 
-double lTarget = ERROR, rTarget = ERROR, angleTarget = 0;
+double driveTrainTarg = ERROR, angleTarget = 0;
 int aTLoops = 0;
 bool checkForStop() {
   return false;
@@ -443,62 +443,58 @@ bool turn(double theta, int speed) { //theta is in degrees
 bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed) {
   double degs = 360 * magnatude / ( 2 * callibrationSettings::wheelRadius* M_PI);
 
+  //adding to the targets
+  angleTarget += theta;
+  driveTrainTarg += degs;
+
+
+
   if (degs > 0) {
     consoleLog("driving ");
     consoleLog(degs);
     consoleLogN(" degrees.");
   }
 
-  double turnDegs = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
-  turnDegs *= .75; //this number was derived form the callibrator and is likely different for each robot
+  //double turnDegs = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
+  //turnDegs *= .75; //this number was derived form the callibrator and is likely different for each robot
 
-  if (std::abs(turnDegs) > 0) {
-    consoleLog("driving ");
-    consoleLog(turnDegs);
-    consoleLogN(" degrees.");
-  }
+  driveTrainTarg += degs ;//+ turnDegs;
 
-  double lValue = left_mtr_back.get_position(), rValue = right_mtr_back.get_position();
-  lTarget += degs + turnDegs;
-  rTarget += degs - turnDegs;
+  double speed = 10;
 
-  double lStart = lValue, rStart = rValue;
-  //reset the pids incase we've used them before
-  left_mtr_back.resetPID();
-  right_mtr_back.resetPID();
+  double driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2, drivePIDOut;
+  double driveTrainStart = driveTrainPos;
 
-  left_mtr_back.setAPIDTarget(lTarget);
-  right_mtr_back.setAPIDTarget(rTarget);
+  double drivePorportion = 0.3;
+  double driveIntegral = 0;
+  double driveDerivative = 0.1;
 
-  double speed = 1, lSpeed = 0, rSpeed = 0;
+  GEAH::APID driveControl(driveTrainTarg, &driveTrainPos, &drivePIDOut,drivePorportion, driveIntegral, driveDerivative);
+  driveControl.setKM(callibrationSettings::DrivetrainKM);
+  driveControl.setSpeedModifier(&speed);
 
-  left_mtr_back.setSpeedModifier(&lSpeed);
-  right_mtr_back.setSpeedModifier(&rSpeed);
+  double angle = getRobotRotation(), angPIDOut;
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,10,10,0);
+  turnControl.setSpeedModifier(&setSpeed);
 
-  double vDiff, prevVDiff = 0;
   int cannotMoveCounter = 0;
-  while ( (std::abs(lTarget-lValue) > callibrationSettings::MOTOR_POSITION_ERROR) || (std::abs(rTarget-rValue) > callibrationSettings::MOTOR_POSITION_ERROR) ) {
+  while ( (std::abs(angleTarget-angle) > callibrationSettings::MOTOR_POSITION_ERROR/5 ) || ( std::abs(driveTrainPos-driveTrainStart) < std::abs(degs) ) ) {
     if (speed < setSpeed) speed+=1.8;
 
     concurrentOperations();
 
-    left_mtr_back.move_velocity(left_mtr_back.runPid(2));
-    right_mtr_back.move_velocity(right_mtr_back.runPid(2));
-    left_mtr_front.move_voltage(left_mtr_back.get_voltage());
-    right_mtr_front.move_voltage(left_mtr_back.get_voltage());
+    driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2;
+    angle = getRobotRotation();
 
-    lValue = left_mtr_back.get_position();
-    rValue = right_mtr_back.get_position();
+    left_mtr_back.move(drivePIDOut + angPIDOut);
+    right_mtr_back.move(drivePIDOut - angPIDOut);
 
-    //drive correction
-    //double vDiff = std::abs(left_mtr_back.get_actual_velocity()) - std::abs(right_mtr_back.get_actual_velocity());
-    //vDiff = std::abs((lTarget - lValue)/(lTarget-lStart)) - std::abs((rTarget - rValue)/(lTarget-lStart));
-    vDiff = angleTarget - getRobotRotation();
+    left_mtr_front.move_velocity(drivePIDOut + angPIDOut);
+    right_mtr_front.move_velocity(drivePIDOut - angPIDOut);
 
-    lSpeed = setSpeed + (vDiff + (vDiff-prevVDiff));
-    rSpeed = setSpeed - (vDiff + (vDiff-prevVDiff));
+    driveControl.runPid(2);
+    turnControl.runPid(2);
 
-    prevVDiff = vDiff;
 
     if ((std::abs(left_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(left_mtr_back.get_target_velocity()))) && (std::abs(right_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(right_mtr_back.get_target_velocity())))  ) {
       cannotMoveCounter++;
@@ -509,13 +505,14 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     if (cannotMoveCounter > 100) {
       consoleLogN("drivetrain cannot move. terminating motion");
       std::cout << "drivetrain cannot move. Terminating motion..." << std::endl;
-      lValue = lTarget;
-      rValue = rTarget;
       return false;
     }
-
-
     pros::delay(2);
+  }
+
+  if (std::abs(driveTrainPos-driveTrainTarg) > callibrationSettings::MOTOR_POSITION_ERROR) {
+    consoleLogN("driveTrain moved too far");
+    std::cout << "drive train moved " << std::abs(driveTrainPos-driveTrainTarg) << " too far." << std::endl;
   }
 
   left_mtr_back.move(0);
@@ -533,7 +530,6 @@ bool drive(double magnatude, double speed) {
 }
 
 bool turn(double magnatude, double speed) {
-  angleTarget += magnatude;
   left_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
   right_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
 
@@ -764,8 +760,8 @@ void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
 
 void stack(int blockNum) { //Alec's stacking method
   setDriveTrainPIDIsActivated(false);
-  lTarget = left_mtr_back.get_position();
-  rTarget = right_mtr_back.get_position();
+  driveTrainTarg = (left_mtr_back.get_position() + right_mtr_back.get_position())/2;
+
   if (blockNum > 4) {
     left_intake.move(10 * blockNum-1);
     right_intake.move(10 * blockNum-1);
@@ -800,8 +796,7 @@ void stack(int blockNum) { //Alec's stacking method
 }
 
 void resetAutonTargets() {
-  lTarget = left_mtr_back.get_position();
-  rTarget = right_mtr_back.get_position();
+  driveTrainTarg = (left_mtr_back.get_position() + right_mtr_back.get_position())/2;
   angleTarget = getRobotRotation();
 }
 
@@ -846,8 +841,9 @@ void autonomous() {
 void autonomous(int auton_sel,int mode) {
   setDriveTrainPIDIsActivated(true);
 
-  lTarget = lTarget == ERROR ? left_mtr_back.get_position() : lTarget;
-  rTarget = rTarget == ERROR ? right_mtr_back.get_position() : rTarget;
+  //setting the targets to the current robot position if they haven't already been set
+  driveTrainTarg = driveTrainTarg == ERROR ? (left_mtr_back.get_position() + right_mtr_back.get_position())/2 : driveTrainTarg;
+  angleTarget = angleTarget == ERROR ? getRobotRotation() : angleTarget;
 
   extern bool useFrontSensorForDistance;
 
@@ -988,9 +984,9 @@ void autonomous(int auton_sel,int mode) {
   setDriveTrainPIDIsActivated(false);
 
   std::cout << "-END OF AUTON:  " << getAutonName(auton_sel) << "-\n";
-  std::cout << "lTarget: " << lTarget << "\n";
-  std::cout << "lTarget: " << lTarget << "\n";
+  std::cout << "drivTrainTarg: " << driveTrainTarg << "\n";
+  std::cout << "angleTarget: " << angleTarget << "\n";
 
-  lTarget = ERROR;
-  rTarget = ERROR;
+  driveTrainTarg = ERROR;
+  angleTarget = ERROR;
 }
