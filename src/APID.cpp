@@ -29,7 +29,8 @@ GEAH::APID::APID(double pidTarget, double* input, double* output, double kP, dou
    APID::kP = kP;
    APID::kI = kI;
    APID::kD = kD;
-
+   APID::kM = 1;
+   
    porportion = 0;
    integral = 0;
    derivative = 0;
@@ -38,6 +39,7 @@ GEAH::APID::APID(double pidTarget, double* input, double* output, double kP, dou
    prevTime = 0;
    speedModifier = &one; //set speedModifier to SOMETHING. This should be changed later
    counter = 0;
+
 
 }
 

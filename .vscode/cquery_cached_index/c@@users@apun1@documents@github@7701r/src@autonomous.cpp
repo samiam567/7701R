@@ -441,6 +441,8 @@ bool turn(double theta, int speed) { //theta is in degrees
 
 
 bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed) {
+
+  theta = 0;
   double degs = 360 * magnatude / ( 2 * callibrationSettings::wheelRadius* M_PI);
 
   //adding to the targets
@@ -460,7 +462,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 
   driveTrainTarg += degs ;//+ turnDegs;
 
-  double speed = setSpeed;
+  double speed = 10;
 
   double driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2, drivePIDOut;
   double driveTrainStart = driveTrainPos;
@@ -474,10 +476,11 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   driveControl.setSpeedModifier(&speed);
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,1,0.1,0.1);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.01,0.01,0);
+  turnControl.setSpeedModifier(&setSpeed);
 
   int cannotMoveCounter = 0;
-  while ( (std::abs(angleTarget-angle) > callibrationSettings::MOTOR_POSITION_ERROR/5 ) || ( std::abs(driveTrainPos-driveTrainStart) < std::abs(degs) ) ) {
+  while ( /*(std::abs(angleTarget-angle) > callibrationSettings::MOTOR_POSITION_ERROR/5 ) ||*/ ( std::abs(driveTrainPos-driveTrainStart) < std::abs(degs) ) ) {
     if (speed < setSpeed) speed+=1.8;
 
     concurrentOperations();
@@ -506,9 +509,12 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
       std::cout << "drivetrain cannot move. Terminating motion..." << std::endl;
       return false;
     }
-
-
     pros::delay(2);
+  }
+
+  if (std::abs(driveTrainPos-driveTrainTarg) > callibrationSettings::MOTOR_POSITION_ERROR) {
+    consoleLogN("driveTrain moved too far");
+    std::cout << "drive train moved " << std::abs(driveTrainPos-driveTrainTarg) << " too far." << std::endl;
   }
 
   left_mtr_back.move(0);
@@ -526,10 +532,26 @@ bool drive(double magnatude, double speed) {
 }
 
 bool turn(double magnatude, double speed) {
-  left_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
-  right_mtr_back.setKM(1.5 * callibrationSettings::DrivetrainKM);
+  angleTarget += magnatude;
 
-  return driveTrainPIDControlFunction(0,magnatude,7 * speed);
+  double angle = getRobotRotation(), angPIDOut;
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.005,0.0001,0);
+  turnControl.setSpeedModifier(&speed);
+
+  while ( std::abs(angle-angleTarget) > callibrationSettings::MOTOR_POSITION_ERROR) {
+    angle = getRobotRotation();
+    turnControl.runPid(2);
+    std::cout << angPIDOut;
+    left_mtr_back.move_velocity(angPIDOut);
+    left_mtr_front.move_velocity(angPIDOut);
+    right_mtr_back.move_velocity(-angPIDOut);
+    right_mtr_front.move_velocity(-angPIDOut);
+
+    pros::delay(2);
+
+  }
+
+  return true;
 }
 
 bool moveMotor(GEAH::Motor motor, float magnatude, int speed, int type) {
@@ -845,6 +867,10 @@ void autonomous(int auton_sel,int mode) {
 
   switch(auton_sel) {
     case(0)://forward-up
+
+      turn(90,125);
+
+      pros::delay(500);
      if (mode ==  1) {
        extendRampAndMoveSquares(1.2);
      }else{
