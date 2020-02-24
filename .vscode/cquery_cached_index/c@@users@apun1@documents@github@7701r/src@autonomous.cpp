@@ -34,7 +34,7 @@ double getRobotRotation() {
 
 bool autonLockWheelsIntake = false;
 
-double driveTrainTarg = ERROR, angleTarget = 0;
+double driveTrainTarg = ERROR, angleTarget = ERROR;
 int aTLoops = 0;
 bool checkForStop() {
   return false;
@@ -440,17 +440,16 @@ bool turn(double theta, int speed) { //theta is in degrees
 
 
 
-bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed) {
+bool driveTrainPIDControlFunction(double distance, double setSpeed) {
 
-  theta = 0;
-  double degs = 360 * magnatude / ( 2 * callibrationSettings::wheelRadius* M_PI);
-
+  double degs = 360 * distance / ( 2 * callibrationSettings::wheelRadius* M_PI);
+  std::cout << "driving " << degs << "degrees, " << distance << " meters." << std::endl;
   //adding to the targets
-  angleTarget += theta;
+
+  std::cout << "driveTrainTarg: " << driveTrainTarg << "->";
   driveTrainTarg += degs;
 
-
-
+  std::cout << driveTrainTarg << std::endl;
   if (degs > 0) {
     consoleLog("driving ");
     consoleLog(degs);
@@ -460,33 +459,38 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
   //double turnDegs = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
   //turnDegs *= .75; //this number was derived form the callibrator and is likely different for each robot
 
-  driveTrainTarg += degs ;//+ turnDegs;
+  driveTrainTarg += degs ;
 
   double speed = 10;
-
+  pros::delay(2);
   double driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2, drivePIDOut;
   double driveTrainStart = driveTrainPos;
 
+
+
   double drivePorportion = 0.3;
-  double driveIntegral = 0;
-  double driveDerivative = 0.1;
+  double driveIntegral = 0.0001;
+  double driveDerivative = 0.8;
 
   GEAH::APID driveControl(driveTrainTarg, &driveTrainPos, &drivePIDOut,drivePorportion, driveIntegral, driveDerivative);
   driveControl.setKM(callibrationSettings::DrivetrainKM);
   driveControl.setSpeedModifier(&speed);
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.01,0.01,0);
-  turnControl.setSpeedModifier(&setSpeed);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.03,0,0.01);
+  turnControl.setSpeedModifier(&drivePIDOut);
 
   int cannotMoveCounter = 0;
-  while ( /*(std::abs(angleTarget-angle) > callibrationSettings::MOTOR_POSITION_ERROR/5 ) ||*/ ( std::abs(driveTrainPos-driveTrainStart) < std::abs(degs) ) ) {
+  while ( ( std::abs(driveTrainPos-driveTrainStart) < std::abs(degs) ) ) {
     if (speed < setSpeed) speed+=1.8;
-
+    std::cout << "std::abs(driveTrainPos-driveTrainStart)  -  " << std::abs(driveTrainPos-driveTrainStart);
     concurrentOperations();
 
     driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2;
     angle = getRobotRotation();
+
+    driveControl.runPid(2);
+    turnControl.runPid(2);
 
     left_mtr_back.move_velocity(drivePIDOut + angPIDOut);
     right_mtr_back.move_velocity(drivePIDOut - angPIDOut);
@@ -494,11 +498,8 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     left_mtr_front.move_velocity(drivePIDOut + angPIDOut);
     right_mtr_front.move_velocity(drivePIDOut - angPIDOut);
 
-    driveControl.runPid(2);
-    turnControl.runPid(2);
 
-
-    if ((std::abs(left_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(left_mtr_back.get_target_velocity()))) && (std::abs(right_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(right_mtr_back.get_target_velocity())))  ) {
+    if ((std::abs(left_mtr_back.get_actual_velocity()) < 0.2 * ((double) std::abs(left_mtr_back.get_target_velocity()))) && (std::abs(right_mtr_back.get_actual_velocity()) < 0.3 * ((double) std::abs(right_mtr_back.get_target_velocity())))  ) {
       cannotMoveCounter++;
     }else{
       cannotMoveCounter *= 0.9;
@@ -517,10 +518,19 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
     std::cout << "drive train moved " << std::abs(driveTrainPos-driveTrainTarg) << " too far." << std::endl;
   }
 
+  left_mtr_back.set_brake_mode(MOTOR_BRAKE_HOLD);
+  right_mtr_back.set_brake_mode(MOTOR_BRAKE_HOLD);
+  left_mtr_front.set_brake_mode(MOTOR_BRAKE_HOLD);
+  right_mtr_front.set_brake_mode(MOTOR_BRAKE_HOLD);
   left_mtr_back.move(0);
   right_mtr_back.move(0);
   left_mtr_front.move(0);
   right_mtr_front.move(0);
+  pros::delay(500);
+  left_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  right_mtr_back.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  left_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
+  right_mtr_front.set_brake_mode(MOTOR_BRAKE_BRAKE);
 
   return true;
 }
@@ -528,7 +538,7 @@ bool driveTrainPIDControlFunction(double magnatude,double theta, double setSpeed
 bool drive(double magnatude, double speed) {
   left_mtr_back.setKM(callibrationSettings::DrivetrainKM);
   right_mtr_back.setKM(callibrationSettings::DrivetrainKM);
-  return driveTrainPIDControlFunction(magnatude,0,speed);
+  return driveTrainPIDControlFunction(magnatude,speed);
 }
 
 bool turn(double magnatude, double speed) {
@@ -748,7 +758,9 @@ void runAutoPilot(int times) {
 }
 
 
-
+void turn(double degs) {
+  turn(degs,90);
+}
 void moveSquares(double numSquares, double speed) {
   drive(0.6 * numSquares,speed);
 }
@@ -857,7 +869,8 @@ void autonomous() {
   }
 
 void autonomous(int auton_sel,int mode) {
-  setDriveTrainPIDIsActivated(true);
+
+  setDriveTrainPIDIsActivated(false);
 
   //setting the targets to the current robot position if they haven't already been set
   driveTrainTarg = driveTrainTarg == ERROR ? (left_mtr_back.get_position() + right_mtr_back.get_position())/2 : driveTrainTarg;
@@ -868,9 +881,7 @@ void autonomous(int auton_sel,int mode) {
   switch(auton_sel) {
     case(0)://forward-up
 
-      turn(90,125);
 
-      pros::delay(500);
      if (mode ==  1) {
        extendRampAndMoveSquares(1.2);
      }else{
@@ -893,7 +904,7 @@ void autonomous(int auton_sel,int mode) {
    right_intake.move(0);
 
    moveSquares(-1.1);
-   turn(-130 ,150);
+   turn(-130);
    moveSquares(0.5);
    stack(4);
 
@@ -914,7 +925,7 @@ void autonomous(int auton_sel,int mode) {
    right_intake.move(0);
 
    moveSquares(-1.1);
-   turn(130 ,150);
+   turn(130);
    moveSquares(0.5);
    stack(4);
 
@@ -933,7 +944,7 @@ void autonomous(int auton_sel,int mode) {
    left_intake.move(0);
    right_intake.move(0);
    moveSquares(-1.85);
-   turn(-90,100);
+   turn(-90);
    moveSquares(0.7);
    stack(4);
    break;
@@ -949,7 +960,7 @@ void autonomous(int auton_sel,int mode) {
    left_intake.move(0);
    right_intake.move(0);
    moveSquares(-1.85);
-   turn(90,100);
+   turn(90);
    moveSquares(0.7);
    stack(4);
    break;

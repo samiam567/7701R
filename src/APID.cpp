@@ -30,7 +30,7 @@ GEAH::APID::APID(double pidTarget, double* input, double* output, double kP, dou
    APID::kI = kI;
    APID::kD = kD;
    APID::kM = 1;
-   
+
    porportion = 0;
    integral = 0;
    derivative = 0;
@@ -55,7 +55,7 @@ double GEAH::APID::runPid(double dt) {
 
   double y = pidTarget-(*input);
 
-  porportion = (*speedModifier) * kP * y;
+  porportion = std::abs(*speedModifier) * kP * y;
   derivative = kD * (y-prevY)/dt;
   integral += kI * ((y-prevY) * dt);
 
