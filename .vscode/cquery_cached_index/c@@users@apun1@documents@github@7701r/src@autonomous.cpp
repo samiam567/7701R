@@ -465,6 +465,7 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
   pros::delay(2);
   double driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2, drivePIDOut;
   double driveTrainStart = driveTrainPos;
+  double driveDistance = std::abs(driveTrainTarg-driveTrainStart);
 
 
 
@@ -477,12 +478,13 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
   driveControl.setSpeedModifier(&speed);
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.03,0,0.01);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.0004,0.0001,0.1);
   turnControl.setSpeedModifier(&drivePIDOut);
 
   int cannotMoveCounter = 0;
-  while ( ( std::abs(driveTrainPos-driveTrainStart) < std::abs(degs) ) ) {
-    if (speed < setSpeed) speed+=1.8;
+//  while ( ( std::abs(driveTrainPos-driveTrainStart) < std::abs(driveDistance) ) ) {
+  while( (std::abs(driveTrainPos-driveTrainTarg) > callibrationSettings::MOTOR_POSITION_ERROR) || (angPIDOut > 10)) {
+    if (speed < setSpeed) speed+=1;
     std::cout << "std::abs(driveTrainPos-driveTrainStart)  -  " << std::abs(driveTrainPos-driveTrainStart);
     concurrentOperations();
 
@@ -536,8 +538,6 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
 }
 
 bool drive(double magnatude, double speed) {
-  left_mtr_back.setKM(callibrationSettings::DrivetrainKM);
-  right_mtr_back.setKM(callibrationSettings::DrivetrainKM);
   return driveTrainPIDControlFunction(magnatude,speed);
 }
 
@@ -548,7 +548,7 @@ bool turn(double magnatude, double speed) {
   GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.005,0.0001,0);
   turnControl.setSpeedModifier(&speed);
 
-  while ( std::abs(angle-angleTarget) > callibrationSettings::MOTOR_POSITION_ERROR) {
+  while ( std::abs(angle-angleTarget) > callibrationSettings::MOTOR_POSITION_ERROR/2) {
     angle = getRobotRotation();
     turnControl.runPid(2);
     std::cout << angPIDOut;
