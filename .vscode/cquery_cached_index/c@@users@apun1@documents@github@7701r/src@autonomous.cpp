@@ -478,7 +478,7 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
   driveControl.setSpeedModifier(&speed);
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.0032,0.0001,0.15);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.0040,0.0001,0.15);
   turnControl.setSpeedModifier(&drivePIDOut);
 
   int cannotMoveCounter = 0;
@@ -785,6 +785,8 @@ void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
     left_intake.move(0);
     right_intake.move(0);
     std::cout << "extended ramp" << std::endl;
+    pros::delay(10);
+    turn(0);
     pros::delay(10);
 }
 
