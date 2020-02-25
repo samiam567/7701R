@@ -478,7 +478,7 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
   driveControl.setSpeedModifier(&speed);
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.0004,0.0001,0.1);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.0032,0.0001,0.15);
   turnControl.setSpeedModifier(&drivePIDOut);
 
   int cannotMoveCounter = 0;
@@ -830,6 +830,10 @@ void resetAutonTargets() {
   angleTarget = getRobotRotation();
 }
 
+void delay(long millis) {
+  pros::delay(millis);
+}
+
 void autonomous(int auton_sel);
 
 void autonomous() {
@@ -979,6 +983,152 @@ void autonomous(int auton_sel,int mode) {
 
 
    case(8): //skills
+
+   extendRampAndMoveSquares(0.3);
+
+	   left_intake.move(255);
+	   right_intake.move(255);
+
+	   //pick up cubes
+	   moveSquares(1.6,40);
+
+	   moveSquares(1);
+
+	   moveSquares(1.6,40);
+
+	   turn(-45);
+
+	   delay(50);
+	   left_intake.move(50);
+	   right_intake.move(50);
+
+	   delay(100);
+	   moveSquares(0.95);
+	   left_intake.move(0);
+	   right_intake.move(0);
+	   stack(8);
+	   //8 stack stacked
+     setAPIDPosition(ramp_mtr, 0, 127);
+
+	   turn(135);
+
+	   moveSquares(1.2);
+
+	   left_intake.move(155);
+	   right_intake.move(155);
+
+	   moveSquares(0.4);
+
+	   left_intake.move(0);
+	   right_intake.move(0);
+
+	   moveSquares(-0.2);
+
+	   setAPIDPosition(ramp_mtr,60*84/12,155);
+	   setAPIDPosition(intake_lift_mtr,90 * 84/12,155);
+
+
+       left_intake.move(-125);
+       right_intake.move(-125);
+
+       delay(500);
+
+       moveSquares(-0.5);
+
+       left_intake.move(0);
+       right_intake.move(0);
+
+
+       setAPIDPosition(intake_lift_mtr,0,155);
+       setAPIDPosition(ramp_mtr,0,155);
+       //tower gotten
+
+       moveSquares(-0.36);
+
+       turn(90);
+
+       moveSquares(1);
+
+       left_intake.move(255);
+       right_intake.move(255);
+       moveSquares(0.5);
+       left_intake.move(0);
+       right_intake.move(0);
+
+       moveSquares(-0.2);
+
+       //lift arms
+	   setAPIDPosition(ramp_mtr,60*84/12,155);
+       setAPIDPosition(intake_lift_mtr,90*84/12,155);
+
+       left_intake.move(-100);
+       right_intake.move(-100);
+
+       moveSquares(-0.5);
+
+       left_intake.move(0);
+       right_intake.move(0);
+       //tower gotten
+
+
+      setAPIDPosition(intake_lift_mtr,0,155);
+      setAPIDPosition(ramp_mtr,0,155);
+
+       moveSquares(-1);
+
+       turn(-90);
+
+       moveSquares(0.6);
+
+       turn(90);
+
+
+       left_intake.move(200);
+       right_intake.move(200);
+       moveSquares(4,40);
+       left_intake.move(50);
+       right_intake.move(50);
+
+       moveSquares(0.5);
+
+       turn(-90);
+
+       moveSquares(3.2);
+
+       stack(7);
+       //stack
+
+       setAPIDPosition(ramp_mtr, 0, 127);
+
+       moveSquares(-0.5);
+
+       turn(-90);
+
+       left_intake.move(200);
+       right_intake.move(200);
+       moveSquares(0.35);
+       left_intake.move(0);
+       right_intake.move(0);
+       turn(-90);
+
+       moveSquares(0.6);
+
+       moveSquares(-0.2);
+
+       //lift arms
+	   setAPIDPosition(ramp_mtr,60*84/12,155);
+       setAPIDPosition(intake_lift_mtr,90*84/12,155);
+
+       left_intake.move(-100);
+       right_intake.move(-100);
+
+       moveSquares(-0.5);
+
+       left_intake.move(0);
+       right_intake.move(0);
+       //tower gotten
+
+   /*
    extendRampAndMoveSquares(0.3);
    pros::delay(700);
    left_intake.move(255);
@@ -1002,6 +1152,7 @@ void autonomous(int auton_sel,int mode) {
    left_intake.move(0);
    right_intake.move(0);
    stack(8);
+   */
 
    break;
 

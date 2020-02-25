@@ -56,7 +56,7 @@ namespace callibrationSettings {
   //  constexpr float fronSensorToFrontOfCannonDist = 8;
 
     constexpr double TURN_CORRECTION = 750;
-    constexpr double MOTOR_POSITION_ERROR = 20; //deviation in degrees from where the motor is set to be NOTE: if made too small the motor's accuraccy won't be abe to keep up and, among other things, the auton will be stuck trying to reach it''s set point forever
+    constexpr double MOTOR_POSITION_ERROR = 10; //deviation in degrees from where the motor is set to be NOTE: if made too small the motor's accuraccy won't be abe to keep up and, among other things, the auton will be stuck trying to reach it''s set point forever
     //constexpr int CANNON_LAUNCH_ON_OFF_DELAY = 300;
 
 }
