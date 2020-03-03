@@ -5,11 +5,22 @@ static const double ERROR = -0.001;
 
 static const double version = 3.46;
 namespace ports{
+
+
+  //R PORTS
   //drivetrain
-  constexpr int LEFT_WHEEL_BACK_PORT = 7;
-  constexpr int RIGHT_WHEEL_BACK_PORT = 2;
-  constexpr int LEFT_WHEEL_FRONT_PORT = 3;
-  constexpr int RIGHT_WHEEL_FRONT_PORT = 9;
+  constexpr int  LEFT_WHEEL_BACK_PORT = 7;
+  constexpr int LEFT_WHEEL_BACK_REVERSED = 0;
+
+  constexpr int  RIGHT_WHEEL_BACK_PORT = 2;
+  constexpr int RIGHT_WHEEL_BACK_REVERSED = 1;
+
+  constexpr int  LEFT_WHEEL_FRONT_PORT = 3;
+  constexpr int LEFT_WHEEL_FRONT_REVERSED = 0;
+
+  constexpr int  RIGHT_WHEEL_FRONT_PORT = 9;
+  constexpr int RIGHT_WHEEL_FRONT_REVERSED = 1;
+
     //note: for two wheel drive, you should be able to set the front and back motor ports for each side equal to the same port
 
   constexpr int RAMP_MTR_PORT = 5;
@@ -18,6 +29,29 @@ namespace ports{
   constexpr int INTAKE_RIGHT_MTR_PORT = 8;
 
   constexpr int IMU_PORT = 15;
+
+  /*
+  //V ports
+  constexpr int  LEFT_WHEEL_BACK_PORT = 9;
+  constexpr int LEFT_WHEEL_BACK_REVERSED = 0;
+
+  constexpr int  RIGHT_WHEEL_BACK_PORT = 4;
+  constexpr int RIGHT_WHEEL_BACK_REVERSED = 0;
+
+  constexpr int  LEFT_WHEEL_FRONT_PORT = 1;
+  constexpr int LEFT_WHEEL_FRONT_REVERSED = 0;
+
+  constexpr int  RIGHT_WHEEL_FRONT_PORT = 2;
+  constexpr int RIGHT_WHEEL_FRONT_REVERSED = 0;
+      //note: for two wheel drive, you should be able to set the front and back motor ports for each side equal to the same port
+
+  constexpr int  RAMP_MTR_PORT = 5;
+  constexpr int  INTAKE_LIFT_MTR_PORT = 6;
+  constexpr int  INTAKE_LEFT_MTR_PORT = 4;
+  constexpr int  INTAKE_RIGHT_MTR_PORT = 8;
+
+  constexpr int  IMU_PORT = 12;
+*/ //ports for V's robot
 
   //LEDs
   constexpr int LED_1 = 1;

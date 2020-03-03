@@ -7,11 +7,11 @@ pros::Controller master(pros::E_CONTROLLER_MASTER), partner(pros::E_CONTROLLER_P
 
 //motor creation
   //wheels
- GEAH::Motor left_mtr_back("left_mtr_back",ports::LEFT_WHEEL_BACK_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
- GEAH::Motor right_mtr_back("right_mtr_back",ports::RIGHT_WHEEL_BACK_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
+ GEAH::Motor left_mtr_back("left_mtr_back",ports::LEFT_WHEEL_BACK_PORT,pros::E_MOTOR_GEARSET_18,ports::LEFT_WHEEL_BACK_REVERSED,pros::E_MOTOR_ENCODER_DEGREES);
+ GEAH::Motor right_mtr_back("right_mtr_back",ports::RIGHT_WHEEL_BACK_PORT,pros::E_MOTOR_GEARSET_18,ports::RIGHT_WHEEL_BACK_REVERSED,pros::E_MOTOR_ENCODER_DEGREES);
 
- GEAH::Motor left_mtr_front("left_mtr_front",ports::LEFT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
- GEAH::Motor right_mtr_front("right_mtr_front",ports::RIGHT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,1,pros::E_MOTOR_ENCODER_DEGREES);
+ GEAH::Motor left_mtr_front("left_mtr_front",ports::LEFT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,ports::LEFT_WHEEL_FRONT_REVERSED,pros::E_MOTOR_ENCODER_DEGREES);
+ GEAH::Motor right_mtr_front("right_mtr_front",ports::RIGHT_WHEEL_FRONT_PORT,pros::E_MOTOR_GEARSET_18,ports::RIGHT_WHEEL_FRONT_REVERSED,pros::E_MOTOR_ENCODER_DEGREES);
 
 
  GEAH::Motor ramp_mtr("ramp_mtr",ports::RAMP_MTR_PORT,pros::E_MOTOR_GEARSET_18,0,pros::E_MOTOR_ENCODER_DEGREES);
@@ -61,7 +61,7 @@ GEAH::controllerButton getButtonObject(std::string name) {
 //drivers
 namespace GEAH {
 driver Alec{"Alec \"Maverick\" Pannunzio",0,getButtonObject("c0Y"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0X"),getButtonObject("c0B"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
-driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0Y"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0X"),getButtonObject("c0B"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0L1"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
+driver Hayden{"Hayden \"Xerminator13\" Corbin",0,getButtonObject("c0Y"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L1"),getButtonObject("sc0L2"),getButtonObject("c0X"),getButtonObject("c0B"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 driver Jay{"Jay \"TheCoolest\" ",0,getButtonObject("c0X"),getButtonObject("c0R1"),getButtonObject("c0R2"),getButtonObject("sc0R1"),getButtonObject("sc0R2"),getButtonObject("c0UP"),getButtonObject("c0DOWN"),getButtonObject("c0L1"),getButtonObject("c0L2"),getButtonObject("sc0L2"),getButtonObject("c0Y"),getButtonObject("notAssigned"),getButtonObject("notAssigned"),getButtonObject("sc0UP"),getButtonObject("sc0DOWN"),getButtonObject("notAssigned"),getButtonObject("notAssigned")};
 
 }

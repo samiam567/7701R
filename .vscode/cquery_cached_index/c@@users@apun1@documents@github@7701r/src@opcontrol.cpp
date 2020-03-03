@@ -208,7 +208,23 @@ void runOpControl() {
 
     if (GEAH::buttonIsPressed(driver.ramp_up)) {
       setAPIDIsActivated("ramp_PID", false);
-      ramp_mtr.move(100);
+      if (true) { //pid ramp control
+            int blocknum = 10;
+            double k = 2;
+            double targ = blocknum == 4 ?  85*84/6 : 87*84/6;
+            double pos = ramp_mtr.get_position();
+            while (pos < targ) {
+               pos = ramp_mtr.get_position();
+               if ((targ-pos) > .65 * targ) {
+                 ramp_mtr.move_velocity(k * (targ-pos));
+               }else{
+                 ramp_mtr.move_velocity(10 + (targ-pos)/7);
+               }
+
+            }
+      }else{
+        ramp_mtr.move(100);
+      }
     }else if (GEAH::buttonIsPressed(driver.ramp_down)) {
       setAPIDIsActivated("ramp_PID", false);
       ramp_mtr.move(-100);

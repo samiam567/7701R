@@ -894,8 +894,6 @@ void autonomous(int auton_sel,int mode) {
   switch(auton_sel) {
     case(0)://forward-up
 
-    stack(4);
-/*
 
 
      if (mode ==  1) {
@@ -906,7 +904,7 @@ void autonomous(int auton_sel,int mode) {
      pros::delay(500);
     moveSquares(-1);
 
-    */
+    
    break;
 
    case(1): //blue left
