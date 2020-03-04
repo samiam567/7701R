@@ -454,11 +454,6 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
     consoleLogN(" degrees.");
   }
 
-  //double turnDegs = (callibrationSettings::wheelBaseRadius * theta) / callibrationSettings::wheelRadius;
-  //turnDegs *= .75; //this number was derived form the callibrator and is likely different for each robot
-
-
-
   double speed = 10;
   pros::delay(2);
   double driveTrainPos = ( left_mtr_back.get_position() + right_mtr_back.get_position() )/2, drivePIDOut;
@@ -476,7 +471,7 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
   driveControl.setSpeedModifier(&speed);
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.0035,0.0001,0.17);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.007,0.0001,0.18);  //0.0035,0.0001, 0.17
   turnControl.setSpeedModifier(&drivePIDOut);
 
   int cannotMoveCounter = 0;
@@ -543,7 +538,7 @@ bool turn(double magnatude, double speed) {
   angleTarget += magnatude;
 
   double angle = getRobotRotation(), angPIDOut;
-  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.005,0.0001,0);
+  GEAH::APID turnControl(angleTarget,&angle,&angPIDOut,0.005,0.0001,0.001); //0.005,0.0001,0
   turnControl.setSpeedModifier(&speed);
 
   while ( std::abs(angle-angleTarget) > 2) {
@@ -788,12 +783,16 @@ void extendRampAndMoveSquares(double squares) { //Alec's ramp extending method
     pros::delay(10);
 }
 
+
+
 void lowerBlocks(int numBlocks) {
-  left_intake.move(-100);
-  right_intake.move(-100);
-  pros::delay(330 - 30*(numBlocks-1));
-  left_intake.move(0);
-  right_intake.move(0);
+  if (numBlocks <= 10) {
+    left_intake.move(-100);
+    right_intake.move(-100);
+    pros::delay(330 - 30*(numBlocks-1));
+    left_intake.move(0);
+    right_intake.move(0);
+  }
 }
 
 void stack(int blockNum) { //Alec's stacking method
@@ -801,6 +800,7 @@ void stack(int blockNum) { //Alec's stacking method
   driveTrainTarg = (left_mtr_back.get_position() + right_mtr_back.get_position())/2;
 
   if (blockNum > 4) {
+    lowerBlocks(blockNum);
     left_intake.move(7 * blockNum-1);
     right_intake.move(7 * blockNum-1);
   }else{
@@ -841,6 +841,30 @@ void resetAutonTargets() {
 
 void delay(long millis) {
   pros::delay(millis);
+}
+
+void getTower(int numBlocksInTray) {
+  moveSquares(-0.55);
+
+  lowerBlocks(numBlocksInTray);
+
+  setAPIDPosition(ramp_mtr,60*84/12,155);
+  setAPIDPosition(intake_lift_mtr,90 * 84/12,155);
+
+
+  left_intake.move(-125);
+  right_intake.move(-125);
+
+  delay(500);
+
+  moveSquares(-0.2);
+
+   left_intake.move(0);
+   right_intake.move(0);
+
+
+   setAPIDPosition(intake_lift_mtr,0,155);
+   setAPIDPosition(ramp_mtr,0,155);
 }
 
 void autonomous(int auton_sel);
@@ -894,8 +918,6 @@ void autonomous(int auton_sel,int mode) {
   switch(auton_sel) {
     case(0)://forward-up
 
-
-
      if (mode ==  1) {
        extendRampAndMoveSquares(1.2);
      }else{
@@ -904,7 +926,7 @@ void autonomous(int auton_sel,int mode) {
      pros::delay(500);
     moveSquares(-1);
 
-    
+
    break;
 
    case(1): //blue left
@@ -921,6 +943,7 @@ void autonomous(int auton_sel,int mode) {
 
    moveSquares(-1.1);
    turn(-130);
+   lowerBlocks(6);
    moveSquares(0.7);
    stack(4);
 
@@ -1014,94 +1037,64 @@ void autonomous(int auton_sel,int mode) {
 	   right_intake.move(255);
 
 	   //pick up cubes
-	   moveSquares(1.6,40);
 
-	   moveSquares(1);
-
-	   moveSquares(1.9,40);
+     moveSquares(4.5,20);
 
 	   turn(-40);
 
 	   delay(50);
-	   left_intake.move(30);
-	   right_intake.move(30);
+	   left_intake.move(70);
+	   right_intake.move(70);
 
 	   delay(100);
+
+     lowerBlocks(9);
+
 	   moveSquares(0.95);
 	   left_intake.move(0);
 	   right_intake.move(0);
 	   stack(8);
 	   //8 stack stacked
+
      setAPIDPosition(ramp_mtr, 0, 127);
 
      turn(40);
 
-     moveSquares(0.1);
+     moveSquares(0.25);
 
      turn(90);
 
      //pick up tower cube
-	   moveSquares(1.2);
+     left_intake.move(255);
+	   right_intake.move(255);
 
-	   left_intake.move(155);
-	   right_intake.move(155);
+	   moveSquares(1.2);
 
 	   moveSquares(0.4);
 
 	   left_intake.move(0);
 	   right_intake.move(0);
 
-	   moveSquares(-0.4);
-
-     lowerBlocks(1);
-
-	   setAPIDPosition(ramp_mtr,60*84/12,155);
-	   setAPIDPosition(intake_lift_mtr,90 * 84/12,155);
-
-
-       left_intake.move(-125);
-       right_intake.move(-125);
-
-       delay(500);
-
-       moveSquares(-0.5);
-
-       left_intake.move(0);
-       right_intake.move(0);
-
-
-       setAPIDPosition(intake_lift_mtr,0,155);
-       setAPIDPosition(ramp_mtr,0,155);
+	   getTower(1);
        //tower gotten
 
-       moveSquares(-0.36);
+       moveSquares(-0.305);
 
        turn(90);
 
-       moveSquares(1);
-
        left_intake.move(255);
        right_intake.move(255);
+       moveSquares(1);
+
        moveSquares(0.5);
        left_intake.move(0);
        right_intake.move(0);
 
-       moveSquares(-0.2);
 
-       lowerBlocks(1);
-       //lift arms
-	   setAPIDPosition(ramp_mtr,60*84/12,155);
-       setAPIDPosition(intake_lift_mtr,90*84/12,155);
-
-       left_intake.move(-100);
-       right_intake.move(-100);
-
-       moveSquares(-0.5);
-
-       left_intake.move(0);
-       right_intake.move(0);
+       getTower(1);
        //tower gotten
 
+       /*
 
       setAPIDPosition(intake_lift_mtr,0,155);
       setAPIDPosition(ramp_mtr,0,155);
@@ -1162,7 +1155,7 @@ void autonomous(int auton_sel,int mode) {
        right_intake.move(0);
        //tower gotten
 
-
+*/
 
    break;
 

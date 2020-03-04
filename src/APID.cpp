@@ -61,7 +61,8 @@ double GEAH::APID::runPid(double dt) {
 
   double PID = (porportion + integral + derivative);
 
-  (*output) = kM * PID;
+  //(*output) = std::abs(kM*PID) < (*speedModifier) ? kM * PID : (*speedModifier) * std::abs(PID)/(PID); //should be this one
+  (*output) = kM*PID; //but the autons are currently written for this one (3/4/2020)
 
    if (pidTuningInProgress) {
      double velocity = (y-prevY)/dt;
