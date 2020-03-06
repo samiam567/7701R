@@ -967,10 +967,12 @@ void autonomous(int auton_sel,int mode) {
 
    moveSquares(-1.1);
    turn(130);
-   moveSquares(0.75);
+   lowerBlocks(6);
+   moveSquares(0.7);
    stack(4);
 
    setAPIDPosition(ramp_mtr, 0, 125);
+
 
 
    break;
@@ -990,10 +992,12 @@ void autonomous(int auton_sel,int mode) {
 
    moveSquares(-1.1);
    turn(-130);
-   moveSquares(0.75);
+   lowerBlocks(6);
+   moveSquares(0.7);
    stack(4);
 
    setAPIDPosition(ramp_mtr, 0, 125);
+
    break;
 
    case(4): //red right
@@ -1010,10 +1014,12 @@ void autonomous(int auton_sel,int mode) {
 
    moveSquares(-1.1);
    turn(130);
+   lowerBlocks(6);
    moveSquares(0.7);
    stack(4);
 
    setAPIDPosition(ramp_mtr, 0, 125);
+
    break;
 
    case(5): //blue left 8 stak
