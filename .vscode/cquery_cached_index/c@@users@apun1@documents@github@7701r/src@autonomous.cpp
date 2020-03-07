@@ -439,10 +439,9 @@ bool turn(double theta, int speed) { //theta is in degrees
 
 
 bool driveTrainPIDControlFunction(double distance, double setSpeed) {
-
+  setSpeed = std::abs(setSpeed); //setSpeed should always be positive
   double degs = 360 * distance / ( 2 * callibrationSettings::wheelRadius* M_PI);
   std::cout << "driving " << degs << "degrees, " << distance << " meters." << std::endl;
-  //adding to the targets
 
   std::cout << "driveTrainTarg: " << driveTrainTarg << "->";
   driveTrainTarg += degs;
@@ -485,7 +484,10 @@ bool driveTrainPIDControlFunction(double distance, double setSpeed) {
     angle = getRobotRotation();
 
     driveControl.runPid(2);
-    turnControl.runPid(2);
+    //cap the speed at our target velocity
+    drivePIDOut = std::abs(drivePIDOut) < setSpeed ? drivePIDOut : setSpeed * std::abs(drivePIDOut)/drivePIDOut;
+
+    turnControl.runPid(2); //this MUST be run after drivePIDout is capped
 
     left_mtr_back.move_velocity(drivePIDOut + angPIDOut);
     right_mtr_back.move_velocity(drivePIDOut - angPIDOut);
@@ -799,8 +801,13 @@ void stack(int blockNum) { //Alec's stacking method
   setDriveTrainPIDIsActivated(false);
   driveTrainTarg = (left_mtr_back.get_position() + right_mtr_back.get_position())/2;
 
-  if (blockNum > 4) {
-    lowerBlocks(blockNum);
+  double targ = blockNum == 4 ?  85*84/6 : 87*84/6;
+
+  if (blockNum == 9) {
+    left_intake.move(110);
+    right_intake.move(110);
+    targ =  85.5*84/6;
+  }else if (blockNum > 4) {
     left_intake.move(7 * blockNum-1);
     right_intake.move(7 * blockNum-1);
   }else{
@@ -810,7 +817,6 @@ void stack(int blockNum) { //Alec's stacking method
   }
 
     double k = 2;
-    double targ = blockNum == 4 ?  85*84/6 : 87*84/6;
     double pos = ramp_mtr.get_position();
     while (pos < targ) {
        pos = ramp_mtr.get_position();
@@ -822,11 +828,13 @@ void stack(int blockNum) { //Alec's stacking method
 
     }
     ramp_mtr.move(0);
-
+    left_intake.move(255);
+    right_intake.move(255);
+    pros::delay(500);
 
     left_intake.move(0);
     right_intake.move(0);
-    pros::delay(500);
+    pros::delay(50);
     autonLockWheelsIntake = true;
     moveSquares(-0.55);
     autonLockWheelsIntake = false;
@@ -843,13 +851,18 @@ void delay(long millis) {
   pros::delay(millis);
 }
 
-void getTower(int numBlocksInTray) {
-  moveSquares(-0.55);
+void getTower(bool high, int numBlocksInTray) {
+  moveSquares(-0.58);
 
   lowerBlocks(numBlocksInTray);
 
-  setAPIDPosition(ramp_mtr,60*84/12,155);
-  setAPIDPosition(intake_lift_mtr,90 * 84/12,155);
+  setAPIDPosition(ramp_mtr,40*84/12,155);
+
+  if (high) {
+    setAPIDPosition(intake_lift_mtr,105 * 84/12,155);
+  }else{
+    setAPIDPosition(intake_lift_mtr,90 * 84/12,155);
+  }
 
 
   left_intake.move(-125);
@@ -918,25 +931,23 @@ void autonomous(int auton_sel,int mode) {
   switch(auton_sel) {
     case(0)://forward-up
 
-     if (mode ==  1) {
-       extendRampAndMoveSquares(1.2);
-     }else{
-       moveSquares(1.2);
-     }
-     pros::delay(500);
-    moveSquares(-1);
+    moveSquares(1.2);
+     pros::delay(300);
+    moveSquares(-1.2);
+    extendRampAndMoveSquares(0.5);
 
 
    break;
 
    case(1): //blue left
-   extendRampAndMoveSquares(0.3);
+   moveSquares(0.15);
+   extendRampAndMoveSquares(0.15);
 
    left_intake.move(255);
    right_intake.move(255);
 
    //pick up cubes
-   moveSquares(1.7,40);
+   moveSquares(1.7,90);
 
    left_intake.move(0);
    right_intake.move(0);
@@ -954,13 +965,14 @@ void autonomous(int auton_sel,int mode) {
 
    case(2): //blue right
 
-   extendRampAndMoveSquares(0.3);
+   moveSquares(0.15);
+   extendRampAndMoveSquares(0.15);
 
    left_intake.move(255);
    right_intake.move(255);
 
    //pick up cubes
-   moveSquares(1.7,40);
+   moveSquares(1.7,90);
 
    left_intake.move(0);
    right_intake.move(0);
@@ -975,17 +987,19 @@ void autonomous(int auton_sel,int mode) {
 
 
 
+
    break;
 
 
    case(3): //red left
-   extendRampAndMoveSquares(0.3);
+   moveSquares(0.15);
+   extendRampAndMoveSquares(0.15);
 
    left_intake.move(255);
    right_intake.move(255);
 
    //pick up cubes
-   moveSquares(1.7,40);
+   moveSquares(1.7,90);
 
    left_intake.move(0);
    right_intake.move(0);
@@ -998,16 +1012,18 @@ void autonomous(int auton_sel,int mode) {
 
    setAPIDPosition(ramp_mtr, 0, 125);
 
+
    break;
 
    case(4): //red right
-   extendRampAndMoveSquares(0.3);
+   moveSquares(0.15);
+   extendRampAndMoveSquares(0.15);
 
    left_intake.move(255);
    right_intake.move(255);
 
    //pick up cubes
-   moveSquares(1.7,40);
+   moveSquares(1.7,90);
 
    left_intake.move(0);
    right_intake.move(0);
@@ -1019,6 +1035,7 @@ void autonomous(int auton_sel,int mode) {
    stack(4);
 
    setAPIDPosition(ramp_mtr, 0, 125);
+
 
    break;
 
@@ -1044,29 +1061,42 @@ void autonomous(int auton_sel,int mode) {
 
 	   //pick up cubes
 
-     moveSquares(4.5,20);
+     moveSquares(2.25,75);
+     lowerBlocks(5);
+     left_intake.move(255);
+     right_intake.move(255);
+     delay(150);
+     moveSquares(2.75,75);
+     pros::delay(250);
+     moveSquares(-0.5);
+     delay(200);
 
 	   turn(-40);
 
-	   delay(50);
-	   left_intake.move(70);
-	   right_intake.move(70);
-
 	   delay(100);
+
+     left_intake.move(100);
+     right_intake.move(100);
 
      lowerBlocks(9);
 
+
 	   moveSquares(0.95);
-	   left_intake.move(0);
-	   right_intake.move(0);
-	   stack(8);
-	   //8 stack stacked
+
+     left_intake.move(255);
+     right_intake.move(255);
+
+     pros::delay(100);
+     moveSquares(-0.07);
+	   stack(9);
+     moveSquares(0.07);
+	   //9 stack stacked
 
      setAPIDPosition(ramp_mtr, 0, 127);
 
      turn(40);
 
-     moveSquares(0.25);
+     moveSquares(0.23);
 
      turn(90);
 
@@ -1078,13 +1108,13 @@ void autonomous(int auton_sel,int mode) {
 
 	   moveSquares(0.4);
 
-	   left_intake.move(0);
-	   right_intake.move(0);
+	    left_intake.move(0);
+	    right_intake.move(0);
 
-	   getTower(1);
+	    getTower(true,1);
        //tower gotten
 
-       moveSquares(-0.305);
+       moveSquares(-0.125);
 
        turn(90);
 
@@ -1092,12 +1122,11 @@ void autonomous(int auton_sel,int mode) {
        right_intake.move(255);
        moveSquares(1);
 
-       moveSquares(0.5);
-       left_intake.move(0);
-       right_intake.move(0);
+       moveSquares(0.52);
 
 
-       getTower(1);
+
+       getTower(false,1);
        //tower gotten
 
        /*
